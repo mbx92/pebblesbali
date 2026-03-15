@@ -48,7 +48,7 @@ async function handleLogin() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-base-200 flex items-center justify-center p-6" data-theme="jewels">
+  <div class="min-h-screen bg-base-200 flex items-center justify-center p-6">
     <div class="w-full max-w-sm">
       <!-- Brand -->
       <div class="flex flex-col items-center gap-3 mb-8">

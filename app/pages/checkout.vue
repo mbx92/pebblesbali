@@ -233,7 +233,7 @@ useSeoMeta({ title: () => `Checkout — ${settings.value?.siteName || 'Sense of 
 </script>
 
 <template>
-  <div data-theme="jewels" class="min-h-screen bg-base-200">
+  <div class="min-h-screen bg-base-200">
     <!-- Navbar -->
     <nav class="bg-base-100 border-b border-base-200 sticky top-0 z-50">
       <div class="max-w-5xl mx-auto px-6 h-14 flex items-center gap-3">

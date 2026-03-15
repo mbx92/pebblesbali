@@ -1,14 +1,14 @@
 // Default theme colors (matches DaisyUI "jewels" theme in main.css)
 export const THEME_DEFAULTS = {
-  colorPrimary: '#2a2a2e',       // charcoal black
-  colorPrimaryContent: '#f9f8f5', // warm ivory
-  colorSecondary: '#c9a96e',     // champagne gold
-  colorSecondaryContent: '#2a2a2e',
-  colorAccent: '#b87d5e',        // warm rose gold
-  colorBase100: '#f9f8f5',       // warm ivory
-  colorBase200: '#f0ede6',
-  colorBase300: '#e0dbd0',
-  colorBaseContent: '#2b2b2f',
+  colorPrimary: '#377077',       // ocean teal
+  colorPrimaryContent: '#f0f7f7', // light teal
+  colorSecondary: '#91aaae',     // muted teal
+  colorSecondaryContent: '#1a2e31',
+  colorAccent: '#c49a6c',        // Bali sand
+  colorBase100: '#f4f0ed',       // warm ivory
+  colorBase200: '#ede8e4',
+  colorBase300: '#e0d9d4',
+  colorBaseContent: '#1a2e31',
   fontHeading: '',
   fontBody: '',
 }
@@ -60,7 +60,8 @@ export function useTheme(settings?: Ref<Record<string, string> | null | undefine
       fontHeading ? `  --font-serif: '${fontHeading}', Georgia, 'Times New Roman', serif;` : '',
       fontBody ? `  --font-sans: '${fontBody}', system-ui, -apple-system, sans-serif;` : '',
     ].filter(Boolean).join('\n')
-    return `:root {\n${colorVars}${fontVars ? '\n' + fontVars : ''}\n}`
+    return `html[data-theme] {
+${colorVars}${fontVars ? '\n' + fontVars : ''}\n}`
   })
 
   const googleFontsHref = computed(() => {

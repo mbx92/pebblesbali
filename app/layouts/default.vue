@@ -15,7 +15,7 @@
           <div class="flex-1">
             <div class="text-sm breadcrumbs px-2">
               <ul>
-                <li class="text-base-content/50">Sense of Jewels</li>
+                <li class="text-base-content/50">{{ siteName }}</li>
                 <li class="font-medium">{{ pageTitle }}</li>
               </ul>
             </div>
@@ -45,7 +45,7 @@
 
         <!-- Footer -->
         <footer class="footer footer-center p-4 border-t border-base-300 text-base-content/50 text-sm">
-          <p>&copy; {{ currentYear }} Sense of Jewels. Landing Page CMS.</p>
+          <p>&copy; {{ currentYear }} {{ siteName }}. Landing Page CMS.</p>
         </footer>
       </div>
 
@@ -60,7 +60,7 @@
                 <IconDiamond class="w-6 h-6 text-secondary-content" />
               </div>
               <div>
-                <h1 class="text-lg font-bold tracking-tight">Sense of Jewels</h1>
+                <h1 class="text-lg font-bold tracking-tight">{{ siteName }}</h1>
                 <p class="text-xs text-primary-content/60">CMS</p>
               </div>
             </NuxtLink>
@@ -223,6 +223,8 @@ import {
 
 const { data: themeSettings } = await useFetch<Record<string, string>>('/api/settings')
 useTheme(themeSettings)
+
+const siteName = computed(() => themeSettings.value?.siteName || 'Pebbles Bali')
 
 const route = useRoute()
 const auth = useAuth()

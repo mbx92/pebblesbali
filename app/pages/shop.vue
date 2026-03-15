@@ -160,7 +160,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <div data-theme="jewels" class="min-h-screen bg-base-100 font-sans">
+  <div class="min-h-screen bg-base-100 font-sans">
 
     <!-- ===== NAVBAR ===== -->
     <nav class="fixed top-0 z-50 w-full bg-base-100/90 backdrop-blur-md border-b border-base-200">
@@ -450,7 +450,7 @@ useSeoMeta({
     <!-- ===== CART DRAWER ===== -->
     <Teleport to="body">
       <Transition name="cart-drawer">
-        <div v-if="cartOpen" class="fixed inset-0 z-200 flex justify-end" data-theme="jewels">
+        <div v-if="cartOpen" class="fixed inset-0 z-200 flex justify-end">
           <div class="absolute inset-0 bg-primary/50 backdrop-blur-sm" @click="cartOpen = false" />
           <div class="cart-panel relative bg-base-100 w-full max-w-sm shadow-2xl flex flex-col h-full">
             <!-- Header -->

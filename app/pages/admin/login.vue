@@ -12,7 +12,7 @@
           <div class="bg-secondary rounded-lg p-2.5">
             <IconDiamond class="w-7 h-7 text-secondary-content" />
           </div>
-          <span class="text-xl font-bold text-white tracking-tight">Sense of Jewels</span>
+          <span class="text-xl font-bold text-white tracking-tight">{{ siteName }}</span>
         </div>
 
         <div class="max-w-sm">
@@ -21,7 +21,7 @@
             <span class="text-secondary">Landing Page.</span>
           </h1>
           <p class="text-primary-content/70 leading-relaxed">
-            Content management system for Sense of Jewels — manage sections, collections, products, and testimonials for your landing page.
+            Content management system for {{ siteName }} — manage sections, collections, products, and testimonials for your landing page.
           </p>
         </div>
 
@@ -59,7 +59,7 @@
           <div class="bg-primary rounded-lg p-2.5">
             <IconDiamond class="w-6 h-6 text-primary-content" />
           </div>
-          <span class="text-xl font-bold text-base-content tracking-tight">Sense of Jewels</span>
+          <span class="text-xl font-bold text-base-content tracking-tight">{{ siteName }}</span>
         </div>
 
         <div class="mb-8">
@@ -120,7 +120,7 @@
         </form>
 
         <p class="text-center mt-8 text-sm text-base-content/50">
-          Sense of Jewels CMS
+          {{ siteName }} CMS
         </p>
       </div>
     </div>
@@ -142,6 +142,9 @@ import {
 definePageMeta({
   layout: false,
 })
+
+const { data: settings } = await useFetch<Record<string, string>>('/api/settings')
+const siteName = computed(() => settings.value?.siteName || 'Pebbles Bali')
 
 const form = reactive({
   email: '',

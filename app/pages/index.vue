@@ -93,7 +93,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <div data-theme="jewels" class="min-h-screen bg-base-100 font-sans">
+  <div class="min-h-screen bg-base-100 font-sans">
 
     <!-- ===== NAVBAR ===== -->
     <nav class="fixed top-0 z-50 w-full bg-base-100/90 backdrop-blur-md border-b border-base-200">
@@ -132,7 +132,7 @@ useSeoMeta({
       <div v-if="hero?.image" class="absolute inset-0">
         <img :src="hero.image" :alt="hero.title" class="w-full h-full object-cover opacity-30" />
       </div>
-      <div v-else class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,oklch(25%_0.02_260)_0%,oklch(12%_0.01_260)_100%)]" />
+      <div v-else class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,color-mix(in_oklch,var(--color-primary)_80%,black)_0%,color-mix(in_oklch,var(--color-primary)_40%,black)_100%)]" />
 
       <!-- Decorative gold dots -->
       <div class="absolute top-32 left-12 size-1.5 rounded-full bg-secondary opacity-60" />
