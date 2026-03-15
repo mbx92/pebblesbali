@@ -10,7 +10,7 @@ async function main() {
   await prisma.$connect()
 
   // Admin user
-  const email = 'admin@senseofjewels.com'
+  const email = 'admin@pebblesbali.com'
   const existing = await prisma.user.findUnique({ where: { email } })
   if (!existing) {
     const hashed = await bcrypt.hash('admin123', 12)
@@ -26,13 +26,13 @@ async function main() {
 
   // Default site settings
   const settings = [
-    { key: 'siteName', value: 'Sense of Jewels' },
+    { key: 'siteName', value: 'Pebbles Bali' },
     { key: 'siteTagline', value: 'Handcrafted Balinese Jewelry' },
-    { key: 'siteUrl', value: 'https://senseofjewels.com' },
-    { key: 'contactEmail', value: 'sales@senseofjewels.com' },
+    { key: 'siteUrl', value: 'https://pebblesbali.com' },
+    { key: 'contactEmail', value: 'sales@pebblesbali.com' },
     { key: 'contactPhone', value: '+628113994222' },
     { key: 'address', value: 'Jalan Nangka Utara Gg. Camar No. 4 Tonja Denpasar Utara, Denpasar - Bali, Indonesia' },
-    { key: 'instagramUrl', value: 'https://instagram.com/senseofjewels' },
+    { key: 'instagramUrl', value: 'https://instagram.com/pebblesbali' },
     { key: 'whatsappNumber', value: '628113994222' },
     { key: 'colorPrimary', value: '#2a2a2e' },
     { key: 'colorPrimaryContent', value: '#f9f8f5' },
