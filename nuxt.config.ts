@@ -12,8 +12,8 @@ export default defineNuxtConfig({
   },
   modules: ['@nuxtjs/sitemap'],
   site: {
-    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://pebblesbali.com',
-    name: 'Pebbles Bali',
+    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://senseofjewels.com',
+    name: 'Sense of Jewels',
   },
   sitemap: {
     strictNuxtContentPaths: false,
@@ -26,13 +26,11 @@ export default defineNuxtConfig({
       meta: [
         { name: 'robots', content: 'index, follow' },
         { property: 'og:locale', content: 'en_US' },
-        { property: 'og:site_name', content: 'Pebbles Bali' },
+        { property: 'og:site_name', content: 'Sense of Jewels' },
         { name: 'twitter:card', content: 'summary_large_image' },
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png' },
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
       ],
     },
   },
@@ -51,7 +49,7 @@ export default defineNuxtConfig({
     midtransServerKey: process.env.NUXT_MIDTRANS_SERVER_KEY || '',
     rajaongkirApiKey: process.env.NUXT_RAJAONGKIR_API_KEY || '',
     public: {
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://pebblesbali.com',
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://senseofjewels.com',
       midtransClientKey: process.env.NUXT_PUBLIC_MIDTRANS_CLIENT_KEY || '',
       midtransIsProduction: process.env.NUXT_PUBLIC_MIDTRANS_IS_PRODUCTION || 'false',
     },
