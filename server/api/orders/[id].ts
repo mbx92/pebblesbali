@@ -1,4 +1,5 @@
 import prisma from '../../utils/prisma'
+import { syncOrderToOcs } from '../../utils/ocs'
 
 const VALID_STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled']
 const VALID_PAYMENT_STATUSES = ['unpaid', 'paid', 'failed', 'expired']
@@ -58,6 +59,10 @@ export default defineEventHandler(async (event) => {
         user: { select: { id: true, name: true, email: true } },
       },
     })
+
+    // Re-sync updated status to OCS
+    syncOrderToOcs(id).catch(() => {})
+
     return updated
   }
 

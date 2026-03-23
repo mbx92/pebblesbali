@@ -137,6 +137,9 @@ model Order {
   shippingCourier String?   // e.g. "jne", "jnt"
   shippingService String?   // e.g. "REG", "YES"
   items       OrderItem[]
+  // OCS Workspace sync tracking
+  ocsSyncedAt DateTime?
+  ocsEntityId String?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 

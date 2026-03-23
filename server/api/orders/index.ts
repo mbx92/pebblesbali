@@ -1,4 +1,5 @@
 import prisma from '../../utils/prisma'
+import { syncOrderToOcs } from '../../utils/ocs'
 
 async function getSession(event: any) {
   const sessionId = getCookie(event, 'mm_session')
@@ -90,6 +91,9 @@ export default defineEventHandler(async (event) => {
       },
       include: { items: true },
     })
+
+    // Fire-and-forget push to OCS Workspace
+    syncOrderToOcs(order.id).catch(() => {})
 
     return order
   }

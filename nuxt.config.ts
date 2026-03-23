@@ -9,6 +9,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   devServer: {
     host: '0.0.0.0',
+    port: 3001,
   },
   modules: ['@nuxtjs/sitemap'],
   site: {
@@ -47,6 +48,7 @@ export default defineNuxtConfig({
     },
     scheduledTasks: {
       '0 23 * * *': ['backup:database'],
+      '*/5 * * * *': ['ocs:sync'],
     },
   },
   runtimeConfig: {
@@ -54,6 +56,10 @@ export default defineNuxtConfig({
     authPassword: process.env.NUXT_AUTH_PASSWORD || '',
     midtransServerKey: process.env.NUXT_MIDTRANS_SERVER_KEY || '',
     rajaongkirApiKey: process.env.NUXT_RAJAONGKIR_API_KEY || '',
+    ocsUrl: process.env.NUXT_OCS_URL || '',
+    ocsApiKey: process.env.NUXT_OCS_API_KEY || '',
+    ocsConnectionId: process.env.NUXT_OCS_CONNECTION_ID || '',
+    ocsProjectId: process.env.NUXT_OCS_PROJECT_ID || '',
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://senseofjewels.com',
       midtransClientKey: process.env.NUXT_PUBLIC_MIDTRANS_CLIENT_KEY || '',

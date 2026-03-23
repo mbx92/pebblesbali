@@ -179,6 +179,7 @@
                   Settings
                 </NuxtLink>
               </li>
+
             </ul>
           </nav>
 
@@ -219,6 +220,7 @@ import {
   IconShoppingBag,
   IconShoppingCart,
   IconUsers,
+  IconPlugConnected,
 } from '@tabler/icons-vue'
 
 const { data: themeSettings } = await useFetch<Record<string, string>>('/api/settings')
@@ -244,6 +246,8 @@ const pageTitle = computed(() => {
     '/admin/settings': 'Settings',
     '/admin/users': 'Users',
     '/admin/orders': 'Orders',
+    '/admin/tracker': 'Tracker',
+    '/admin/integrations': 'Integrations',
   }
   return titles[route.path] || 'Page'
 })

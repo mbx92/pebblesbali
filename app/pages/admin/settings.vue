@@ -88,7 +88,7 @@
         </div>
 
         <!-- Right column: Color Theme -->
-        <div v-if="plan.hasFeature('theme')" class="card bg-base-100 border border-base-300">
+        <div class="card bg-base-100 border border-base-300">
           <div class="card-body">
             <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/50 mb-2">Color Theme</h2>
 
@@ -178,7 +178,7 @@
       </div>
 
       <!-- SEO Card (full width below) -->
-      <div v-if="plan.hasFeature('seo')" class="card bg-base-100 border border-base-300 mt-6">
+      <div class="card bg-base-100 border border-base-300 mt-6">
         <div class="card-body">
           <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/50 mb-2">SEO &amp; Social Sharing</h2>
 
@@ -440,11 +440,54 @@
     </dialog>
 
     <MediaPickerModal :open="ogPickerOpen" :selected="form.ogImage" @close="ogPickerOpen = false" @pick="url => form.ogImage = url" />
+
+    <!-- Tools Link Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+      <!-- OCS Integration Link Card -->
+      <div class="card bg-base-100 border border-base-300">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="bg-primary/10 rounded-lg p-2">
+                <IconPlugConnected class="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h2 class="font-semibold text-sm text-base-content">OCS Integration</h2>
+                <p class="text-xs text-base-content/50 mt-0.5">Hubungkan ke OCS Workspace untuk sync order, bugs, tasks &amp; features</p>
+              </div>
+            </div>
+            <NuxtLink to="/admin/integrations" class="btn btn-sm btn-outline gap-1.5">
+              Configure <IconArrowRight class="w-4 h-4" />
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tracker Link Card -->
+      <div class="card bg-base-100 border border-base-300">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="bg-error/10 rounded-lg p-2">
+                <IconBug class="w-5 h-5 text-error" />
+              </div>
+              <div>
+                <h2 class="font-semibold text-sm text-base-content">Tracker</h2>
+                <p class="text-xs text-base-content/50 mt-0.5">Kelola bugs, tasks &amp; features yang di-sync ke OCS Workspace</p>
+              </div>
+            </div>
+            <NuxtLink to="/admin/tracker" class="btn btn-sm btn-outline gap-1.5">
+              Open <IconArrowRight class="w-4 h-4" />
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { IconPhoto, IconX, IconLock, IconShieldCog, IconDatabase, IconDatabaseExport, IconDownload, IconFileTypeJs } from '@tabler/icons-vue'
+import { IconPhoto, IconX, IconLock, IconShieldCog, IconDatabase, IconDatabaseExport, IconDownload, IconFileTypeJs, IconPlugConnected, IconArrowRight, IconBug } from '@tabler/icons-vue'
 import { THEME_DEFAULTS, FONT_OPTIONS } from '~/composables/useTheme'
 import { FEATURES } from '~/composables/usePlan'
 import type { Media, CityOption } from '~/types'
