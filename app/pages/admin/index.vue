@@ -6,6 +6,14 @@
         <h1 class="text-2xl font-bold text-base-content">Dashboard</h1>
         <p class="text-sm text-base-content/50 mt-1">Landing page content overview</p>
       </div>
+      <NuxtLink
+        to="/"
+        target="_blank"
+        class="btn btn-sm btn-outline gap-2 mt-3 sm:mt-0"
+      >
+        <IconEye class="w-4 h-4" />
+        Live Preview
+      </NuxtLink>
     </div>
 
     <!-- Stats -->
@@ -52,15 +60,29 @@
         </div>
       </div>
 
+      <div class="card bg-base-100 border border-base-300">
+        <div class="card-body p-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wide text-base-content/40">Testimonials</p>
+              <p class="text-2xl font-bold mt-1">{{ testimonials?.length || 0 }}</p>
+            </div>
+            <div class="bg-primary/10 rounded-lg p-3">
+              <IconQuote class="w-5 h-5 text-primary" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="card bg-primary text-primary-content">
         <div class="card-body p-5">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-xs font-semibold uppercase tracking-wide text-primary-content/60">Testimonials</p>
-              <p class="text-2xl font-bold mt-1">{{ testimonials?.length || 0 }}</p>
+              <p class="text-xs font-semibold uppercase tracking-wide text-primary-content/60">Blog Posts</p>
+              <p class="text-2xl font-bold mt-1">{{ blogPosts?.length || 0 }}</p>
             </div>
             <div class="bg-white/15 rounded-lg p-3">
-              <IconQuote class="w-5 h-5" />
+              <IconArticle class="w-5 h-5" />
             </div>
           </div>
         </div>
@@ -166,13 +188,16 @@ import {
   IconCategory,
   IconDiamond,
   IconQuote,
+  IconArticle,
+  IconEye,
 } from '@tabler/icons-vue'
-import type { Section, Collection, Product, Testimonial } from '~/types'
+import type { Section, Collection, Product, Testimonial, BlogPost } from '~/types'
 
 const { data: sections } = await useFetch<Section[]>('/api/sections')
 const { data: collections } = await useFetch<Collection[]>('/api/collections')
 const { data: products } = await useFetch<Product[]>('/api/products')
 const { data: testimonials } = await useFetch<Testimonial[]>('/api/testimonials')
+const { data: blogPosts } = await useFetch<BlogPost[]>('/api/blog')
 
 const recentProducts = computed(() => (products.value || []).slice(0, 5))
 

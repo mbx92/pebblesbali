@@ -19,6 +19,12 @@ export const FEATURES = {
     description: 'Add-to-cart, cart drawer, and checkout flow with customer login (requires Shop to be enabled)',
     icon: 'cart',
   },
+  blog: {
+    key: 'featureBlog',
+    label: 'Blog',
+    description: 'Manage and publish blog posts for the site',
+    icon: 'blog',
+  },
   seo: {
     key: 'featureSeo',
     label: 'SEO & Social Sharing',
@@ -40,7 +46,9 @@ export function usePlan() {
 
   function hasFeature(name: FeatureName): boolean {
     const key = FEATURES[name].key
-    return settings.value?.[key] === 'true'
+    const val = settings.value?.[key]
+    // treat undefined (never saved) as enabled; only explicit 'false' disables
+    return val !== 'false'
   }
 
   return { hasFeature, settings }

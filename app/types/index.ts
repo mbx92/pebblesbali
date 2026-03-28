@@ -56,6 +56,21 @@ export interface Testimonial {
   updatedAt: string
 }
 
+export interface BlogPost {
+  id: string
+  title: string
+  slug: string
+  excerpt?: string
+  body?: string
+  image?: string
+  tags: string[]
+  isPublished: boolean
+  publishedAt?: string | null
+  sortOrder: number
+  createdAt: string
+  updatedAt: string
+}
+
 export interface Media {
   id: string
   filename: string

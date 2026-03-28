@@ -58,7 +58,7 @@
 
     <!-- Edit Modal -->
     <dialog ref="modalRef" class="modal">
-      <div class="modal-box w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div class="modal-box w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
         <button class="btn btn-sm btn-circle btn-ghost absolute right-3 top-3" @click="closeModal()">
           <IconX class="w-4 h-4" />
         </button>
@@ -86,7 +86,7 @@
 
           <fieldset class="fieldset">
             <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Body Text</legend>
-            <textarea v-model="form.body" class="textarea w-full" rows="4"></textarea>
+            <TipTapEditor v-model="form.body" placeholder="Section body content..." />
           </fieldset>
 
           <fieldset class="fieldset">

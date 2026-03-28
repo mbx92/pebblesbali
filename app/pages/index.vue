@@ -11,7 +11,11 @@ import {
   IconSparkles,
   IconLeaf,
   IconHeart,
+  IconArticle,
+  IconCalendar,
+  IconTag,
 } from '@tabler/icons-vue'
+import type { BlogPost } from '~/types'
 
 definePageMeta({ layout: false })
 
@@ -51,14 +55,17 @@ const { data: sectionsData } = await useFetch<Section[]>('/api/sections')
 const { data: collectionsData } = await useFetch<Collection[]>('/api/collections')
 const { data: testimonialsData } = await useFetch<Testimonial[]>('/api/testimonials')
 const { data: settings } = await useFetch<Record<string, string>>('/api/settings')
+const { data: blogData } = await useFetch<BlogPost[]>('/api/blog', { query: { published: 'true' } })
 
 const sections = computed(() => sectionsData.value?.filter(s => s.isActive) ?? [])
 const collections = computed(() => collectionsData.value?.filter(c => c.isActive) ?? [])
 const testimonials = computed(() => testimonialsData.value?.filter(t => t.isActive) ?? [])
+const recentPosts = computed(() => (blogData.value ?? []).slice(0, 3))
 
 const { lang, currency, t, formatPrice, toggleLang, toggleCurrency } = useLocale()
 const plan = usePlan()
 const requestURL = useRequestURL()
+const adminBarVisible = useAdminBar()
 
 function getSection(slug: string) {
   return sections.value.find(s => s.slug === slug)
@@ -73,6 +80,22 @@ const testimonials_ = computed(() => getSection('testimonials'))
 /** Get a metadata value from a section with a fallback string */
 function meta(section: Section | undefined, key: string, fallback: string = ''): string {
   return section?.metadata?.[key] || fallback
+}
+
+function formatDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return ''
+  return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(dateStr))
+}
+
+function extractHandle(url: string | undefined | null): string {
+  if (!url) return ''
+  try {
+    const path = new URL(url).pathname.replace(/^\/?|\/?$/g, '')
+    const handle = path.split('/').filter(Boolean).pop() || ''
+    return handle ? `@${handle}` : ''
+  } catch {
+    return ''
+  }
 }
 
 useHead({
@@ -102,8 +125,10 @@ useSeoMeta({
 <template>
   <div data-theme="jewels" class="min-h-screen bg-base-100 font-sans">
 
+    <AdminPreviewBar />
+
     <!-- ===== NAVBAR ===== -->
-    <nav class="fixed top-0 z-50 w-full bg-base-100/90 backdrop-blur-md border-b border-base-200">
+    <nav :class="['fixed z-50 w-full bg-base-100/90 backdrop-blur-md border-b border-base-200 transition-[top] duration-300', adminBarVisible ? 'top-9' : 'top-0']">
       <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <NuxtLink to="/" class="flex items-center gap-2 shrink-0">
           <img v-if="settings?.logoUrl" :src="settings.logoUrl" :alt="settings?.siteName || 'Sense of Jewels'" class="h-9 w-auto max-w-40 object-contain" />
@@ -117,6 +142,7 @@ useSeoMeta({
           <a href="#collections" class="hover:text-secondary transition-colors">{{ t.nav.collections }}</a>
           <a href="#about" class="hover:text-secondary transition-colors">{{ t.nav.about }}</a>
           <a href="#testimonials" class="hover:text-secondary transition-colors">{{ t.nav.reviews }}</a>
+          <NuxtLink to="/blog" class="hover:text-secondary transition-colors">Blog</NuxtLink>
           <a href="#contact" class="hover:text-secondary transition-colors">{{ t.nav.contact }}</a>
         </div>
         <div class="flex items-center gap-2">
@@ -371,6 +397,68 @@ useSeoMeta({
       </div>
     </section>
 
+    <!-- ===== BLOG ===== -->
+    <section v-if="recentPosts.length" id="blog" class="py-24 bg-base-100 scroll-mt-16">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <div class="flex items-center justify-center gap-3 mb-4">
+            <div class="h-px w-8 bg-secondary/50" />
+            <span class="text-secondary text-xs font-medium tracking-[0.3em] uppercase">Our Journal</span>
+            <div class="h-px w-8 bg-secondary/50" />
+          </div>
+          <h2 class="font-serif text-4xl md:text-5xl text-primary font-light tracking-wide">
+            Stories &amp; Inspiration
+          </h2>
+          <p class="mt-4 text-base-content/60 text-lg font-light max-w-xl mx-auto">
+            Discover the craft, culture, and stories behind our handmade Balinese jewelry.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <NuxtLink
+            v-for="post in recentPosts"
+            :key="post.id"
+            :to="`/blog/${post.slug}`"
+            class="group"
+          >
+            <div class="relative overflow-hidden rounded-sm aspect-video bg-base-200 mb-5">
+              <img
+                v-if="post.image"
+                :src="post.image"
+                :alt="post.title"
+                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div v-else class="w-full h-full flex items-center justify-center">
+                <IconArticle class="size-10 text-base-content/20" />
+              </div>
+            </div>
+            <div class="flex items-center gap-3 mb-3 text-xs text-base-content/40 tracking-wide">
+              <span class="flex items-center gap-1">
+                <IconCalendar class="size-3.5" />
+                {{ formatDate(post.publishedAt || post.createdAt) }}
+              </span>
+              <span v-if="post.tags.length" class="flex items-center gap-1">
+                <IconTag class="size-3.5" />
+                {{ post.tags[0] }}
+              </span>
+            </div>
+            <h3 class="font-serif text-xl text-primary font-light tracking-wide mb-2 group-hover:text-secondary transition-colors leading-snug">
+              {{ post.title }}
+            </h3>
+            <p v-if="post.excerpt" class="text-base-content/60 text-sm font-light leading-relaxed line-clamp-2">
+              {{ post.excerpt }}
+            </p>
+          </NuxtLink>
+        </div>
+
+        <div class="text-center mt-12">
+          <NuxtLink to="/blog" class="btn btn-outline border-primary/30 text-primary text-xs tracking-widest uppercase hover:bg-primary hover:text-base-100 transition-colors">
+            View All Posts
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
+
     <!-- ===== CONTACT ===== -->
     <section id="contact" class="py-24 bg-base-200/40 scroll-mt-16">
       <div class="max-w-6xl mx-auto px-6">
@@ -410,12 +498,14 @@ useSeoMeta({
               <IconBrandInstagram class="size-5 text-secondary" />
             </div>
             <h3 class="font-medium text-primary text-sm tracking-widest uppercase mb-2">{{ meta(contact, 'socialLabel', t.contact.followUs) }}</h3>
-            <div class="flex items-center justify-center gap-4 mt-2">
-              <a v-if="settings?.instagramUrl" :href="settings.instagramUrl" target="_blank" rel="noopener" class="text-base-content/40 hover:text-secondary transition-colors">
+            <div class="flex items-center justify-center gap-6 mt-2">
+              <a v-if="settings?.instagramUrl" :href="settings.instagramUrl" target="_blank" rel="noopener" class="flex flex-col items-center gap-1 text-base-content/40 hover:text-secondary transition-colors group">
                 <IconBrandInstagram class="size-5" />
+                <span v-if="extractHandle(settings.instagramUrl)" class="text-xs tracking-wide group-hover:text-secondary transition-colors">{{ extractHandle(settings.instagramUrl) }}</span>
               </a>
-              <a v-if="settings?.facebookUrl" :href="settings.facebookUrl" target="_blank" rel="noopener" class="text-base-content/40 hover:text-secondary transition-colors">
+              <a v-if="settings?.facebookUrl" :href="settings.facebookUrl" target="_blank" rel="noopener" class="flex flex-col items-center gap-1 text-base-content/40 hover:text-secondary transition-colors group">
                 <IconBrandFacebook class="size-5" />
+                <span v-if="extractHandle(settings.facebookUrl)" class="text-xs tracking-wide group-hover:text-secondary transition-colors">{{ extractHandle(settings.facebookUrl) }}</span>
               </a>
             </div>
           </div>

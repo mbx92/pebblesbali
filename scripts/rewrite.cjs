@@ -1,4 +1,8 @@
-<template>
+const fs = require('fs');
+const path = 'app/pages/admin/settings.vue';
+let content = fs.readFileSync(path, 'utf8');
+
+const newTemplate = `<template>
   <div class="pb-10">
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
@@ -297,7 +301,7 @@
                   :class="form[feat.key] === 'true' ? 'border-success/40 bg-success/5' : 'border-base-300 bg-base-200/30'">
                   <input type="checkbox"
                     :checked="form[feat.key] === 'true'"
-                    @change="form[feat.key] = ($event.target as HTMLInputElement).checked ? 'true' : 'false'"
+                    @change="form[feat.key] = ($event.target).checked ? 'true' : 'false'"
                     class="checkbox checkbox-success mt-0.5 shrink-0"
                   />
                   <div>
@@ -405,270 +409,17 @@
 
     <MediaPickerModal :open="ogPickerOpen" :selected="form.ogImage" @close="ogPickerOpen = false" @pick="url => form.ogImage = url" />
   </div>
-</template>
+</template>`;
 
+const startIndex = content.indexOf('<template>');
+const endIndex = content.indexOf('</template>') + '</template>'.length;
+content = newTemplate + '\n' + content.substring(endIndex);
 
-<script setup lang="ts">
-import {
-  IconArrowRight,
-  IconBug,
-  IconDatabase,
-  IconDatabaseExport,
-  IconDownload,
-  IconFileTypeJs,
-  IconLock,
-  IconPalette,
-  IconPhoto,
-  IconPlugConnected,
-  IconSearch,
-  IconSettings,
-  IconShieldCog,
-  IconToggleLeft,
-  IconTruck,
-  IconX,
-} from '@tabler/icons-vue'
-import { THEME_DEFAULTS, FONT_OPTIONS } from '~/composables/useTheme'
-import { FEATURES } from '~/composables/usePlan'
-import type { Media, CityOption } from '~/types'
-
-const COURIER_LIST = [
-  { code: 'jne', name: 'JNE', pro: false },
-  { code: 'tiki', name: 'TIKI', pro: false },
-  { code: 'pos', name: 'Pos Indonesia', pro: false },
-  { code: 'jnt', name: 'J&T Express', pro: true },
-  { code: 'sicepat', name: 'SiCepat', pro: true },
-  { code: 'anteraja', name: 'AnterAja', pro: true },
-  { code: 'wahana', name: 'Wahana', pro: true },
-  { code: 'lion', name: 'Lion Parcel', pro: true },
-  { code: 'ninja', name: 'Ninja Xpress', pro: true },
-]
-
-const auth = useAuth();
-const activeTab = ref('general');
-const plan = usePlan()
-
-// Origin city search for shipping
-const originCitySearch = ref('')
-const originCityResults = ref<CityOption[]>([])
-let originCityTimer: ReturnType<typeof setTimeout> | null = null
-
-async function onOriginCitySearch() {
-  if (originCityTimer) clearTimeout(originCityTimer)
-  const q = originCitySearch.value.trim()
-  if (q.length < 2) { originCityResults.value = []; return }
-  originCityTimer = setTimeout(async () => {
-    originCityResults.value = await $fetch<CityOption[]>(`/api/shipping/cities?q=${encodeURIComponent(q)}`).catch(() => [])
-  }, 350)
+content = content.replace("import { ref, onMounted", "import { ref, onMounted, watch }");
+if (!content.includes('activeTab')) {
+  content = content.replace("const auth = useAuth()", "const auth = useAuth()\nconst activeTab = ref('general')");
 }
+content = content.replace("from '@tabler/icons-vue'", ", IconSettings, IconPalette, IconSearch, IconTruck, IconShieldCog, IconDatabase, IconToggleLeft } from '@tabler/icons-vue'");
 
-function selectOriginCity(city: CityOption) {
-  form.value.shippingOriginCityId = city.id
-  form.value.shippingOriginCityName = city.label
-  originCitySearch.value = city.label
-  originCityResults.value = []
-}
-
-const activeCouriers = computed<string[]>({
-  get: () => (form.value.shippingCouriers || '').split(',').map(s => s.trim()).filter(Boolean),
-  set: (val) => { form.value.shippingCouriers = val.join(',') },
-})
-
-function toggleCourier(code: string) {
-  const list = activeCouriers.value
-  activeCouriers.value = list.includes(code) ? list.filter(c => c !== code) : [...list, code]
-}
-
-const savingShipping = ref(false)
-async function saveShipping() {
-  savingShipping.value = true
-  try {
-    await $fetch('/api/settings', {
-      method: 'PUT',
-      body: {
-        shippingOriginCityId: form.value.shippingOriginCityId,
-        shippingOriginCityName: form.value.shippingOriginCityName,
-        shippingCouriers: form.value.shippingCouriers,
-        shippingDefaultWeight: form.value.shippingDefaultWeight,
-      },
-    })
-  }
-  finally { savingShipping.value = false }
-}
-
-interface MediaResponse { media: Media[]; folders: string[] }
-
-const showLogoPicker = ref(false)
-const ogPickerOpen = ref(false)
-const { data: mediaData, execute: loadMedia } = useFetch<MediaResponse>('/api/media', { immediate: false })
-
-async function openLogoPicker() {
-  await loadMedia()
-  showLogoPicker.value = true
-}
-
-function pickLogo(url: string) {
-  form.value.logoUrl = url
-  showLogoPicker.value = false
-}
-
-const { data: settings } = useFetch<Record<string, string>>('/api/settings')
-const { data: liveRate } = useFetch<{ IDR: number; source: string }>('/api/exchange-rate')
-const saving = ref(false)
-const savingFeatures = ref(false)
-
-async function saveFeatures() {
-  savingFeatures.value = true
-  try {
-    await $fetch('/api/settings', {
-      method: 'PUT',
-      body: {
-        featureShop: form.value.featureShop,
-        featureCart: form.value.featureCart,
-        featureBlog: form.value.featureBlog,
-        featureSeo: form.value.featureSeo,
-        featureTheme: form.value.featureTheme,
-      },
-    })
-  } finally {
-    savingFeatures.value = false
-  }
-}
-
-useTheme(settings)
-
-const form = ref({
-  siteName: '',
-  siteTagline: '',
-  siteUrl: '',
-  contactEmail: '',
-  contactPhone: '',
-  address: '',
-  instagramUrl: '',
-  whatsappNumber: '',
-  logoUrl: '',
-  colorPrimary: THEME_DEFAULTS.colorPrimary,
-  colorPrimaryContent: THEME_DEFAULTS.colorPrimaryContent,
-  colorSecondary: THEME_DEFAULTS.colorSecondary,
-  colorAccent: THEME_DEFAULTS.colorAccent,
-  colorBase100: THEME_DEFAULTS.colorBase100,
-  colorBaseContent: THEME_DEFAULTS.colorBaseContent,
-  fontHeading: THEME_DEFAULTS.fontHeading,
-  fontBody: THEME_DEFAULTS.fontBody,
-  metaDescription: '',
-  metaKeywords: '',
-  ogImage: '',
-  googleAnalyticsId: '',
-  // Feature flags
-  featureShop: 'false',
-  featureCart: 'false',
-  featureBlog: 'false',
-  featureSeo: 'false',
-  featureTheme: 'false',
-  // Shipping
-  shippingOriginCityId: '',
-  shippingOriginCityName: '',
-  shippingCouriers: 'jne,tiki,pos',
-  shippingDefaultWeight: '500',
-} as Record<string, string>)
-
-// Load selected fonts in the admin for live preview
-useHead({
-  link: () => {
-    const fonts = [...new Set([form.value.fontHeading, form.value.fontBody].filter(Boolean))]
-    if (!fonts.length) return []
-    const params = fonts.filter((f): f is string => !!f).map(f => `family=${encodeURIComponent(f)}:wght@300;400;500;600`).join('&')
-    return [{ rel: 'stylesheet', href: `https://fonts.googleapis.com/css2?${params}&display=swap`, key: 'admin-preview-fonts' }]
-  },
-})
-
-watchEffect(() => {
-  if (settings.value) {
-    form.value = {
-      siteName: settings.value.siteName || 'Sense of Jewels',
-      siteTagline: settings.value.siteTagline || '',
-      siteUrl: settings.value.siteUrl || '',
-      contactEmail: settings.value.contactEmail || '',
-      contactPhone: settings.value.contactPhone || '',
-      address: settings.value.address || '',
-      instagramUrl: settings.value.instagramUrl || '',
-      whatsappNumber: settings.value.whatsappNumber || '',
-      logoUrl: settings.value.logoUrl || '',
-      colorPrimary: settings.value.colorPrimary || THEME_DEFAULTS.colorPrimary,
-      colorPrimaryContent: settings.value.colorPrimaryContent || THEME_DEFAULTS.colorPrimaryContent,
-      colorSecondary: settings.value.colorSecondary || THEME_DEFAULTS.colorSecondary,
-      colorAccent: settings.value.colorAccent || THEME_DEFAULTS.colorAccent,
-      colorBase100: settings.value.colorBase100 || THEME_DEFAULTS.colorBase100,
-      colorBaseContent: settings.value.colorBaseContent || THEME_DEFAULTS.colorBaseContent,
-      fontHeading: settings.value.fontHeading ?? THEME_DEFAULTS.fontHeading,
-      fontBody: settings.value.fontBody ?? THEME_DEFAULTS.fontBody,
-      metaDescription: settings.value.metaDescription || '',
-      metaKeywords: settings.value.metaKeywords || '',
-      ogImage: settings.value.ogImage || '',
-      googleAnalyticsId: settings.value.googleAnalyticsId || '',
-      featureShop: settings.value.featureShop ?? 'false',
-      featureCart: settings.value.featureCart ?? 'false',
-      featureBlog: settings.value.featureBlog ?? 'false',
-      featureSeo: settings.value.featureSeo ?? 'false',
-      featureTheme: settings.value.featureTheme ?? 'false',
-      shippingOriginCityId: settings.value.shippingOriginCityId || '',
-      shippingOriginCityName: settings.value.shippingOriginCityName || '',
-      shippingCouriers: settings.value.shippingCouriers || 'jne,tiki,pos',
-      shippingDefaultWeight: settings.value.shippingDefaultWeight || '500',
-    }
-    // Pre-fill origin city search text
-    if (settings.value.shippingOriginCityName) {
-      originCitySearch.value = settings.value.shippingOriginCityName
-    }
-  }
-})
-
-async function save() {
-  saving.value = true
-  try {
-    await $fetch('/api/settings', { method: 'PUT', body: form.value })
-  } finally {
-    saving.value = false
-  }
-}
-
-// ── Backup ────────────────────────────────────────────────
-interface BackupMeta { filename: string; size: number; createdAt: string }
-
-const backups = ref<BackupMeta[]>([])
-const backupsLoading = ref(false)
-const creatingBackup = ref(false)
-
-async function fetchBackups() {
-  backupsLoading.value = true
-  try {
-    backups.value = await $fetch<BackupMeta[]>('/api/backup')
-  } finally {
-    backupsLoading.value = false
-  }
-}
-
-async function triggerBackup() {
-  creatingBackup.value = true
-  try {
-    await $fetch('/api/backup/create', { method: 'POST' })
-    await fetchBackups()
-  } finally {
-    creatingBackup.value = false
-  }
-}
-
-function formatBackupDate(iso: string) {
-  return new Date(iso).toLocaleString('id-ID', {
-    day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  })
-}
-
-function formatBackupSize(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / 1048576).toFixed(2)} MB`
-}
-
-onMounted(() => fetchBackups())
-</script>
+fs.writeFileSync(path, content);
+console.log('Script ran successfully');

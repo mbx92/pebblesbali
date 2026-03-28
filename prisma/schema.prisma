@@ -158,3 +158,20 @@ model OrderItem {
 
   @@map("order_items")
 }
+
+model BlogPost {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  excerpt     String?   @db.Text
+  body        String?   @db.Text
+  image       String?
+  tags        String[]
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("blog_posts")
+}

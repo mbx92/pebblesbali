@@ -68,7 +68,7 @@
 
     <!-- Modal -->
     <dialog ref="modalRef" class="modal">
-      <div class="modal-box max-w-2xl">
+      <div class="modal-box max-w-4xl">
         <button class="btn btn-sm btn-circle btn-ghost absolute right-3 top-3" @click="closeModal()">
           <IconX class="w-4 h-4" />
         </button>
@@ -88,7 +88,7 @@
 
           <fieldset class="fieldset">
             <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Description</legend>
-            <textarea v-model="form.description" class="textarea w-full" rows="3"></textarea>
+            <TipTapEditor v-model="form.description" placeholder="Describe this product..." />
           </fieldset>
 
           <div class="grid grid-cols-2 gap-4">

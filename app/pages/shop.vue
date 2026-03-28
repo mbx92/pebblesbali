@@ -162,8 +162,10 @@ useSeoMeta({
 <template>
   <div class="min-h-screen bg-base-100 font-sans">
 
+    <AdminPreviewBar />
+
     <!-- ===== NAVBAR ===== -->
-    <nav class="fixed top-0 z-50 w-full bg-base-100/90 backdrop-blur-md border-b border-base-200">
+    <nav :class="['fixed z-50 w-full bg-base-100/90 backdrop-blur-md border-b border-base-200 transition-[top] duration-300', useAdminBar().value ? 'top-9' : 'top-0']">
       <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <NuxtLink to="/" class="flex items-center gap-2 shrink-0">
           <img v-if="settings?.logoUrl" :src="settings.logoUrl" :alt="settings?.siteName || 'Sense of Jewels'" class="h-9 w-auto max-w-40 object-contain" />
