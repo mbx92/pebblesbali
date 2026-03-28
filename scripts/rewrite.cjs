@@ -62,7 +62,7 @@ const newTemplate = `<template>
       </ul>
 
       <!-- CONTENT PANES -->
-      <div class="flex-1 w-full min-h-[500px]">
+      <div class="flex-1 w-full min-h-125">
         
         <!-- GENERAL SETTINGS -->
         <form v-if="activeTab === 'general'" @submit.prevent="save()" class="space-y-4">

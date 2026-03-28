@@ -58,7 +58,7 @@
       </ul>
 
       <!-- CONTENT PANES -->
-      <div class="flex-1 w-full min-h-[500px]">
+      <div class="flex-1 w-full min-h-125">
         
         <!-- GENERAL SETTINGS -->
         <form v-if="activeTab === 'general'" @submit.prevent="save()" class="space-y-4">
@@ -78,6 +78,32 @@
                   <fieldset class="fieldset">
                     <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Site URL</legend>
                     <input v-model="form.siteUrl" type="url" class="input w-full font-mono" placeholder="https://senseofjewels.com" />
+                  </fieldset>
+                  <fieldset class="fieldset">
+                    <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Business Type</legend>
+                      <select v-model="form.businessType" class="select w-full md:max-w-sm">
+                      <option
+                        v-for="option in businessTypeOptions"
+                        :key="option.value"
+                        :value="option.value"
+                        :disabled="!option.available"
+                      >
+                        {{ option.label }}{{ option.available ? '' : ' (coming soon)' }}
+                      </option>
+                    </select>
+                    <p class="label text-xs text-base-content/40">Controls the business identity and future module bundle.</p>
+                  </fieldset>
+                  <fieldset class="fieldset">
+                    <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Template Preset</legend>
+                    <select v-model="form.templateKey" class="select w-full md:max-w-sm">
+                      <option v-for="templateOption in templateOptions" :key="templateOption.key" :value="templateOption.key">
+                        {{ templateOption.label }}
+                      </option>
+                    </select>
+                    <p class="label max-w-sm text-xs leading-relaxed whitespace-normal text-base-content/40">
+                      Current Phase 1 keeps jewelry output identical
+                      while moving rendering to template config.
+                    </p>
                   </fieldset>
                   <fieldset class="fieldset">
                     <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Logo</legend>
@@ -410,6 +436,11 @@
 
 <script setup lang="ts">
 import {
+  BUSINESS_TYPE_OPTIONS,
+  DEFAULT_TEMPLATE_KEY,
+  getTemplateOptionsForBusinessType,
+} from '~/templates/registry'
+import {
   IconArrowRight,
   IconBug,
   IconDatabase,
@@ -429,7 +460,7 @@ import {
 } from '@tabler/icons-vue'
 import { THEME_DEFAULTS, FONT_OPTIONS } from '~/composables/useTheme'
 import { FEATURES } from '~/composables/usePlan'
-import type { Media, CityOption } from '~/types'
+import type { BusinessType, Media, CityOption } from '~/types'
 
 const COURIER_LIST = [
   { code: 'jne', name: 'JNE', pro: false },
@@ -537,6 +568,8 @@ async function saveFeatures() {
 useTheme(settings)
 
 const form = ref({
+  businessType: 'jewelry',
+  templateKey: DEFAULT_TEMPLATE_KEY,
   siteName: '',
   siteTagline: '',
   siteUrl: '',
@@ -571,6 +604,19 @@ const form = ref({
   shippingDefaultWeight: '500',
 } as Record<string, string>)
 
+const businessTypeOptions = BUSINESS_TYPE_OPTIONS
+const templateOptions = computed(() => {
+  const options = getTemplateOptionsForBusinessType((form.value.businessType as BusinessType) || 'jewelry')
+  return options.length ? options : getTemplateOptionsForBusinessType('jewelry')
+})
+
+watch(() => form.value.businessType, (businessType) => {
+  const options = getTemplateOptionsForBusinessType((businessType as BusinessType) || 'jewelry')
+  if (!options.some(option => option.key === form.value.templateKey)) {
+    form.value.templateKey = options[0]?.key || DEFAULT_TEMPLATE_KEY
+  }
+})
+
 // Load selected fonts in the admin for live preview
 useHead({
   link: () => {
@@ -584,6 +630,8 @@ useHead({
 watchEffect(() => {
   if (settings.value) {
     form.value = {
+      businessType: settings.value.businessType || 'jewelry',
+      templateKey: settings.value.templateKey || DEFAULT_TEMPLATE_KEY,
       siteName: settings.value.siteName || 'Sense of Jewels',
       siteTagline: settings.value.siteTagline || '',
       siteUrl: settings.value.siteUrl || '',

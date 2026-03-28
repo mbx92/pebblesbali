@@ -5,6 +5,7 @@ definePageMeta({ layout: false, middleware: 'features' })
 
 const { data: settings } = await useFetch<Record<string, string>>('/api/settings')
 useTheme(settings)
+const { template, getSectionAnchor } = useTemplate(settings)
 
 interface BlogPost {
   id: string
@@ -22,6 +23,11 @@ const { data: allPosts } = await useFetch<BlogPost[]>('/api/blog', { query: { pu
 
 const { lang, t, toggleLang } = useLocale()
 const plan = usePlan()
+const siteName = computed(() => settings.value?.siteName || template.value.defaults.siteName)
+
+function landingHref(sectionKey: string): string {
+  return `/#${getSectionAnchor(sectionKey)}`
+}
 
 const search = ref('')
 const selectedTag = ref<string | null>(null)
@@ -54,13 +60,13 @@ function formatDate(dateStr: string | null) {
 }
 
 useSeoMeta({
-  title: () => `Blog — ${settings.value?.siteName || 'Sense of Jewels'}`,
+  title: () => `Blog — ${siteName.value}`,
   description: () => settings.value?.metaDescription || 'Read the latest stories, insights, and inspirations from our Balinese jewelry studio.',
 })
 </script>
 
 <template>
-  <div data-theme="jewels" class="min-h-screen bg-base-100 font-sans">
+  <div :data-theme="template.themeName" class="min-h-screen bg-base-100 font-sans">
 
     <AdminPreviewBar />
 
@@ -68,18 +74,18 @@ useSeoMeta({
     <nav :class="['fixed z-50 w-full bg-base-100/90 backdrop-blur-md border-b border-base-200 transition-[top] duration-300', useAdminBar().value ? 'top-9' : 'top-0']">
       <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <NuxtLink to="/" class="flex items-center gap-2 shrink-0">
-          <img v-if="settings?.logoUrl" :src="settings.logoUrl" :alt="settings?.siteName || 'Sense of Jewels'" class="h-9 w-auto max-w-40 object-contain" />
+          <img v-if="settings?.logoUrl" :src="settings.logoUrl" :alt="siteName" class="h-9 w-auto max-w-40 object-contain" />
           <span v-else class="flex items-center gap-2 text-primary font-serif text-base font-semibold tracking-widest uppercase">
             <IconDiamond class="size-4 shrink-0 text-secondary" />
-            <span class="truncate max-w-36 sm:max-w-none">{{ settings?.siteName || 'Sense of Jewels' }}</span>
+            <span class="truncate max-w-36 sm:max-w-none">{{ siteName }}</span>
           </span>
         </NuxtLink>
         <div class="hidden md:flex items-center gap-8 text-xs font-medium tracking-widest uppercase text-base-content/70">
           <NuxtLink v-if="plan.hasFeature('shop')" to="/shop" class="hover:text-secondary transition-colors">{{ t.nav.shop }}</NuxtLink>
-          <NuxtLink to="/#collections" class="hover:text-secondary transition-colors">{{ t.nav.collections }}</NuxtLink>
-          <NuxtLink to="/#about" class="hover:text-secondary transition-colors">{{ t.nav.about }}</NuxtLink>
+          <NuxtLink :to="landingHref('collections')" class="hover:text-secondary transition-colors">{{ t.nav.collections }}</NuxtLink>
+          <NuxtLink :to="landingHref('about')" class="hover:text-secondary transition-colors">{{ t.nav.about }}</NuxtLink>
           <NuxtLink to="/blog" class="text-secondary font-semibold">Blog</NuxtLink>
-          <NuxtLink to="/#contact" class="hover:text-secondary transition-colors">{{ t.nav.contact }}</NuxtLink>
+          <NuxtLink :to="landingHref('contact')" class="hover:text-secondary transition-colors">{{ t.nav.contact }}</NuxtLink>
         </div>
         <div class="flex items-center gap-2">
           <button @click="toggleLang" class="btn btn-xs btn-ghost font-medium tracking-widest text-base-content/50 hover:text-primary px-2">

@@ -3,6 +3,12 @@
 ## Project Overview
 Landing page CMS for **Sense of Jewels** — a Balinese handcrafted jewelry brand. Built with **Nuxt 3** (compatibility version 4), **Prisma 7**, **DaisyUI 5**, **Tailwind CSS v4**, and **PostgreSQL**.
 
+## Workflow Agreements
+- This repository is now evolving on the `multi-purpose-cms` branch toward a multi-purpose CMS architecture.
+- After each completed feature, create a new version tag before starting the next feature.
+- Keep using the existing MCP server configuration already defined in `.vscode/mcp.json`.
+- Do not replace, remove, or reconfigure the existing MCP server unless explicitly requested.
+
 ## Tech Stack
 - **Framework**: Nuxt 3.21+ with `future.compatibilityVersion: 4` — app files live in `app/` directory
 - **Styling**: Tailwind CSS v4 via `@tailwindcss/vite` plugin (no `tailwind.config.ts`). Theme configured via `@plugin "daisyui/theme"` in `app/assets/css/main.css`

@@ -174,9 +174,9 @@ const METADATA_SCHEMA: Record<string, MetaSchema> = {
       fields: [
         { key: 'badgeLabel', label: 'Badge Label', placeholder: 'e.g. Handcrafted in Bali' },
         { key: 'ctaPrimaryText', label: 'Primary Button Text', placeholder: 'e.g. Explore Collections' },
-        { key: 'ctaPrimaryLink', label: 'Primary Button Link', placeholder: 'e.g. #collections' },
+        { key: 'ctaPrimaryLink', label: 'Primary Button Link', placeholder: 'e.g. template section anchor or full URL' },
         { key: 'ctaSecondaryText', label: 'Secondary Button Text', placeholder: 'e.g. Our Story' },
-        { key: 'ctaSecondaryLink', label: 'Secondary Button Link', placeholder: 'e.g. #about' },
+        { key: 'ctaSecondaryLink', label: 'Secondary Button Link', placeholder: 'e.g. template section anchor or full URL' },
         { key: 'scrollText', label: 'Scroll Indicator Text', placeholder: 'e.g. Scroll' },
       ],
     },

@@ -3,9 +3,6 @@ import { IconDiamond, IconSearch, IconShoppingBag, IconX, IconBrandWhatsapp, Ico
 
 definePageMeta({ layout: false, middleware: 'features' })
 
-const { data: themeSettings } = useFetch<Record<string, string>>('/api/settings')
-useTheme(themeSettings)
-
 const { user, fetchUser, logout } = useAuth()
 onMounted(async () => {
   await fetchUser()
@@ -61,8 +58,17 @@ const { data: allProducts } = await useFetch<Product[]>('/api/products')
 const { data: collectionsData } = await useFetch<Collection[]>('/api/collections')
 const { data: settings } = await useFetch<Record<string, string>>('/api/settings')
 
+useTheme(settings)
+
 const { lang, currency, t, formatPrice, toggleLang, toggleCurrency } = useLocale()
 const requestURL = useRequestURL()
+const { template, getSectionAnchor } = useTemplate(settings)
+
+const siteName = computed(() => settings.value?.siteName || template.value.defaults.siteName)
+
+function landingHref(sectionKey: string): string {
+  return `/#${getSectionAnchor(sectionKey)}`
+}
 
 const collections = computed(() => collectionsData.value?.filter(c => c.isActive) ?? [])
 const products = computed(() => allProducts.value?.filter(p => p.isActive) ?? [])
@@ -142,7 +148,7 @@ function inquireEmail(product: Product) {
 
 useHead({ htmlAttrs: { style: 'scroll-behavior: smooth;' } })
 
-const shopTitle = computed(() => `${t.value.nav.shop} — ${settings.value?.siteName || 'Sense of Jewels'}`)
+const shopTitle = computed(() => `${t.value.nav.shop} — ${siteName.value}`)
 
 useSeoMeta({
   title: () => shopTitle.value,
@@ -160,7 +166,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <div class="min-h-screen bg-base-100 font-sans">
+  <div :data-theme="template.themeName" class="min-h-screen bg-base-100 font-sans">
 
     <AdminPreviewBar />
 
@@ -168,17 +174,17 @@ useSeoMeta({
     <nav :class="['fixed z-50 w-full bg-base-100/90 backdrop-blur-md border-b border-base-200 transition-[top] duration-300', useAdminBar().value ? 'top-9' : 'top-0']">
       <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <NuxtLink to="/" class="flex items-center gap-2 shrink-0">
-          <img v-if="settings?.logoUrl" :src="settings.logoUrl" :alt="settings?.siteName || 'Sense of Jewels'" class="h-9 w-auto max-w-40 object-contain" />
+          <img v-if="settings?.logoUrl" :src="settings.logoUrl" :alt="siteName" class="h-9 w-auto max-w-40 object-contain" />
           <span v-else class="flex items-center gap-2 text-primary font-serif text-base font-semibold tracking-widest uppercase">
             <IconDiamond class="size-4 shrink-0 text-secondary" />
-            <span class="truncate max-w-35 sm:max-w-none">{{ settings?.siteName || 'Sense of Jewels' }}</span>
+            <span class="truncate max-w-35 sm:max-w-none">{{ siteName }}</span>
           </span>
         </NuxtLink>
         <div class="hidden md:flex items-center gap-8 text-xs font-medium tracking-widest uppercase text-base-content/70">
           <NuxtLink to="/shop" class="text-secondary">{{ t.nav.shop }}</NuxtLink>
-          <NuxtLink to="/#collections" class="hover:text-secondary transition-colors">{{ t.nav.collections }}</NuxtLink>
-          <NuxtLink to="/#about" class="hover:text-secondary transition-colors">{{ t.nav.about }}</NuxtLink>
-          <NuxtLink to="/#contact" class="hover:text-secondary transition-colors">{{ t.nav.contact }}</NuxtLink>
+          <NuxtLink :to="landingHref('collections')" class="hover:text-secondary transition-colors">{{ t.nav.collections }}</NuxtLink>
+          <NuxtLink :to="landingHref('about')" class="hover:text-secondary transition-colors">{{ t.nav.about }}</NuxtLink>
+          <NuxtLink :to="landingHref('contact')" class="hover:text-secondary transition-colors">{{ t.nav.contact }}</NuxtLink>
         </div>
         <div class="flex items-center gap-2">
           <button @click="toggleLang" class="btn btn-xs btn-ghost font-medium tracking-widest text-base-content/50 hover:text-primary px-2">

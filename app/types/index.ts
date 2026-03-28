@@ -88,6 +88,61 @@ export interface SiteSetting {
   value: string
 }
 
+export type BusinessType = 'jewelry' | 'guesthouse'
+
+export type TemplateFeatureKey = 'shop' | 'cart' | 'blog' | 'seo' | 'theme'
+
+export interface TemplateLocalizedText {
+  en: string
+  id: string
+}
+
+export interface TemplateNavItem {
+  key: string
+  label: TemplateLocalizedText
+  sectionKey?: string
+  href?: string
+  to?: string
+  requiresFeature?: TemplateFeatureKey
+}
+
+export type TemplateSectionComponentKey =
+  | 'hero'
+  | 'collections'
+  | 'about'
+  | 'sustainability'
+  | 'testimonials'
+  | 'blog'
+  | 'contact'
+
+export interface TemplateSectionDefinition {
+  key: string
+  slug: string
+  anchor: string
+  component: TemplateSectionComponentKey
+}
+
+export interface SiteTemplate {
+  key: string
+  businessType: BusinessType
+  label: string
+  themeName: string
+  sectionMap: Record<string, string>
+  sections: TemplateSectionDefinition[]
+  navigation: TemplateNavItem[]
+  defaults: {
+    siteName: string
+    siteTagline?: string
+    metaDescription?: string
+  }
+}
+
+export interface BusinessTypeOption {
+  value: BusinessType
+  label: string
+  available: boolean
+}
+
 export interface User {
   id: string
   name: string
