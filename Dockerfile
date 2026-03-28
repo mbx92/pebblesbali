@@ -22,9 +22,7 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=3030
 ENV HOST=0.0.0.0
-ENV NITRO_PORT=3030
 ENV NITRO_HOST=0.0.0.0
 
 # Only copy built output
@@ -39,7 +37,7 @@ COPY --from=builder /app/app/generated ./app/generated
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package-lock.json* ./
 
-EXPOSE 3030
+EXPOSE ${PORT:-3000}
 
 # Persistent volume for uploaded files
 VOLUME ["/app/data/uploads"]
