@@ -136,6 +136,10 @@ export interface SiteTemplate {
   label: string
   description?: string
   previewImage?: string
+  previewViewport?: {
+    width: number
+    height: number
+  }
   themeName: string
   sectionMap: Record<string, string>
   sections: TemplateSectionDefinition[]
@@ -145,6 +149,14 @@ export interface SiteTemplate {
     siteTagline?: string
     metaDescription?: string
   }
+}
+
+export interface TemplatePreviewStatus {
+  templateKey: string
+  imageUrl: string | null
+  fallbackImageUrl: string | null
+  generated: boolean
+  generatedAt: string | null
 }
 
 export interface BusinessTypeOption {

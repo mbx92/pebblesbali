@@ -30,22 +30,49 @@ function meta(key: string, fallback = '') {
         <p class="max-w-2xl text-sm leading-7 text-[#f5ebda]/62 md:text-base">{{ props.section?.subtitle || (lang === 'id' ? 'Template noir menempatkan koleksi seperti spotlight products, bukan grid netral.' : 'The noir template treats collections like spotlight products instead of a neutral merchandise grid.') }}</p>
       </div>
 
-      <div v-if="items.length" class="mt-10 grid gap-6 lg:grid-cols-3">
-        <article v-for="(item, index) in items.slice(0, 3)" :key="item.id" class="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] shadow-[0_28px_70px_rgba(0,0,0,0.25)]">
-          <div class="aspect-[4/5] overflow-hidden bg-[radial-gradient(circle_at_top,rgba(215,175,112,0.16),transparent_44%),rgba(255,255,255,0.02)]">
-            <img v-if="item.image" :src="item.image" :alt="item.name" class="h-full w-full object-contain p-5" />
-            <div v-else class="flex h-full items-center justify-center"><IconDiamond class="size-12 text-white/20" /></div>
-          </div>
-          <div class="px-5 py-5">
-            <p class="text-[11px] uppercase tracking-[0.3em] text-[#d7af70]">{{ String(index + 1).padStart(2, '0') }}</p>
-            <h3 class="mt-2 font-serif text-2xl">{{ item.name }}</h3>
-            <p v-if="item.description" class="mt-3 text-sm leading-7 text-[#f5ebda]/58">{{ item.description }}</p>
-            <div class="mt-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-[#d7af70]">
-              <span>{{ meta('viewText', lang === 'id' ? 'Lihat Koleksi' : 'View Collection') }}</span>
-              <IconArrowUpRight class="size-4" />
+      <div v-if="items.length" class="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
+        <article class="overflow-hidden rounded-[2.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] shadow-[0_28px_70px_rgba(0,0,0,0.25)]">
+          <div class="grid gap-0 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+            <div class="aspect-[4/5] overflow-hidden bg-[radial-gradient(circle_at_top,rgba(215,175,112,0.16),transparent_44%),rgba(255,255,255,0.02)]">
+              <img v-if="items[0]?.image" :src="items[0].image" :alt="items[0].name" class="h-full w-full object-contain p-8" />
+              <div v-else class="flex h-full items-center justify-center"><IconDiamond class="size-12 text-white/20" /></div>
+            </div>
+            <div class="flex flex-col justify-between px-6 py-6">
+              <div>
+                <p class="text-[11px] uppercase tracking-[0.3em] text-[#d7af70]">01</p>
+                <h3 class="mt-3 max-w-sm font-serif text-3xl leading-tight md:text-4xl">{{ items[0]?.name }}</h3>
+                <p v-if="items[0]?.description" class="mt-4 max-w-lg text-sm leading-7 text-[#f5ebda]/58">{{ items[0].description }}</p>
+              </div>
+              <div class="mt-6 flex items-center justify-between gap-4 border-t border-white/10 pt-5">
+                <p class="text-xs uppercase tracking-[0.28em] text-[#f5ebda]/42">Lead collection placement</p>
+                <div class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-[#d7af70]">
+                  <span>{{ meta('viewText', lang === 'id' ? 'Lihat Koleksi' : 'View Collection') }}</span>
+                  <IconArrowUpRight class="size-4" />
+                </div>
+              </div>
             </div>
           </div>
         </article>
+
+        <div class="grid gap-6">
+          <article v-for="(item, index) in items.slice(1, 3)" :key="item.id" class="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] shadow-[0_24px_60px_rgba(0,0,0,0.22)]">
+            <div class="grid gap-0 sm:grid-cols-[11rem_minmax(0,1fr)]">
+              <div class="aspect-square overflow-hidden bg-[radial-gradient(circle_at_top,rgba(215,175,112,0.12),transparent_44%),rgba(255,255,255,0.02)]">
+                <img v-if="item.image" :src="item.image" :alt="item.name" class="h-full w-full object-contain p-5" />
+                <div v-else class="flex h-full items-center justify-center"><IconDiamond class="size-10 text-white/20" /></div>
+              </div>
+              <div class="px-5 py-5">
+                <p class="text-[11px] uppercase tracking-[0.3em] text-[#d7af70]">{{ String(index + 2).padStart(2, '0') }}</p>
+                <h3 class="mt-2 font-serif text-2xl">{{ item.name }}</h3>
+                <p v-if="item.description" class="mt-3 text-sm leading-7 text-[#f5ebda]/58">{{ item.description }}</p>
+                <div class="mt-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-[#d7af70]">
+                  <span>{{ meta('viewText', lang === 'id' ? 'Lihat Koleksi' : 'View Collection') }}</span>
+                  <IconArrowUpRight class="size-4" />
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
       </div>
     </div>
   </section>

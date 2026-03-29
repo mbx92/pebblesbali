@@ -6,21 +6,23 @@
         <h1 class="text-2xl font-bold text-base-content">Dashboard</h1>
         <p class="text-sm text-base-content/50 mt-1">{{ dashboardSubtitle }}</p>
       </div>
-      <NuxtLink
-        to="/admin/templates"
-        class="btn btn-sm btn-outline gap-2 mt-3 sm:mt-0"
-      >
-        <IconLayoutGrid class="w-4 h-4" />
-        Template Library
-      </NuxtLink>
-      <NuxtLink
-        to="/"
-        target="_blank"
-        class="btn btn-sm btn-outline gap-2 mt-3 sm:mt-0"
-      >
-        <IconEye class="w-4 h-4" />
-        Live Preview
-      </NuxtLink>
+      <div class="mt-3 flex flex-wrap gap-2 sm:mt-0 sm:justify-end">
+        <NuxtLink
+          to="/admin/templates"
+          class="btn btn-sm btn-outline gap-2"
+        >
+          <IconLayoutGrid class="w-4 h-4" />
+          Template Library
+        </NuxtLink>
+        <NuxtLink
+          to="/"
+          target="_blank"
+          class="btn btn-sm btn-outline gap-2"
+        >
+          <IconEye class="w-4 h-4" />
+          Live Preview
+        </NuxtLink>
+      </div>
     </div>
 
     <!-- Stats -->

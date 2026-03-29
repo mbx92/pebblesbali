@@ -20,6 +20,9 @@ import GuesthouseOasisRoomsSection from '~/components/sections/GuesthouseOasisRo
 import GuesthouseCourtyardAmenitiesSection from '~/components/sections/GuesthouseCourtyardAmenitiesSection.vue'
 import GuesthouseCourtyardBookingSection from '~/components/sections/GuesthouseCourtyardBookingSection.vue'
 import GuesthouseCourtyardHeroSection from '~/components/sections/GuesthouseCourtyardHeroSection.vue'
+import GuesthouseVerandaBookingSection from '~/components/sections/GuesthouseVerandaBookingSection.vue'
+import GuesthouseVerandaHeroSection from '~/components/sections/GuesthouseVerandaHeroSection.vue'
+import GuesthouseVerandaRoomsSection from '~/components/sections/GuesthouseVerandaRoomsSection.vue'
 import JewelryBoutiqueAboutSection from '~/components/sections/JewelryBoutiqueAboutSection.vue'
 import JewelryBoutiqueHeroSection from '~/components/sections/JewelryBoutiqueHeroSection.vue'
 import JewelryEditorialCollectionsSection from '~/components/sections/JewelryEditorialCollectionsSection.vue'
@@ -88,6 +91,12 @@ const TEMPLATE_COMPONENTS: Record<string, TemplateComponentMap> = {
     hero: GuesthouseCourtyardHeroSection,
     amenities: GuesthouseCourtyardAmenitiesSection,
     booking: GuesthouseCourtyardBookingSection,
+  },
+  'guesthouse-veranda': {
+    ...DEFAULT_COMPONENTS.guesthouse,
+    hero: GuesthouseVerandaHeroSection,
+    rooms: GuesthouseVerandaRoomsSection,
+    booking: GuesthouseVerandaBookingSection,
   },
 }
 

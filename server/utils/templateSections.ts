@@ -45,6 +45,15 @@ const TEMPLATE_SECTION_SEEDS: Record<string, TemplateSectionSeed[]> = {
     { slug: 'testimonials', title: 'Guest notes with more warmth', subtitle: 'Reviews that reinforce hospitality and personal care', body: 'Courtyard mode works well when testimonials feel human and unpolished in a good way.', sortOrder: 6 },
     { slug: 'booking', title: 'Invite guests into a direct conversation', subtitle: 'Booking phrased more like host support than a hard sell', body: 'Keep booking direct, but let the tone feel warm and responsive.', sortOrder: 7 },
   ],
+  'guesthouse-veranda': [
+    { slug: 'hero', title: 'Sun-washed terraces, slower check-ins, easy tropical stays', subtitle: 'A veranda-led guesthouse template with warmer light, open-air framing, and softer booking cues.', body: 'Built for properties that want to feel airy, design-forward, and quietly premium without becoming resort-generic.', sortOrder: 1 },
+    { slug: 'rooms', title: 'Suites presented with more terrace calm', subtitle: 'Room choices framed around light, airflow, and longer-stay comfort', body: 'Veranda mode favors wider room cards, calmer copy, and a more editorial balance between rates and atmosphere.', sortOrder: 2 },
+    { slug: 'amenities', title: 'Daily comforts with a boutique-stay tone', subtitle: 'Show the details that help guests settle in quickly', body: 'Use this section to position the stay as thoughtful, quiet, and well-prepared for slower Bali routines.', sortOrder: 3 },
+    { slug: 'gallery', title: 'A visual tour of terraces, rooms, and late light', subtitle: 'More sun, texture, and open-air moments', body: 'The veranda template works best when the gallery leans into natural light and lived-in hospitality.', sortOrder: 4 },
+    { slug: 'location', title: 'Stay close to cafes, surf, and the easy route home', subtitle: 'Position the guesthouse around everyday movement, not just landmarks', body: 'Frame the location as part of a softer daily rhythm around the property.', sortOrder: 5 },
+    { slug: 'testimonials', title: 'Guest notes from longer, quieter stays', subtitle: 'Reviews should reinforce calm, support, and return visits', body: 'Compact testimonials work well here when they feel specific and grounded.', sortOrder: 6 },
+    { slug: 'booking', title: 'Reserve directly with a calmer conversation flow', subtitle: 'Direct booking framed as host support and terrace-ready planning', body: 'Keep the CTA simple, responsive, and less transactional than a standard booking grid.', sortOrder: 7 },
+  ],
   'jewelry-editorial': [
     { slug: 'hero', title: 'Jewelry arranged like an editorial story', subtitle: 'A more spacious, gallery-like first impression for handcrafted Balinese pieces.', body: 'This template leans into composition, rhythm, and premium storytelling for jewelry brands that want a stronger visual statement.', sortOrder: 1 },
     { slug: 'collections', title: 'Curated collections with slower pacing', subtitle: 'Let each line feel more deliberate and visual', body: 'Collections can feel less like a catalog block and more like an editorial spread.', sortOrder: 2 },

@@ -179,14 +179,36 @@ const route = useRoute()
 const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
   key: 'site-settings',
 })
-const previewTemplateKey = computed(() => typeof route.query.templateKey === 'string' ? route.query.templateKey : undefined)
-const previewBusinessType = computed(() => typeof route.query.businessType === 'string' ? route.query.businessType : undefined)
+const resolvedTemplateKey = computed(() => {
+  if (typeof route.query.templateKey === 'string' && route.query.templateKey) {
+    return route.query.templateKey
+  }
+
+  if (settings.value?.draftTemplateKey) {
+    return settings.value.draftTemplateKey
+  }
+
+  return settings.value?.templateKey
+})
+
+const resolvedBusinessType = computed(() => {
+  if (typeof route.query.businessType === 'string' && route.query.businessType) {
+    return route.query.businessType
+  }
+
+  if (settings.value?.draftTemplateKey) {
+    return settings.value?.draftBusinessType || settings.value?.businessType
+  }
+
+  return settings.value?.businessType
+})
+
 const { businessType, template } = useTemplate(settings, {
-  businessType: previewBusinessType,
-  templateKey: previewTemplateKey,
+  businessType: resolvedBusinessType,
+  templateKey: resolvedTemplateKey,
 })
 const mediaLibraryEnabled = computed(() => isFeatureEnabled(settings.value, 'mediaLibrary'))
-const isDraftScope = computed(() => route.query.mode === 'draft')
+const isDraftScope = computed(() => route.query.mode === 'draft' || (!route.query.templateKey && !!settings.value?.draftTemplateKey && settings.value.draftTemplateKey === template.value.key))
 const { data: sections, refresh } = await useFetch<Section[]>('/api/sections', {
   query: computed(() => ({
     businessType: businessType.value,

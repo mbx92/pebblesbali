@@ -7,6 +7,7 @@ defineProps<{
   businessType: BusinessType
   themeName: string
   imageSrc?: string
+  generated?: boolean
 }>()
 </script>
 
@@ -32,6 +33,12 @@ defineProps<{
       </span>
       <span class="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.26em] text-white/85 backdrop-blur-sm">
         {{ themeName }}
+      </span>
+    </div>
+
+    <div class="absolute left-4 top-16">
+      <span class="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.26em] text-white/85 backdrop-blur-sm">
+        {{ generated ? 'Live Shot' : 'Fallback' }}
       </span>
     </div>
 

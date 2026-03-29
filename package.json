@@ -54,6 +54,7 @@
     "@types/node": "^25.3.5",
     "cross-env": "^10.1.0",
     "daisyui": "^5.5.19",
+    "playwright": "^1.58.2",
     "prisma": "^7.4.2",
     "tsx": "^4.21.0"
   }

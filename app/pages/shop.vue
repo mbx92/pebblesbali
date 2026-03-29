@@ -97,6 +97,16 @@ const filteredProducts = computed(() => {
 
 const activeCollection = computed(() => collections.value.find(c => c.id === selectedCollection.value))
 
+function stripHtml(value: string | null | undefined) {
+  if (!value) return ''
+
+  return value
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 // --- Product modal ---
 const selectedProduct = ref<Product | null>(null)
 const galleryIndex = ref(0)
@@ -323,7 +333,7 @@ useSeoMeta({
           <div>
             <span class="text-xs text-secondary tracking-widest uppercase font-medium">{{ product.collection.name }}</span>
             <h3 class="font-serif text-base text-primary font-light mt-0.5 leading-snug group-hover:text-secondary transition-colors">{{ product.name }}</h3>
-            <p v-if="product.description" class="text-xs text-base-content/50 mt-1 line-clamp-2 font-light leading-relaxed">{{ product.description }}</p>
+            <p v-if="product.description" class="text-xs text-base-content/50 mt-1 line-clamp-2 font-light leading-relaxed">{{ stripHtml(product.description) }}</p>
             <div class="flex items-center justify-between mt-2">
               <span class="font-medium text-primary text-sm tracking-wide">{{ formatPrice(product.price) }}</span>
             </div>
@@ -404,9 +414,11 @@ useSeoMeta({
                 </div>
               </div>
 
-              <p v-if="selectedProduct.description" class="text-base-content/60 font-light leading-relaxed text-sm mt-6 whitespace-pre-line">
-                {{ selectedProduct.description }}
-              </p>
+              <div
+                v-if="selectedProduct.description"
+                class="tiptap-render mt-6 text-sm leading-relaxed text-base-content/60"
+                v-html="selectedProduct.description"
+              />
 
               <!-- CTA -->
               <div class="mt-auto pt-8 space-y-3">

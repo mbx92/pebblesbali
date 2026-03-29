@@ -22,6 +22,7 @@ const route = useRoute()
 const previewTemplateKey = computed(() => typeof route.query.previewTemplate === 'string' ? route.query.previewTemplate : undefined)
 const previewTemplateDefinition = computed(() => getTemplateByKey(previewTemplateKey.value))
 const previewBusinessType = computed(() => previewTemplateDefinition.value?.businessType)
+const captureMode = computed(() => typeof route.query.capturePreview === 'string' && route.query.capturePreview === '1')
 
 const { businessType, template, getSectionSlug, getSectionAnchor } = useTemplate(settings, {
   businessType: previewBusinessType,
@@ -48,31 +49,38 @@ const adminBarVisible = useAdminBar()
 const siteName = computed(() => settings.value?.siteName || template.value.defaults.siteName)
 const siteTagline = computed(() => settings.value?.siteTagline || template.value.defaults.siteTagline || '')
 const defaultMetaDescription = computed(() => template.value.defaults.metaDescription || 'Handcrafted Balinese jewelry inspired by the island\'s rich cultural heritage.')
+const visibleTemplateSections = computed(() => template.value.sections
+  .filter(section => !section.requiresFeature || plan.hasFeature(section.requiresFeature)))
+
+const templateSections = computed(() => visibleTemplateSections.value
+  .map(sectionDefinition => ({
+    ...sectionDefinition,
+    data: getTemplateSection(sectionDefinition.key),
+  }))
+  .filter(sectionDefinition => !!sectionDefinition.data))
+
+const activeSectionKeys = computed(() => new Set(templateSections.value.map(section => section.key)))
+
 const navigationItems = computed(() => template.value.navigation
   .filter(item => !item.requiresFeature || plan.hasFeature(item.requiresFeature))
+  .filter(item => !item.sectionKey || activeSectionKeys.value.has(item.sectionKey))
   .map(item => ({
     ...item,
     href: item.sectionKey ? `#${getSectionAnchor(item.sectionKey)}` : item.href,
   })))
 
-const visibleTemplateSections = computed(() => template.value.sections
-  .filter(section => !section.requiresFeature || plan.hasFeature(section.requiresFeature)))
-
-const templateSections = computed(() => visibleTemplateSections.value.map(sectionDefinition => ({
-  ...sectionDefinition,
-  data: getTemplateSection(sectionDefinition.key),
-})))
-
 const bookingEngineEnabled = computed(() => businessType.value === 'guesthouse' && plan.hasFeature('bookingEngine'))
 const previewMode = computed(() => !!previewTemplateDefinition.value)
+const floatingPreviewBadgeVisible = computed(() => previewMode.value && !captureMode.value)
+const previewBarVisible = computed(() => !captureMode.value)
 
 const heroPrimaryTargetKey = computed(() => {
-  return visibleTemplateSections.value.find(section => section.key !== 'hero')?.key || null
+  return templateSections.value.find(section => section.key !== 'hero')?.key || null
 })
 
 const heroSecondaryTargetKey = computed(() => {
-  return visibleTemplateSections.value.find(section => section.key === 'booking')?.key
-    || visibleTemplateSections.value.filter(section => section.key !== 'hero')[1]?.key
+  return templateSections.value.find(section => section.key === 'booking')?.key
+    || templateSections.value.filter(section => section.key !== 'hero')[1]?.key
     || heroPrimaryTargetKey.value
     || null
 })
@@ -137,15 +145,15 @@ if (import.meta.server) {
 <template>
   <div :data-theme="template.themeName" class="min-h-screen bg-base-100 font-sans">
 
-    <AdminPreviewBar />
+    <AdminPreviewBar v-if="previewBarVisible" />
 
-    <div v-if="previewMode" class="fixed right-4 z-70 rounded-2xl border border-warning/40 bg-base-100/95 px-4 py-3 text-xs shadow-lg backdrop-blur" :class="adminBarVisible ? 'top-12' : 'top-4'">
+    <div v-if="floatingPreviewBadgeVisible" class="fixed right-4 z-70 rounded-2xl border border-warning/40 bg-base-100/95 px-4 py-3 text-xs shadow-lg backdrop-blur" :class="adminBarVisible ? 'top-12' : 'top-4'">
       <p class="font-semibold uppercase tracking-wide text-warning">Draft Template Preview</p>
       <p class="mt-1 text-base-content/60">{{ template.label }}</p>
     </div>
 
     <!-- ===== NAVBAR ===== -->
-    <nav :class="['fixed z-50 w-full bg-base-100/90 backdrop-blur-md border-b border-base-200 transition-[top] duration-300', adminBarVisible ? 'top-9' : 'top-0']">
+    <nav :class="['fixed z-50 w-full bg-base-100/90 backdrop-blur-md border-b border-base-200 transition-[top] duration-300', previewBarVisible && adminBarVisible ? 'top-9' : 'top-0']">
       <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <NuxtLink to="/" class="flex items-center gap-2 shrink-0">
           <img v-if="settings?.logoUrl" :src="settings.logoUrl" :alt="siteName" class="h-9 w-auto max-w-40 object-contain" />

@@ -28,6 +28,12 @@ function meta(key: string, fallback = '') {
         <p class="mt-4 text-sm leading-7 text-[#201c18]/64 md:text-base">{{ props.section?.subtitle || (lang === 'id' ? 'Preset ini mengarah ke bahasa UI app commerce: tile ringkas, chip category, dan CTA yang lebih cepat terlihat.' : 'This preset leans into commerce-app UI language with compact tiles, category chips, and faster CTA visibility.') }}</p>
       </div>
 
+      <div class="mt-6 flex flex-wrap gap-2">
+        <span class="rounded-full bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#201c18]/56 shadow-sm">Trending</span>
+        <span class="rounded-full bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#201c18]/56 shadow-sm">Minimal</span>
+        <span class="rounded-full bg-[#ffbe2e] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#201c18] shadow-sm">New Drop</span>
+      </div>
+
       <div v-if="items.length" class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         <article v-for="item in items" :key="item.id" class="overflow-hidden rounded-4xl border border-[#201c18]/10 bg-white shadow-[0_18px_50px_rgba(0,0,0,0.05)]">
           <div class="flex items-center justify-between px-4 pt-4 text-[#201c18]/45">

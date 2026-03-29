@@ -48,7 +48,8 @@
                 :label="templateOption.label"
                 :business-type="templateOption.businessType"
                 :theme-name="templateOption.themeName"
-                :image-src="templateOption.previewImage"
+                :image-src="getPreviewImage(templateOption.key)"
+                :generated="getPreviewStatus(templateOption.key)?.generated"
               />
 
               <div class="border-b border-base-300 px-5 py-4">
@@ -58,6 +59,9 @@
                       <span v-if="isActiveTemplate(templateOption.key)" class="badge badge-soft badge-success">Active</span>
                       <span v-if="isDraftTemplate(templateOption.key)" class="badge badge-soft badge-warning">Draft</span>
                       <span class="badge badge-soft uppercase">{{ templateOption.themeName }}</span>
+                      <span class="badge badge-soft" :class="getPreviewStatus(templateOption.key)?.generated ? 'badge-info' : 'badge-ghost'">
+                        {{ getPreviewStatus(templateOption.key)?.generated ? 'Live screenshot' : 'SVG fallback' }}
+                      </span>
                     </div>
                     <h3 class="mt-3 text-lg font-semibold text-base-content">{{ templateOption.label }}</h3>
                     <p class="mt-2 text-sm leading-6 text-base-content/60">{{ templateOption.description }}</p>
@@ -72,8 +76,8 @@
                     <p class="mt-2 text-lg font-bold text-base-content">{{ templateOption.sections.length }}</p>
                   </div>
                   <div class="rounded-2xl border border-base-300 bg-base-100 px-3 py-3">
-                    <p class="font-semibold uppercase tracking-wide text-base-content/45">Navigation</p>
-                    <p class="mt-2 text-lg font-bold text-base-content">{{ templateOption.navigation.length }}</p>
+                    <p class="font-semibold uppercase tracking-wide text-base-content/45">Last Capture</p>
+                    <p class="mt-2 text-sm font-semibold text-base-content">{{ getGeneratedAtLabel(templateOption.key) }}</p>
                   </div>
                 </div>
               </div>
@@ -96,6 +100,14 @@
                   >
                     Preview
                   </a>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-ghost border border-base-300"
+                    :disabled="!!generating || generatingAll"
+                    @click="generatePreview(templateOption.key)"
+                  >
+                    {{ generating === templateOption.key ? 'Generating...' : (getPreviewStatus(templateOption.key)?.generated ? 'Regenerate Shot' : 'Generate Shot') }}
+                  </button>
                 </div>
 
                 <div class="flex flex-wrap gap-2">
@@ -138,6 +150,14 @@
               </div>
             </div>
             <div class="mt-5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline border-base-300"
+                :disabled="generatingAll || !!generating"
+                @click="generatePreview()"
+              >
+                {{ generatingAll ? 'Generating All...' : 'Regenerate All Screenshots' }}
+              </button>
               <a
                 v-if="draftTemplate"
                 :href="previewHref(draftTemplate.key)"
@@ -173,6 +193,7 @@
                 Discard Draft
               </button>
             </div>
+            <p v-if="generationMessage" class="mt-4 text-xs leading-6 text-base-content/55">{{ generationMessage }}</p>
           </div>
         </div>
 
@@ -203,23 +224,30 @@
 <script setup lang="ts">
 import TemplateLibraryPreview from '~/components/admin/TemplateLibraryPreview.vue'
 import { BUSINESS_TYPE_OPTIONS, getAllTemplateOptions, getTemplateByKey } from '~/templates/registry'
-import type { BusinessType } from '~/types'
+import type { BusinessType, TemplatePreviewStatus } from '~/types'
 
 definePageMeta({ layout: 'default' })
 
 const { data: settings, refresh: refreshSettings } = await useFetch<Record<string, string>>('/api/settings', {
   key: 'site-settings',
 })
+const { data: previewStatuses, refresh: refreshPreviewStatuses } = await useFetch<TemplatePreviewStatus[]>('/api/templates/previews', {
+  key: 'template-preview-statuses',
+})
 
 const draftSaving = ref(false)
 const publishing = ref(false)
 const discarding = ref(false)
+const generating = ref<string | null>(null)
+const generatingAll = ref(false)
+const generationMessage = ref('')
 const scopeFilter = ref<'all' | BusinessType>('all')
 
 const businessTypeOptions = BUSINESS_TYPE_OPTIONS
 const templates = computed(() => getAllTemplateOptions())
 const activeTemplate = computed(() => getTemplateByKey(settings.value?.templateKey))
 const draftTemplate = computed(() => getTemplateByKey(settings.value?.draftTemplateKey))
+const previewStatusMap = computed(() => new Map((previewStatuses.value ?? []).map(status => [status.templateKey, status])))
 
 const groupedTemplates = computed(() => {
   return businessTypeOptions
@@ -245,6 +273,22 @@ function templateCardClass(templateKey: string) {
   return 'border-base-300'
 }
 
+function getPreviewStatus(templateKey: string) {
+  return previewStatusMap.value.get(templateKey) || null
+}
+
+function getPreviewImage(templateKey: string) {
+  const status = getPreviewStatus(templateKey)
+  if (status?.generated && status.imageUrl) return status.imageUrl
+  return getTemplateByKey(templateKey)?.previewImage
+}
+
+function getGeneratedAtLabel(templateKey: string) {
+  const generatedAt = getPreviewStatus(templateKey)?.generatedAt
+  if (!generatedAt) return 'Not generated yet'
+  return generatedAt.replace('T', ' ').slice(0, 16)
+}
+
 function previewHref(templateKey: string) {
   const template = getTemplateByKey(templateKey)
   if (!template) return '/'
@@ -267,6 +311,33 @@ function draftEditorLink(templateKey: string) {
       businessType: template.businessType,
       mode: 'draft',
     },
+  }
+}
+
+async function generatePreview(templateKey?: string) {
+  generationMessage.value = ''
+
+  if (templateKey) {
+    generating.value = templateKey
+  } else {
+    generatingAll.value = true
+  }
+
+  try {
+    const response = await $fetch<{ generated: Array<{ templateKey: string }> }>('/api/templates/previews/generate', {
+      method: 'POST',
+      body: templateKey ? { templateKey } : {},
+    })
+    await refreshPreviewStatuses()
+    await refreshNuxtData('template-preview-statuses')
+    generationMessage.value = templateKey
+      ? `Live screenshot updated for ${getTemplateByKey(templateKey)?.label || templateKey}.`
+      : `Live screenshots updated for ${response.generated.length} templates.`
+  } catch (error: any) {
+    generationMessage.value = error?.data?.statusMessage || error?.message || 'Failed to generate live screenshots.'
+  } finally {
+    generating.value = null
+    generatingAll.value = false
   }
 }
 

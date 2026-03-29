@@ -278,6 +278,42 @@
   --noise: 0;
 }
 
+@plugin "daisyui/theme" {
+  name: "guesthouse-veranda";
+  default: false;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: oklch(96% 0.012 78);
+  --color-base-200: oklch(93% 0.014 78);
+  --color-base-300: oklch(86% 0.018 78);
+  --color-base-content: oklch(27% 0.02 55);
+  --color-primary: oklch(36% 0.04 165);
+  --color-primary-content: oklch(98% 0.004 82);
+  --color-secondary: oklch(73% 0.11 58);
+  --color-secondary-content: oklch(22% 0.012 58);
+  --color-accent: oklch(80% 0.06 88);
+  --color-accent-content: oklch(24% 0.012 88);
+  --color-neutral: oklch(30% 0.025 165);
+  --color-neutral-content: oklch(98% 0.004 82);
+  --color-info: oklch(56% 0.155 230);
+  --color-info-content: oklch(100% 0 0);
+  --color-success: oklch(58% 0.16 150);
+  --color-success-content: oklch(100% 0 0);
+  --color-warning: oklch(80% 0.18 85);
+  --color-warning-content: oklch(17% 0.005 260);
+  --color-error: oklch(57% 0.22 27);
+  --color-error-content: oklch(100% 0 0);
+  --radius-selector: 0.25rem;
+  --radius-field: 0.4rem;
+  --radius-box: 1.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
 /* Modal backdrop */
 .modal-backdrop {
   background-color: oklch(0% 0 0 / 45%);
