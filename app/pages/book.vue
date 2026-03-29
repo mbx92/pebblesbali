@@ -171,6 +171,7 @@
 </template>
 
 <script setup lang="ts">
+import { useTemplate } from '~/composables/useTemplate'
 import type { AvailabilityResponse, BookingQuote, GuesthouseBooking, RoomType } from '~/types'
 
 definePageMeta({ layout: false, middleware: 'features' })

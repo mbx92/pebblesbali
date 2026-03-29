@@ -1,0 +1,15 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" fill="#EFE7DA"/>
+  <rect x="70" y="70" width="1060" height="760" rx="42" fill="#32463F"/>
+  <rect x="110" y="120" width="650" height="320" rx="34" fill="#415D54"/>
+  <circle cx="650" cy="220" r="90" fill="#D2B48C" fill-opacity="0.28"/>
+  <text x="155" y="240" fill="#F6EEE4" font-size="84" font-family="Georgia">Courtyard</text>
+  <text x="155" y="320" fill="#F6EEE4" font-size="84" font-family="Georgia">Arrival</text>
+  <rect x="155" y="355" width="220" height="56" rx="28" fill="#D2B48C"/>
+  <rect x="805" y="120" width="275" height="320" rx="30" fill="#FAF4EC"/>
+  <rect x="835" y="165" width="215" height="180" rx="20" fill="#E8D7C2"/>
+  <rect x="110" y="500" width="300" height="250" rx="28" fill="#FAF4EC"/>
+  <rect x="450" y="500" width="300" height="250" rx="28" fill="#FAF4EC"/>
+  <rect x="790" y="500" width="290" height="250" rx="28" fill="#FAF4EC"/>
+  <text x="150" y="720" fill="#32463F" font-size="24" font-family="Arial" font-weight="700">Warm hospitality cues</text>
+</svg>

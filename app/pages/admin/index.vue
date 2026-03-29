@@ -7,6 +7,13 @@
         <p class="text-sm text-base-content/50 mt-1">{{ dashboardSubtitle }}</p>
       </div>
       <NuxtLink
+        to="/admin/templates"
+        class="btn btn-sm btn-outline gap-2 mt-3 sm:mt-0"
+      >
+        <IconLayoutGrid class="w-4 h-4" />
+        Template Library
+      </NuxtLink>
+      <NuxtLink
         to="/"
         target="_blank"
         class="btn btn-sm btn-outline gap-2 mt-3 sm:mt-0"
@@ -290,8 +297,10 @@ import {
   IconQuote,
   IconArticle,
   IconEye,
+  IconLayoutGrid,
   IconSettings,
 } from '@tabler/icons-vue'
+import { useTemplate } from '~/composables/useTemplate'
 import type { Section, Collection, Product, Testimonial, BlogPost } from '~/types'
 
 const { data: sections } = await useFetch<Section[]>('/api/sections')

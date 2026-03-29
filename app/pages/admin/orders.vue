@@ -182,6 +182,8 @@
 
 <script setup lang="ts">
 import { IconX, IconEye, IconShoppingBag, IconDiamond } from '@tabler/icons-vue'
+import { useAdminDateFormat } from '~/composables/useAdminDateFormat'
+import { useTemplate } from '~/composables/useTemplate'
 import type { Order, OrderStatus, PaymentStatus } from '~/types'
 
 const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
@@ -194,6 +196,7 @@ if (businessType.value !== 'jewelry') {
 }
 
 const { data: orders, refresh } = await useFetch<Order[]>('/api/orders')
+const { formatAdminDateTime } = useAdminDateFormat()
 
 const PAYMENT_LABELS: Record<string, string> = {
   unpaid: 'Unpaid',
@@ -250,7 +253,7 @@ function statusBadge(status: string) {
 }
 
 function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return formatAdminDateTime(d)
 }
 
 function formatCurrency(val: string | number) {

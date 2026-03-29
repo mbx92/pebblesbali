@@ -117,6 +117,7 @@
 
 <script setup lang="ts">
 import { IconPlus, IconEdit, IconTrash, IconX, IconUsers } from '@tabler/icons-vue'
+import { useAdminDateFormat } from '~/composables/useAdminDateFormat'
 import type { User } from '~/types'
 
 const auth = useAuth()
@@ -128,6 +129,7 @@ const modalRef = ref<HTMLDialogElement>()
 const editing = ref<string | null>(null)
 const saving = ref(false)
 const error = ref('')
+const { formatAdminDateEn } = useAdminDateFormat()
 
 const defaultForm = () => ({ name: '', email: '', password: '', role: 'admin' })
 const form = ref(defaultForm())
@@ -181,6 +183,6 @@ async function remove(u: User) {
 }
 
 function formatDate(str: string) {
-  return new Date(str).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  return formatAdminDateEn(str)
 }
 </script>

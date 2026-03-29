@@ -11,12 +11,26 @@
       </div>
     </div>
 
-    <GuesthouseOccupancyPanel />
+    <ClientOnly>
+      <GuesthouseOccupancyPanel />
+
+      <template #fallback>
+        <div class="card bg-base-100 border border-base-300">
+          <div class="card-body py-10">
+            <div class="flex items-center justify-center">
+              <span class="loading loading-spinner loading-md" />
+            </div>
+            <p class="mt-4 text-center text-sm text-base-content/45">Loading occupancy timeline...</p>
+          </div>
+        </div>
+      </template>
+    </ClientOnly>
   </div>
 </template>
 
 <script setup lang="ts">
 import GuesthouseOccupancyPanel from '~/components/admin/GuesthouseOccupancyPanel.vue'
+import { useTemplate } from '~/composables/useTemplate'
 import { isFeatureEnabled } from '~/composables/usePlan'
 
 const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {

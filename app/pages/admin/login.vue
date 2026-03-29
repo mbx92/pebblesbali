@@ -143,6 +143,7 @@ import {
   IconEyeOff,
   IconAlertCircle,
 } from '@tabler/icons-vue'
+import { useTemplate } from '~/composables/useTemplate'
 
 definePageMeta({
   layout: false,

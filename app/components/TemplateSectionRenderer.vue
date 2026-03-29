@@ -1,23 +1,11 @@
 <script setup lang="ts">
-import GuesthouseAmenitiesSection from './sections/GuesthouseAmenitiesSection.vue'
-import GuesthouseBookingSection from './sections/GuesthouseBookingSection.vue'
-import GuesthouseGallerySection from './sections/GuesthouseGallerySection.vue'
-import GuesthouseHeroSection from './sections/GuesthouseHeroSection.vue'
-import GuesthouseLocationSection from './sections/GuesthouseLocationSection.vue'
-import GuesthouseRoomsSection from './sections/GuesthouseRoomsSection.vue'
-import GuesthouseTestimonialsSection from './sections/GuesthouseTestimonialsSection.vue'
-import JewelryAboutSection from './sections/JewelryAboutSection.vue'
-import JewelryBlogPreviewSection from './sections/JewelryBlogPreviewSection.vue'
-import JewelryCollectionsSection from './sections/JewelryCollectionsSection.vue'
-import JewelryContactSection from './sections/JewelryContactSection.vue'
-import JewelryHeroSection from './sections/JewelryHeroSection.vue'
-import JewelrySustainabilitySection from './sections/JewelrySustainabilitySection.vue'
-import JewelryTestimonialsSection from './sections/JewelryTestimonialsSection.vue'
-import type { BlogPost, BusinessType, Collection, Section, Testimonial } from '~/types'
+import { resolveTemplateSectionComponent } from '~/templates/sectionComponents'
+import type { BlogPost, BusinessType, Collection, Section, TemplateSectionComponentKey, Testimonial } from '~/types'
 
 const props = withDefaults(defineProps<{
   businessType?: BusinessType
-  sectionKey: 'hero' | 'collections' | 'about' | 'sustainability' | 'testimonials' | 'blog' | 'contact' | 'rooms' | 'amenities' | 'gallery' | 'location' | 'booking'
+  templateKey: string
+  sectionKey: TemplateSectionComponentKey
   section?: Section
   settings?: Record<string, string> | null
   collections?: Collection[]
@@ -41,104 +29,61 @@ const props = withDefaults(defineProps<{
   scrollHref: undefined,
   bookingEnabled: true,
 })
+
+const resolvedComponent = computed(() => resolveTemplateSectionComponent(props.templateKey, props.businessType, props.sectionKey))
+
+const componentProps = computed(() => {
+  const base = {
+    section: props.section,
+    sectionId: props.sectionId,
+  }
+
+  if (props.sectionKey === 'hero') {
+    return {
+      ...base,
+      ctaPrimaryHref: props.ctaPrimaryHref,
+      ctaSecondaryHref: props.ctaSecondaryHref,
+      scrollHref: props.scrollHref,
+      bookingEnabled: props.bookingEnabled,
+    }
+  }
+
+  if (props.sectionKey === 'collections') {
+    return {
+      ...base,
+      items: props.collections,
+    }
+  }
+
+  if (props.sectionKey === 'testimonials') {
+    return {
+      ...base,
+      items: props.testimonials,
+    }
+  }
+
+  if (props.sectionKey === 'blog') {
+    return {
+      ...base,
+      posts: props.posts,
+    }
+  }
+
+  if (props.sectionKey === 'contact' || props.sectionKey === 'location' || props.sectionKey === 'booking') {
+    return {
+      ...base,
+      settings: props.settings,
+    }
+  }
+
+  return base
+})
 </script>
 
 <template>
-  <JewelryHeroSection
-    v-if="businessType === 'jewelry' && sectionKey === 'hero'"
-    :section="section"
-    :section-id="sectionId || 'home'"
-    :cta-primary-href="ctaPrimaryHref"
-    :cta-secondary-href="ctaSecondaryHref"
-    :scroll-href="scrollHref"
-  />
-
-  <GuesthouseHeroSection
-    v-else-if="businessType === 'guesthouse' && sectionKey === 'hero'"
-    :section="section"
-    :section-id="sectionId || 'home'"
-    :cta-primary-href="ctaPrimaryHref"
-    :cta-secondary-href="ctaSecondaryHref"
-    :scroll-href="scrollHref"
-    :booking-enabled="bookingEnabled"
-  />
-
-  <JewelryCollectionsSection
-    v-else-if="businessType === 'jewelry' && sectionKey === 'collections'"
-    :section="section"
-    :items="collections"
-    :section-id="sectionId || 'collections'"
-  />
-
-  <JewelryAboutSection
-    v-else-if="businessType === 'jewelry' && sectionKey === 'about'"
-    :section="section"
-    :section-id="sectionId || 'about'"
-  />
-
-  <JewelrySustainabilitySection
-    v-else-if="businessType === 'jewelry' && sectionKey === 'sustainability'"
-    :section="section"
-    :section-id="sectionId || 'sustainability'"
-  />
-
-  <JewelryTestimonialsSection
-    v-else-if="businessType === 'jewelry' && sectionKey === 'testimonials'"
-    :section="section"
-    :items="testimonials"
-    :section-id="sectionId || 'testimonials'"
-  />
-
-  <GuesthouseTestimonialsSection
-    v-else-if="businessType === 'guesthouse' && sectionKey === 'testimonials'"
-    :section="section"
-    :items="testimonials"
-    :section-id="sectionId || 'reviews'"
-  />
-
-  <JewelryBlogPreviewSection
-    v-else-if="businessType === 'jewelry' && sectionKey === 'blog'"
-    :section="section"
-    :posts="posts"
-    :section-id="sectionId || 'blog'"
-  />
-
-  <JewelryContactSection
-    v-else-if="businessType === 'jewelry' && sectionKey === 'contact'"
-    :section="section"
-    :settings="settings"
-    :section-id="sectionId || 'contact'"
-  />
-
-  <GuesthouseRoomsSection
-    v-else-if="businessType === 'guesthouse' && sectionKey === 'rooms'"
-    :section="section"
-    :section-id="sectionId || 'rooms'"
-  />
-
-  <GuesthouseAmenitiesSection
-    v-else-if="businessType === 'guesthouse' && sectionKey === 'amenities'"
-    :section="section"
-    :section-id="sectionId || 'amenities'"
-  />
-
-  <GuesthouseGallerySection
-    v-else-if="businessType === 'guesthouse' && sectionKey === 'gallery'"
-    :section="section"
-    :section-id="sectionId || 'gallery'"
-  />
-
-  <GuesthouseLocationSection
-    v-else-if="businessType === 'guesthouse' && sectionKey === 'location'"
-    :section="section"
-    :settings="settings"
-    :section-id="sectionId || 'location'"
-  />
-
-  <GuesthouseBookingSection
-    v-else-if="businessType === 'guesthouse' && sectionKey === 'booking'"
-    :section="section"
-    :settings="settings"
-    :section-id="sectionId || 'booking'"
+  <component
+    :is="resolvedComponent"
+    v-if="resolvedComponent"
+    v-bind="componentProps"
   />
 </template>

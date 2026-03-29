@@ -189,6 +189,8 @@
 
 <script setup lang="ts">
 import { IconCalendarTime, IconEye, IconX } from '@tabler/icons-vue'
+import { useAdminDateFormat } from '~/composables/useAdminDateFormat'
+import { useTemplate } from '~/composables/useTemplate'
 import type { GuesthouseBooking, GuesthouseBookingPaymentStatus, GuesthouseBookingStatus } from '~/types'
 import { isFeatureEnabled } from '~/composables/usePlan'
 
@@ -230,6 +232,7 @@ const STATUS_LABELS: Record<GuesthouseBookingStatus, string> = {
 const PAYMENT_STATUSES = Object.entries(PAYMENT_LABELS).map(([value, label]) => ({ value: value as GuesthouseBookingPaymentStatus, label }))
 const BOOKING_STATUSES = Object.entries(STATUS_LABELS).map(([value, label]) => ({ value: value as GuesthouseBookingStatus, label }))
 const STATUS_FILTERS = [{ value: '', label: 'All' }, ...BOOKING_STATUSES]
+const { formatAdminDateTime, formatAdminDateRange } = useAdminDateFormat()
 
 const filterStatus = ref('')
 const filteredBookings = computed(() => {
@@ -238,13 +241,11 @@ const filteredBookings = computed(() => {
 })
 
 function formatDate(value: string) {
-  return new Date(value).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return formatAdminDateTime(value)
 }
 
 function formatStay(checkIn: string, checkOut: string) {
-  const start = new Date(checkIn).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
-  const end = new Date(checkOut).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
-  return `${start} → ${end}`
+  return formatAdminDateRange(checkIn, checkOut)
 }
 
 function formatIdr(value: number | string) {

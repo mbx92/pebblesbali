@@ -1,0 +1,17 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" fill="#090D18"/>
+  <rect x="60" y="50" width="1080" height="70" rx="35" fill="#0F1627" stroke="#23324F"/>
+  <text x="100" y="94" fill="#D7AF70" font-size="28" font-family="Georgia">Sense of Jewels Noir</text>
+  <rect x="90" y="160" width="700" height="620" rx="36" fill="#0E1628" stroke="#1F2A40"/>
+  <circle cx="610" cy="300" r="120" fill="#D7AF70" fill-opacity="0.12"/>
+  <text x="140" y="300" fill="#F5EBDA" font-size="88" font-family="Georgia">Noir</text>
+  <text x="140" y="385" fill="#F5EBDA" font-size="88" font-family="Georgia">Collection</text>
+  <rect x="140" y="425" width="220" height="56" rx="28" fill="#D7AF70"/>
+  <rect x="840" y="160" width="270" height="300" rx="28" fill="#101A2D" stroke="#24314A"/>
+  <circle cx="975" cy="295" r="86" fill="#D7AF70"/>
+  <circle cx="975" cy="295" r="34" fill="#FFF6E7"/>
+  <rect x="840" y="500" width="270" height="280" rx="28" fill="#101A2D" stroke="#24314A"/>
+  <text x="880" y="575" fill="#D7AF70" font-size="18" font-family="Arial" letter-spacing="4">SPOTLIGHT</text>
+  <text x="880" y="630" fill="#F5EBDA" font-size="34" font-family="Georgia">Collector</text>
+  <text x="880" y="670" fill="#F5EBDA" font-size="34" font-family="Georgia">Pieces</text>
+</svg>

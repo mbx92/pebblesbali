@@ -8,6 +8,7 @@
         <div class="mt-2 flex flex-wrap gap-2">
           <span class="badge badge-soft badge-secondary">{{ businessType }}</span>
           <span class="badge badge-soft badge-sm font-mono">{{ template.key }}</span>
+          <span v-if="isDraftScope" class="badge badge-soft badge-warning">Draft Scope</span>
         </div>
       </div>
       <div class="mt-3 sm:mt-0">
@@ -165,6 +166,7 @@
 
 <script setup lang="ts">
 import { IconPlus, IconEdit, IconTrash, IconX, IconLayoutList, IconPhoto } from '@tabler/icons-vue'
+import { useTemplate } from '~/composables/useTemplate'
 import { SECTION_METADATA_SCHEMA } from '~/templates/sectionSchemas'
 import type { Section } from '~/types'
 import { isFeatureEnabled } from '~/composables/usePlan'
@@ -173,11 +175,18 @@ type MetaSchema = (typeof SECTION_METADATA_SCHEMA)[string]
 
 // ---------- State ----------
 const pickerOpen = ref(false)
+const route = useRoute()
 const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
   key: 'site-settings',
 })
-const { businessType, template } = useTemplate(settings)
+const previewTemplateKey = computed(() => typeof route.query.templateKey === 'string' ? route.query.templateKey : undefined)
+const previewBusinessType = computed(() => typeof route.query.businessType === 'string' ? route.query.businessType : undefined)
+const { businessType, template } = useTemplate(settings, {
+  businessType: previewBusinessType,
+  templateKey: previewTemplateKey,
+})
 const mediaLibraryEnabled = computed(() => isFeatureEnabled(settings.value, 'mediaLibrary'))
+const isDraftScope = computed(() => route.query.mode === 'draft')
 const { data: sections, refresh } = await useFetch<Section[]>('/api/sections', {
   query: computed(() => ({
     businessType: businessType.value,
@@ -231,10 +240,15 @@ function closeModal() {
 async function save() {
   saving.value = true
   try {
+    const payload = {
+      ...form.value,
+      businessType: businessType.value,
+      templateKey: template.value.key,
+    }
     if (editing.value) {
-      await $fetch(`/api/sections/${editing.value}`, { method: 'PUT', body: form.value })
+      await $fetch(`/api/sections/${editing.value}`, { method: 'PUT', body: payload })
     } else {
-      await $fetch('/api/sections', { method: 'POST', body: form.value })
+      await $fetch('/api/sections', { method: 'POST', body: payload })
     }
     closeModal()
     await refresh()

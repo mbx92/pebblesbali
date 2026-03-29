@@ -212,6 +212,16 @@
               </li>
               <li>
                 <NuxtLink
+                  to="/admin/templates"
+                  active-class="bg-white/15 text-white font-semibold"
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base text-primary-content/75 hover:bg-white/10 hover:text-white transition-colors w-full"
+                >
+                  <IconLayoutGrid class="w-5 h-5 shrink-0" />
+                  Template Library
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink
                   to="/admin/settings"
                   active-class="bg-white/15 text-white font-semibold"
                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base text-primary-content/75 hover:bg-white/10 hover:text-white transition-colors w-full"
@@ -264,9 +274,11 @@ import {
   IconShoppingBag,
   IconShoppingCart,
   IconUsers,
+  IconLayoutGrid,
   IconPlugConnected,
   IconArticle,
 } from '@tabler/icons-vue'
+import { useTemplate } from '~/composables/useTemplate'
 
 const { data: themeSettings } = await useFetch<Record<string, string>>('/api/settings', {
   key: 'site-settings',
@@ -297,6 +309,7 @@ const pageTitle = computed(() => {
     '/admin/users': 'Users',
     '/admin/orders': 'Orders',
     '/admin/bookings': 'Bookings',
+    '/admin/templates': 'Template Library',
     '/admin/tracker': 'Tracker',
     '/admin/integrations': 'Integrations',
   }

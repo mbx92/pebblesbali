@@ -134,6 +134,8 @@ export interface SiteTemplate {
   key: string
   businessType: BusinessType
   label: string
+  description?: string
+  previewImage?: string
   themeName: string
   sectionMap: Record<string, string>
   sections: TemplateSectionDefinition[]

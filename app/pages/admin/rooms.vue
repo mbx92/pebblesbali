@@ -294,6 +294,7 @@
 
 <script setup lang="ts">
 import { IconBed, IconDoor, IconPhoto, IconPlus, IconX } from '@tabler/icons-vue'
+import { useTemplate } from '~/composables/useTemplate'
 import type { Property, RoomType, RoomUnit, RoomUnitStatus } from '~/types'
 import { isFeatureEnabled } from '~/composables/usePlan'
 

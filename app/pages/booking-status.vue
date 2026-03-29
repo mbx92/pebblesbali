@@ -161,6 +161,7 @@
 </template>
 
 <script setup lang="ts">
+import { useTemplate } from '~/composables/useTemplate'
 import type { GuesthouseBooking, GuesthouseBookingLookupItem, GuesthouseBookingLookupResponse } from '~/types'
 
 const recentBookingLookup = useState<{ referenceCode: string; guestEmail: string }>('recent-booking-lookup', () => ({

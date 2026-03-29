@@ -1,0 +1,16 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" fill="#F4EFE5"/>
+  <rect x="85" y="85" width="1030" height="730" rx="40" fill="#FBF8F2" stroke="#D5DDD0"/>
+  <rect x="115" y="120" width="970" height="290" rx="32" fill="#DDE8DA"/>
+  <circle cx="935" cy="220" r="94" fill="#8FB39A" fill-opacity="0.35"/>
+  <text x="160" y="250" fill="#233536" font-size="82" font-family="Georgia">Light</text>
+  <text x="160" y="330" fill="#233536" font-size="82" font-family="Georgia">Stay Flow</text>
+  <rect x="160" y="355" width="230" height="56" rx="28" fill="#4F6A54"/>
+  <rect x="140" y="480" width="620" height="230" rx="28" fill="#FFFDFC" stroke="#D9E0D3"/>
+  <rect x="170" y="530" width="130" height="60" rx="18" fill="#FFFFFF" stroke="#D9E0D3"/>
+  <rect x="325" y="530" width="130" height="60" rx="18" fill="#FFFFFF" stroke="#D9E0D3"/>
+  <rect x="480" y="530" width="130" height="60" rx="18" fill="#FFFFFF" stroke="#D9E0D3"/>
+  <rect x="635" y="530" width="95" height="60" rx="18" fill="#4F6A54"/>
+  <rect x="800" y="480" width="255" height="230" rx="28" fill="#FFFFFF" stroke="#D9E0D3"/>
+  <rect x="830" y="515" width="195" height="130" rx="18" fill="#E8EFE4"/>
+</svg>

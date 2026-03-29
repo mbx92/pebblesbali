@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { IconDiamond, IconCalendar, IconTag, IconArrowLeft, IconArticle } from '@tabler/icons-vue'
+import { useTemplate } from '~/composables/useTemplate'
 
 definePageMeta({ layout: false, middleware: 'features' })
 

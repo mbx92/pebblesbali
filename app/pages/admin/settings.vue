@@ -95,13 +95,16 @@
                   </fieldset>
                   <fieldset class="fieldset">
                     <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Template Preset</legend>
-                    <select v-model="form.templateKey" class="select w-full md:max-w-sm">
-                      <option v-for="templateOption in templateOptions" :key="templateOption.key" :value="templateOption.key">
-                        {{ templateOption.label }}
-                      </option>
-                    </select>
+                    <div class="max-w-md rounded-2xl border border-base-300 bg-base-200/35 px-4 py-4">
+                      <p class="text-sm font-medium text-base-content">{{ selectedTemplateOption?.label || 'Template not selected' }}</p>
+                      <p class="mt-1 text-xs leading-relaxed text-base-content/55">{{ selectedTemplateOption?.description || 'Template selection now lives in the dedicated Template Library page.' }}</p>
+                      <div class="mt-3 flex flex-wrap gap-2">
+                        <NuxtLink to="/admin/templates" class="btn btn-sm btn-outline border-base-300">Open Template Library</NuxtLink>
+                        <a v-if="form.draftTemplateKey" :href="draftPreviewHref" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-ghost">Preview Draft</a>
+                      </div>
+                    </div>
                     <p class="label max-w-sm text-xs leading-relaxed whitespace-normal text-base-content/40">
-                      Preset ini menentukan section set, navigation, dan landing layout dasar untuk business type aktif.
+                      Active template is published from Template Library. Draft templates can be previewed there before going live.
                     </p>
                   </fieldset>
                   <fieldset class="fieldset">
@@ -148,7 +151,7 @@
                <div class="bg-base-200/50 px-4 py-3 rounded-lg text-sm">
                 <p class="font-semibold text-xs uppercase tracking-wide text-base-content/50 mb-1">USD → IDR Exchange Rate</p>
                 <p class="text-base-content">
-                  <span v-if="liveRate">1 USD = <strong>{{ liveRate.IDR.toLocaleString('id-ID') }}</strong> IDR
+                  <span v-if="liveRate">1 USD = <strong>{{ formatRateIdr(liveRate.IDR) }}</strong> IDR
                     <span class="badge badge-xs ml-2" :class="liveRate.source === 'live' ? 'badge-success' : 'badge-warning'">
                       {{ liveRate.source === 'live' ? 'Live' : 'Fallback' }}
                     </span>
@@ -598,6 +601,7 @@ import {
   IconTruck,
   IconX,
 } from '@tabler/icons-vue'
+import { useAdminDateFormat } from '~/composables/useAdminDateFormat'
 import { THEME_DEFAULTS, FONT_OPTIONS } from '~/composables/useTheme'
 import { FEATURES, isFeatureEnabled } from '~/composables/usePlan'
 import type { BusinessType, Media, CityOption } from '~/types'
@@ -687,6 +691,7 @@ const { data: settings, refresh: refreshSettings } = await useFetch<Record<strin
   key: 'site-settings',
 })
 const { data: liveRate } = useFetch<{ IDR: number; source: string }>('/api/exchange-rate')
+const { formatAdminDateTime } = useAdminDateFormat()
 const saving = ref(false)
 const savingFeatures = ref(false)
 const seedLoading = ref<string | null>(null)
@@ -718,6 +723,8 @@ function createFormState(source?: Record<string, string> | null): Record<string,
   return {
     businessType: source?.businessType || 'jewelry',
     templateKey: source?.templateKey || DEFAULT_TEMPLATE_KEY,
+    draftTemplateKey: source?.draftTemplateKey || '',
+    draftBusinessType: source?.draftBusinessType || '',
     siteName: source?.siteName || 'Sense of Jewels',
     siteTagline: source?.siteTagline || '',
     siteUrl: source?.siteUrl || '',
@@ -827,6 +834,16 @@ const templateOptions = computed(() => {
   const options = getTemplateOptionsForBusinessType((form.value.businessType as BusinessType) || 'jewelry')
   return options.length ? options : getTemplateOptionsForBusinessType('jewelry')
 })
+const selectedTemplateOption = computed(() => templateOptions.value.find(option => option.key === form.value.templateKey) || templateOptions.value[0] || null)
+const draftPreviewHref = computed(() => {
+  if (!form.value.draftTemplateKey) return '/'
+  const params = new URLSearchParams()
+  params.set('previewTemplate', form.value.draftTemplateKey)
+  params.set('previewBusinessType', form.value.draftBusinessType || form.value.businessType || 'jewelry')
+  params.set('previewMode', 'draft')
+
+  return `/?${params.toString()}`
+})
 
 watch(() => form.value.businessType, (businessType) => {
   const options = getTemplateOptionsForBusinessType((businessType as BusinessType) || 'jewelry')
@@ -907,10 +924,14 @@ async function triggerBackup() {
 }
 
 function formatBackupDate(iso: string) {
-  return new Date(iso).toLocaleString('id-ID', {
-    day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  })
+  return formatAdminDateTime(iso)
+}
+
+function formatRateIdr(value: number) {
+  const rounded = Math.round(Number(value || 0))
+  return rounded
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, '.')
 }
 
 function formatBackupSize(bytes: number) {

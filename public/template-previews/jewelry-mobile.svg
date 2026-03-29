@@ -1,0 +1,21 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" fill="#F7F2EA"/>
+  <rect x="130" y="70" width="360" height="760" rx="46" fill="#FFFFFF" stroke="#E5D7C9" stroke-width="8"/>
+  <rect x="210" y="100" width="200" height="26" rx="13" fill="#E8DED2"/>
+  <text x="180" y="165" fill="#201C18" font-size="34" font-family="Arial" font-weight="700">Diamond Rings</text>
+  <rect x="170" y="210" width="130" height="160" rx="24" fill="#FCFAF6" stroke="#EEE3D8"/>
+  <rect x="320" y="210" width="130" height="160" rx="24" fill="#FCFAF6" stroke="#EEE3D8"/>
+  <rect x="170" y="390" width="130" height="160" rx="24" fill="#FCFAF6" stroke="#EEE3D8"/>
+  <rect x="320" y="390" width="130" height="160" rx="24" fill="#FCFAF6" stroke="#EEE3D8"/>
+  <circle cx="235" cy="275" r="42" fill="#FFBE2E"/>
+  <rect x="380" y="240" width="30" height="80" rx="15" fill="#FFBE2E"/>
+  <circle cx="235" cy="455" r="42" fill="#FFBE2E"/>
+  <path d="M355 500C385 435 425 435 424 500" stroke="#FFBE2E" stroke-width="16" stroke-linecap="round"/>
+  <rect x="170" y="740" width="280" height="54" rx="27" fill="#FFBE2E"/>
+  <rect x="650" y="70" width="380" height="760" rx="46" fill="#FFFFFF" stroke="#E5D7C9" stroke-width="8"/>
+  <rect x="710" y="165" width="260" height="280" rx="28" fill="#FCFAF6"/>
+  <circle cx="840" cy="305" r="80" fill="#FFBE2E"/>
+  <circle cx="840" cy="305" r="32" fill="#FFF8E0"/>
+  <text x="720" y="520" fill="#201C18" font-size="52" font-family="Arial" font-weight="700">Elite Ring</text>
+  <rect x="710" y="720" width="260" height="54" rx="27" fill="#FFBE2E"/>
+</svg>

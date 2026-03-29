@@ -261,6 +261,7 @@
 
 <script setup lang="ts">
 import { IconEye, IconX } from '@tabler/icons-vue'
+import { useAdminDateFormat } from '~/composables/useAdminDateFormat'
 import type {
   GuesthouseBooking,
   GuesthouseBookingPaymentStatus,
@@ -280,6 +281,8 @@ interface OccupancySegment {
   title: string
   bookingId?: string | null
 }
+
+const { formatAdminDateTime, formatAdminDateRange, formatOccupancyLabel } = useAdminDateFormat()
 
 const occupancyStartDate = useState('guesthouse-occupancy-start-date', () => todayDateInput())
 const occupancyDays = useState('guesthouse-occupancy-days', () => 14)
@@ -372,7 +375,7 @@ const occupancySummary = computed(() => occupancy.value?.summary || {
   hidden: 0,
   unassigned: 0,
 })
-const occupancySummaryLabel = computed(() => formatDisplayDate(occupancySummary.value.date))
+const occupancySummaryLabel = computed(() => formatOccupancyLabel(occupancySummary.value.date))
 const bookingModalRef = ref<HTMLDialogElement>()
 const selectedBooking = ref<GuesthouseBooking | null>(null)
 
@@ -387,24 +390,15 @@ function addDateDays(value: string, days: number) {
 }
 
 function formatDisplayDate(value: string) {
-  if (!value) return '-'
-  return new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(`${value}T00:00:00.000Z`))
+  return formatOccupancyLabel(value)
 }
 
 function formatDateTime(value: string) {
-  return new Date(value).toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  return formatAdminDateTime(value)
 }
 
 function formatStay(checkIn: string, checkOut: string) {
-  const start = new Date(checkIn).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
-  const end = new Date(checkOut).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
-  return `${start} → ${end}`
+  return formatAdminDateRange(checkIn, checkOut)
 }
 
 function formatIdr(value: number | string) {

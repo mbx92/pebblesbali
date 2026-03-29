@@ -132,6 +132,7 @@
 
 <script setup lang="ts">
 import { IconPlus, IconX, IconUser, IconStar, IconQuote, IconPhoto } from '@tabler/icons-vue'
+import { useTemplate } from '~/composables/useTemplate'
 import type { Testimonial } from '~/types'
 import { isFeatureEnabled } from '~/composables/usePlan'
 

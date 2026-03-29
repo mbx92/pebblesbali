@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { IconLayoutDashboard, IconPencil, IconX } from '@tabler/icons-vue'
+import { getTemplateByKey } from '~/templates/registry'
 
 const visible = useAdminBar()
 const auth = useAuth()
+const route = useRoute()
+
+const previewTemplate = computed(() => {
+  const key = typeof route.query.previewTemplate === 'string' ? route.query.previewTemplate : undefined
+  return getTemplateByKey(key)
+})
 
 onMounted(async () => {
   await auth.fetchUser()
@@ -26,10 +33,18 @@ onMounted(async () => {
       <div class="flex items-center gap-2.5">
         <span class="size-2 rounded-full bg-green-400 animate-pulse shrink-0" />
         <span class="tracking-wide hidden sm:inline">Live Preview</span>
+        <span v-if="previewTemplate" class="badge badge-soft badge-warning badge-xs hidden sm:inline-flex">{{ previewTemplate.label }}</span>
         <span class="text-base-100/20 mx-1 hidden sm:inline">·</span>
         <span class="text-secondary font-medium">{{ auth.user.value?.name || auth.user.value?.email }}</span>
       </div>
       <div class="flex items-center gap-4">
+        <NuxtLink
+          v-if="previewTemplate"
+          to="/admin/templates"
+          class="flex items-center gap-1.5 hover:text-secondary transition-colors tracking-widest uppercase"
+        >
+          <span class="hidden sm:inline">Template Library</span>
+        </NuxtLink>
         <NuxtLink
           to="/admin"
           class="flex items-center gap-1.5 hover:text-secondary transition-colors tracking-widest uppercase"
@@ -38,7 +53,7 @@ onMounted(async () => {
           <span class="hidden sm:inline">Dashboard</span>
         </NuxtLink>
         <NuxtLink
-          to="/admin/sections"
+          :to="previewTemplate ? { path: '/admin/sections', query: { templateKey: previewTemplate.key, businessType: previewTemplate.businessType, mode: 'draft' } } : '/admin/sections'"
           class="flex items-center gap-1.5 hover:text-secondary transition-colors tracking-widest uppercase"
         >
           <IconPencil class="size-3.5" />

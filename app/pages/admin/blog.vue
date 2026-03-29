@@ -57,7 +57,7 @@
                 </span>
               </td>
               <td class="text-xs text-base-content/50">
-                {{ post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : '—' }}
+                {{ post.publishedAt ? formatAdminDate(post.publishedAt) : '—' }}
               </td>
               <td>
                 <button class="btn btn-ghost btn-xs" @click.stop="openEdit(post)">
@@ -164,6 +164,7 @@
 
 <script setup lang="ts">
 import { IconPlus, IconX, IconArticle, IconPhoto, IconPencil } from '@tabler/icons-vue'
+import { useAdminDateFormat } from '~/composables/useAdminDateFormat'
 import type { BlogPost } from '~/types'
 import { isFeatureEnabled } from '~/composables/usePlan'
 
@@ -173,6 +174,7 @@ const { data: blogPosts, refresh } = await useFetch<BlogPost[]>('/api/blog')
 const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
   key: 'site-settings',
 })
+const { formatAdminDate } = useAdminDateFormat()
 const mediaLibraryEnabled = computed(() => isFeatureEnabled(settings.value, 'mediaLibrary'))
 
 const modalRef = ref<HTMLDialogElement>()

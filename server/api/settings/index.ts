@@ -30,9 +30,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    await ensureTemplateSections(String(body.templateKey || ''), String(body.businessType || ''))
+    const explicitTemplateKey = body.templateKey !== undefined ? String(body.templateKey || '') : ''
+    const explicitBusinessType = body.businessType !== undefined ? String(body.businessType || '') : ''
+    const draftTemplateKey = body.draftTemplateKey !== undefined ? String(body.draftTemplateKey || '') : ''
+    const draftBusinessType = body.draftBusinessType !== undefined ? String(body.draftBusinessType || '') : ''
 
-    if (String(body.businessType || '') === 'guesthouse') {
+    await ensureTemplateSections(explicitTemplateKey, explicitBusinessType)
+    await ensureTemplateSections(draftTemplateKey, draftBusinessType || explicitBusinessType)
+
+    if (explicitBusinessType === 'guesthouse') {
       await ensureDefaultGuesthouseProperty()
     }
 

@@ -201,6 +201,7 @@
 
 <script setup lang="ts">
 import { IconPlus, IconX, IconBug, IconCheckbox, IconSparkles, IconAlertTriangle } from '@tabler/icons-vue'
+import { useAdminDateFormat } from '~/composables/useAdminDateFormat'
 
 definePageMeta({ layout: 'default' })
 
@@ -233,6 +234,7 @@ const showModal = ref(false)
 const modalType = ref<EntityType>('task')
 const submitting = ref(false)
 const submitError = ref('')
+const { formatAdminDateTime } = useAdminDateFormat()
 
 const form = ref({
   title: '',
@@ -312,8 +314,7 @@ async function submit() {
 }
 
 function formatDate(iso: string) {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return formatAdminDateTime(iso)
 }
 
 function statusBadge(status: string) {

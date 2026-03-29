@@ -208,6 +208,7 @@
 
 <script setup lang="ts">
 import { IconPlus, IconX, IconDiamond, IconPhoto, IconBed } from '@tabler/icons-vue'
+import { useTemplate } from '~/composables/useTemplate'
 import type { Product, Collection } from '~/types'
 
 const pickerOpen = ref<'image' | 'gallery' | null>(null)

@@ -3,11 +3,12 @@ import {
   IconDiamond,
   IconHome,
 } from '@tabler/icons-vue'
+import { useTemplate } from '~/composables/useTemplate'
+import { getTemplateByKey } from '~/templates/registry'
 import type { BlogPost, Collection, Section, TemplateNavItem, Testimonial } from '~/types'
 
 definePageMeta({ layout: false })
 
-const { data: sectionsData } = await useFetch<Section[]>('/api/sections')
 const { data: collectionsData } = await useFetch<Collection[]>('/api/collections')
 const { data: testimonialsData } = await useFetch<Testimonial[]>('/api/testimonials')
 const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
@@ -16,6 +17,23 @@ const { data: settings } = await useFetch<Record<string, string>>('/api/settings
 const { data: blogData } = await useFetch<BlogPost[]>('/api/blog', { query: { published: 'true' } })
 
 useTheme(settings)
+
+const route = useRoute()
+const previewTemplateKey = computed(() => typeof route.query.previewTemplate === 'string' ? route.query.previewTemplate : undefined)
+const previewTemplateDefinition = computed(() => getTemplateByKey(previewTemplateKey.value))
+const previewBusinessType = computed(() => previewTemplateDefinition.value?.businessType)
+
+const { businessType, template, getSectionSlug, getSectionAnchor } = useTemplate(settings, {
+  businessType: previewBusinessType,
+  templateKey: previewTemplateKey,
+})
+
+const { data: sectionsData } = await useFetch<Section[]>('/api/sections', {
+  query: computed(() => ({
+    businessType: businessType.value,
+    templateKey: template.value.key,
+  })),
+})
 
 const sections = computed(() => sectionsData.value?.filter(s => s.isActive) ?? [])
 const collections = computed(() => collectionsData.value?.filter(c => c.isActive) ?? [])
@@ -26,7 +44,6 @@ const { lang, currency, t, formatPrice, toggleLang, toggleCurrency } = useLocale
 const plan = usePlan()
 const requestURL = useRequestURL()
 const adminBarVisible = useAdminBar()
-const { businessType, template, getSectionSlug, getSectionAnchor } = useTemplate(settings)
 
 const siteName = computed(() => settings.value?.siteName || template.value.defaults.siteName)
 const siteTagline = computed(() => settings.value?.siteTagline || template.value.defaults.siteTagline || '')
@@ -47,6 +64,7 @@ const templateSections = computed(() => visibleTemplateSections.value.map(sectio
 })))
 
 const bookingEngineEnabled = computed(() => businessType.value === 'guesthouse' && plan.hasFeature('bookingEngine'))
+const previewMode = computed(() => !!previewTemplateDefinition.value)
 
 const heroPrimaryTargetKey = computed(() => {
   return visibleTemplateSections.value.find(section => section.key !== 'hero')?.key || null
@@ -121,6 +139,11 @@ if (import.meta.server) {
 
     <AdminPreviewBar />
 
+    <div v-if="previewMode" class="fixed right-4 z-70 rounded-2xl border border-warning/40 bg-base-100/95 px-4 py-3 text-xs shadow-lg backdrop-blur" :class="adminBarVisible ? 'top-12' : 'top-4'">
+      <p class="font-semibold uppercase tracking-wide text-warning">Draft Template Preview</p>
+      <p class="mt-1 text-base-content/60">{{ template.label }}</p>
+    </div>
+
     <!-- ===== NAVBAR ===== -->
     <nav :class="['fixed z-50 w-full bg-base-100/90 backdrop-blur-md border-b border-base-200 transition-[top] duration-300', adminBarVisible ? 'top-9' : 'top-0']">
       <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -160,6 +183,7 @@ if (import.meta.server) {
       v-for="templateSection in templateSections"
       :key="templateSection.key"
       :business-type="businessType"
+      :template-key="template.key"
       :section-key="templateSection.key"
       :section="templateSection.data"
       :collections="collections"

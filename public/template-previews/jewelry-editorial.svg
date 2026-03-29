@@ -1,0 +1,19 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" fill="#F3ECE4"/>
+  <rect width="720" height="900" fill="#1C2C30"/>
+  <rect x="70" y="80" width="580" height="740" rx="34" fill="#243A40"/>
+  <text x="110" y="210" fill="#D9B27B" font-size="24" font-family="Arial" letter-spacing="7">EDITORIAL CURATION</text>
+  <text x="110" y="315" fill="#F7F1EB" font-size="80" font-family="Georgia">Stories</text>
+  <text x="110" y="395" fill="#F7F1EB" font-size="80" font-family="Georgia">in Gold</text>
+  <rect x="110" y="440" width="180" height="52" rx="26" fill="#D9B27B"/>
+  <rect x="770" y="90" width="360" height="330" rx="30" fill="#FFF9F3" stroke="#D8C8BA"/>
+  <rect x="790" y="110" width="320" height="210" rx="20" fill="#E7D7C7"/>
+  <circle cx="950" cy="215" r="78" fill="#C28A54"/>
+  <text x="790" y="360" fill="#2E2A25" font-size="34" font-family="Georgia">Curated Focus</text>
+  <rect x="770" y="470" width="170" height="280" rx="26" fill="#FFF9F3" stroke="#D8C8BA"/>
+  <rect x="960" y="470" width="170" height="280" rx="26" fill="#FFF9F3" stroke="#D8C8BA"/>
+  <rect x="790" y="490" width="130" height="170" rx="18" fill="#EADFD4"/>
+  <rect x="980" y="490" width="130" height="170" rx="18" fill="#EADFD4"/>
+  <circle cx="855" cy="575" r="36" fill="#C28A54"/>
+  <path d="M1010 610C1040 535 1080 535 1078 610" stroke="#C28A54" stroke-width="16" stroke-linecap="round"/>
+</svg>
