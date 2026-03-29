@@ -58,7 +58,7 @@ function meta(section: Section | undefined, key: string, fallback = ''): string 
             </div>
           </div>
           <h3 class="font-serif text-xl text-primary font-light tracking-wide">{{ item.name }}</h3>
-          <p v-if="item.description" class="text-base-content/50 text-sm mt-1 font-light leading-relaxed">{{ item.description }}</p>
+          <div v-if="item.description" class="text-base-content/50 text-sm mt-1 font-light leading-relaxed prose prose-sm max-w-none" v-html="item.description" />
         </div>
       </div>
       <div v-else class="text-center py-16 text-base-content/40">

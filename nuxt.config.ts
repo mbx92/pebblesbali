@@ -37,6 +37,9 @@ export default defineNuxtConfig({
   },
   vite: {
     plugins: [tailwindcss() as any],
+    resolve: {
+      dedupe: ['@tiptap/core', '@tiptap/pm'],
+    },
     server: {
       allowedHosts: true,
     },

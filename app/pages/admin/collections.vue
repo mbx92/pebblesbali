@@ -52,7 +52,7 @@
               {{ col.isActive ? 'Active' : 'Draft' }}
             </span>
           </div>
-          <p class="text-sm text-base-content/50 line-clamp-2 mt-1">{{ col.description || 'No description' }}</p>
+          <p class="text-sm text-base-content/50 line-clamp-2 mt-1">{{ col.description ? col.description.replace(/<[^>]*>/g, '') : 'No description' }}</p>
           <div class="mt-3 pt-3 border-t border-base-200 flex justify-between items-center">
             <span class="text-xs text-base-content/40">{{ col._count?.products || 0 }} products</span>
             <span class="text-xs font-mono text-base-content/40">/{{ col.slug }}</span>

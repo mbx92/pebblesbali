@@ -41,7 +41,7 @@ function meta(key: string, fallback = '') {
               <div>
                 <p class="text-[11px] uppercase tracking-[0.3em] text-[#d7af70]">01</p>
                 <h3 class="mt-3 max-w-sm font-serif text-3xl leading-tight md:text-4xl">{{ items[0]?.name }}</h3>
-                <p v-if="items[0]?.description" class="mt-4 max-w-lg text-sm leading-7 text-[#f5ebda]/58">{{ items[0].description }}</p>
+                <div v-if="items[0]?.description" class="mt-4 max-w-lg text-sm leading-7 text-[#f5ebda]/58 prose prose-sm" v-html="items[0].description" />
               </div>
               <div class="mt-6 flex items-center justify-between gap-4 border-t border-white/10 pt-5">
                 <p class="text-xs uppercase tracking-[0.28em] text-[#f5ebda]/42">Lead collection placement</p>
@@ -64,7 +64,7 @@ function meta(key: string, fallback = '') {
               <div class="px-5 py-5">
                 <p class="text-[11px] uppercase tracking-[0.3em] text-[#d7af70]">{{ String(index + 2).padStart(2, '0') }}</p>
                 <h3 class="mt-2 font-serif text-2xl">{{ item.name }}</h3>
-                <p v-if="item.description" class="mt-3 text-sm leading-7 text-[#f5ebda]/58">{{ item.description }}</p>
+                <div v-if="item.description" class="mt-3 text-sm leading-7 text-[#f5ebda]/58 prose prose-sm max-w-none" v-html="item.description" />
                 <div class="mt-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-[#d7af70]">
                   <span>{{ meta('viewText', lang === 'id' ? 'Lihat Koleksi' : 'View Collection') }}</span>
                   <IconArrowUpRight class="size-4" />

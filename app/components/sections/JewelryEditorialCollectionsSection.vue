@@ -42,7 +42,7 @@ function meta(key: string, fallback = '') {
             <div>
               <p class="text-[11px] uppercase tracking-[0.3em] text-base-content/38">{{ String(index + 1).padStart(2, '0') }}</p>
               <h3 class="mt-3 font-serif text-2xl text-primary">{{ item.name }}</h3>
-              <p v-if="item.description" class="mt-3 text-sm leading-7 text-base-content/65">{{ item.description }}</p>
+              <div v-if="item.description" class="mt-3 text-sm leading-7 text-base-content/65 prose prose-sm max-w-none" v-html="item.description" />
             </div>
             <div class="mt-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-secondary">
               <span>{{ meta('viewText', lang === 'id' ? 'Lihat Koleksi' : 'View Collection') }}</span>

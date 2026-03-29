@@ -45,7 +45,7 @@ function meta(key: string, fallback = '') {
           </div>
           <div class="px-4 pb-4">
             <h3 class="text-base font-semibold text-[#201c18]">{{ item.name }}</h3>
-            <p v-if="item.description" class="mt-2 text-sm leading-6 text-[#201c18]/56">{{ item.description }}</p>
+            <div v-if="item.description" class="mt-2 text-sm leading-6 text-[#201c18]/56 prose prose-sm max-w-none" v-html="item.description" />
             <div class="mt-4 flex items-center justify-between">
               <span class="rounded-full bg-[#f7f2ea] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#201c18]/56">{{ meta('priceHint', lang === 'id' ? 'Tap for details' : 'Tap for details') }}</span>
               <button type="button" class="btn btn-sm border-0 bg-[#ffbe2e] text-[#201c18] hover:bg-[#ffc94f]"><IconShoppingBag class="size-4" /></button>
