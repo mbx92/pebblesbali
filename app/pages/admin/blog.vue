@@ -119,13 +119,14 @@
             </div>
             <div class="flex gap-2">
               <input v-model="form.image" type="text" class="input input-sm flex-1 font-mono" placeholder="Paste URL or pick from media..." />
-              <button type="button" class="btn btn-sm btn-outline shrink-0" @click="pickerOpen = true">
+              <button type="button" class="btn btn-sm btn-outline shrink-0" :disabled="!mediaLibraryEnabled" @click="pickerOpen = true">
                 <IconPhoto class="w-4 h-4" />
               </button>
             </div>
+            <p v-if="!mediaLibraryEnabled" class="label text-xs text-base-content/40">Media browser is disabled. Paste a direct image URL if needed.</p>
           </fieldset>
 
-          <MediaPickerModal :open="pickerOpen" :selected="form.image" @close="pickerOpen = false" @pick="url => form.image = url" />
+          <MediaPickerModal v-if="mediaLibraryEnabled" :open="pickerOpen" :selected="form.image" @close="pickerOpen = false" @pick="url => form.image = url" />
 
           <fieldset class="fieldset">
             <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Tags (comma-separated)</legend>
@@ -164,10 +165,15 @@
 <script setup lang="ts">
 import { IconPlus, IconX, IconArticle, IconPhoto, IconPencil } from '@tabler/icons-vue'
 import type { BlogPost } from '~/types'
+import { isFeatureEnabled } from '~/composables/usePlan'
 
 const pickerOpen = ref(false)
 
 const { data: blogPosts, refresh } = await useFetch<BlogPost[]>('/api/blog')
+const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
+  key: 'site-settings',
+})
+const mediaLibraryEnabled = computed(() => isFeatureEnabled(settings.value, 'mediaLibrary'))
 
 const modalRef = ref<HTMLDialogElement>()
 const editing = ref<string | null>(null)

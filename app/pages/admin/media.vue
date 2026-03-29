@@ -245,6 +245,7 @@
 <script setup lang="ts">
 import { IconUpload, IconTrash, IconPhoto, IconX, IconFolder, IconFolderPlus, IconInbox, IconCopy, IconCheck, IconCloudUpload } from '@tabler/icons-vue'
 import type { Media } from '~/types'
+import { isFeatureEnabled } from '~/composables/usePlan'
 
 interface MediaResponse {
   media: Media[]
@@ -264,6 +265,14 @@ const newFolderInline = ref('')
 const showNewFolder = ref(false)
 const newFolderName = ref('')
 const copied = ref(false)
+
+const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
+  key: 'site-settings',
+})
+
+if (!isFeatureEnabled(settings.value, 'mediaLibrary')) {
+  await navigateTo('/admin/settings', { replace: true })
+}
 
 const url = computed(() => {
   const params = activeFolder.value ? `?folder=${activeFolder.value}` : ''

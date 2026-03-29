@@ -4,17 +4,35 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
       <div>
         <h1 class="text-2xl font-bold text-base-content">Products</h1>
-        <p class="text-sm text-base-content/50 mt-1">Manage jewelry products</p>
+        <p class="text-sm text-base-content/50 mt-1">{{ pageSubtitle }}</p>
       </div>
-      <div class="mt-3 sm:mt-0">
+      <div v-if="businessType === 'jewelry'" class="mt-3 sm:mt-0">
         <button class="btn btn-primary btn-sm" @click="openCreate()">
           <IconPlus class="w-4 h-4" /> Add Product
         </button>
       </div>
     </div>
 
+    <div v-if="businessType !== 'jewelry'" class="card bg-base-100 border border-base-300">
+      <div class="card-body max-w-2xl">
+        <div class="flex items-start gap-4">
+          <div class="rounded-2xl bg-accent/10 p-3 text-accent shrink-0">
+            <IconBed class="w-6 h-6" />
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold text-base-content">Product catalog is replaced by room sections</h2>
+            <p class="mt-2 text-sm leading-7 text-base-content/60">Room-rent template tidak memakai produk dan koleksi. Untuk menampilkan kamar, harga, highlight, dan CTA booking, edit section <strong>rooms</strong> dan <strong>booking</strong> di halaman Sections.</p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <NuxtLink to="/admin/sections" class="btn btn-sm btn-primary">Edit Room Sections</NuxtLink>
+              <NuxtLink v-if="mediaLibraryEnabled" to="/admin/media" class="btn btn-sm btn-ghost">Manage Photos</NuxtLink>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Filter -->
-    <div class="flex gap-3 mb-4">
+    <div v-if="businessType === 'jewelry'" class="flex gap-3 mb-4">
       <select v-model="filterCollection" class="select select-sm w-48">
         <option value="">All Collections</option>
         <option v-for="c in collections" :key="c.id" :value="c.id">{{ c.name }}</option>
@@ -22,7 +40,7 @@
     </div>
 
     <!-- Products Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div v-if="businessType === 'jewelry'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       <div
         v-for="p in filteredProducts"
         :key="p.id"
@@ -123,7 +141,7 @@
             </div>
             <div class="flex gap-2">
               <input v-model="form.image" type="text" class="input input-sm flex-1 font-mono" placeholder="Paste URL or pick from media..." />
-              <button type="button" class="btn btn-sm btn-outline shrink-0" @click="pickerOpen = 'image'">
+              <button type="button" class="btn btn-sm btn-outline shrink-0" :disabled="!mediaLibraryEnabled" @click="pickerOpen = 'image'">
                 <IconPhoto class="w-4 h-4" />
               </button>
             </div>
@@ -137,18 +155,21 @@
                 <button type="button" class="absolute top-0.5 right-0.5 btn btn-xs btn-circle btn-error opacity-0 group-hover:opacity-100" @click="form.gallery.splice(i, 1)">×</button>
               </div>
             </div>
-            <button type="button" class="btn btn-sm btn-outline w-full" @click="pickerOpen = 'gallery'">
+            <button type="button" class="btn btn-sm btn-outline w-full" :disabled="!mediaLibraryEnabled" @click="pickerOpen = 'gallery'">
               <IconPhoto class="w-4 h-4" /> Add from Media
             </button>
+            <p v-if="!mediaLibraryEnabled" class="label text-xs text-base-content/40">Media browser is disabled. Paste image URLs manually if needed.</p>
           </fieldset>
 
           <MediaPickerModal
+            v-if="mediaLibraryEnabled"
             :open="pickerOpen === 'image'"
             :selected="form.image"
             @close="pickerOpen = null"
             @pick="url => form.image = url"
           />
           <MediaPickerModal
+            v-if="mediaLibraryEnabled"
             :open="pickerOpen === 'gallery'"
             :multiple="true"
             :selected="form.gallery"
@@ -186,13 +207,26 @@
 </template>
 
 <script setup lang="ts">
-import { IconPlus, IconX, IconDiamond, IconPhoto } from '@tabler/icons-vue'
+import { IconPlus, IconX, IconDiamond, IconPhoto, IconBed } from '@tabler/icons-vue'
 import type { Product, Collection } from '~/types'
 
 const pickerOpen = ref<'image' | 'gallery' | null>(null)
 
 const { data: products, refresh } = await useFetch<Product[]>('/api/products')
 const { data: collections } = await useFetch<Collection[]>('/api/collections')
+const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
+  key: 'site-settings',
+})
+const { businessType } = useTemplate(settings)
+const mediaLibraryEnabled = computed(() => isFeatureEnabled(settings.value, 'mediaLibrary'))
+
+if (businessType.value !== 'jewelry') {
+  await navigateTo('/admin/sections', { replace: true })
+}
+
+const pageSubtitle = computed(() => businessType.value === 'guesthouse'
+  ? 'Products are disabled for room-rent templates'
+  : 'Manage jewelry products')
 
 const { formatCurrency } = useFormatCurrency()
 const filterCollection = ref('')

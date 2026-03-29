@@ -5,6 +5,10 @@
       <div>
         <h1 class="text-2xl font-bold text-base-content">Sections</h1>
         <p class="text-sm text-base-content/50 mt-1">Manage all landing page content — like Elementor for your site</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <span class="badge badge-soft badge-secondary">{{ businessType }}</span>
+          <span class="badge badge-soft badge-sm font-mono">{{ template.key }}</span>
+        </div>
       </div>
       <div class="mt-3 sm:mt-0">
         <button class="btn btn-primary btn-sm" @click="openCreate()">
@@ -97,13 +101,14 @@
             </div>
             <div class="flex gap-2">
               <input v-model="form.image" type="text" class="input input-sm flex-1 font-mono" placeholder="Paste URL or pick from media..." />
-              <button type="button" class="btn btn-sm btn-outline shrink-0" @click="pickerOpen = true">
+              <button type="button" class="btn btn-sm btn-outline shrink-0" :disabled="!mediaLibraryEnabled" @click="pickerOpen = true">
                 <IconPhoto class="w-4 h-4" />
               </button>
             </div>
+            <p v-if="!mediaLibraryEnabled" class="label text-xs text-base-content/40">Media browser is disabled. Paste a direct image URL if needed.</p>
           </fieldset>
 
-          <MediaPickerModal :open="pickerOpen" :selected="form.image" @close="pickerOpen = false" @pick="url => form.image = url" />
+          <MediaPickerModal v-if="mediaLibraryEnabled" :open="pickerOpen" :selected="form.image" @close="pickerOpen = false" @pick="url => form.image = url" />
 
           <div class="grid grid-cols-2 gap-4">
             <fieldset class="fieldset">
@@ -160,117 +165,25 @@
 
 <script setup lang="ts">
 import { IconPlus, IconEdit, IconTrash, IconX, IconLayoutList, IconPhoto } from '@tabler/icons-vue'
+import { SECTION_METADATA_SCHEMA } from '~/templates/sectionSchemas'
 import type { Section } from '~/types'
+import { isFeatureEnabled } from '~/composables/usePlan'
 
-// ---------- Metadata schema per section slug ----------
-interface MetaField { key: string; label: string; placeholder?: string; multiline?: boolean }
-interface MetaGroup { group: string; fields: MetaField[] }
-type MetaSchema = MetaGroup[]
-
-const METADATA_SCHEMA: Record<string, MetaSchema> = {
-  hero: [
-    {
-      group: 'Badge & Buttons',
-      fields: [
-        { key: 'badgeLabel', label: 'Badge Label', placeholder: 'e.g. Handcrafted in Bali' },
-        { key: 'ctaPrimaryText', label: 'Primary Button Text', placeholder: 'e.g. Explore Collections' },
-        { key: 'ctaPrimaryLink', label: 'Primary Button Link', placeholder: 'e.g. template section anchor or full URL' },
-        { key: 'ctaSecondaryText', label: 'Secondary Button Text', placeholder: 'e.g. Our Story' },
-        { key: 'ctaSecondaryLink', label: 'Secondary Button Link', placeholder: 'e.g. template section anchor or full URL' },
-        { key: 'scrollText', label: 'Scroll Indicator Text', placeholder: 'e.g. Scroll' },
-      ],
-    },
-  ],
-  collections: [
-    {
-      group: 'Labels',
-      fields: [
-        { key: 'badgeLabel', label: 'Badge Label', placeholder: 'e.g. Our Craft' },
-        { key: 'viewText', label: '"View Collection" Hover Text', placeholder: 'e.g. View Collection' },
-        { key: 'emptySoonText', label: 'Empty State Text', placeholder: 'e.g. Collections coming soon' },
-      ],
-    },
-  ],
-  about: [
-    {
-      group: 'Labels',
-      fields: [
-        { key: 'badgeLabel', label: 'Badge Label', placeholder: 'e.g. Our Story' },
-      ],
-    },
-    {
-      group: 'Stats Row',
-      fields: [
-        { key: 'stat1Value', label: 'Stat 1 — Value', placeholder: 'e.g. 15+' },
-        { key: 'stat1Label', label: 'Stat 1 — Label', placeholder: 'e.g. Years of Craft' },
-        { key: 'stat2Value', label: 'Stat 2 — Value', placeholder: 'e.g. 500+' },
-        { key: 'stat2Label', label: 'Stat 2 — Label', placeholder: 'e.g. Unique Designs' },
-        { key: 'stat3Value', label: 'Stat 3 — Value', placeholder: 'e.g. 50+' },
-        { key: 'stat3Label', label: 'Stat 3 — Label', placeholder: 'e.g. Countries' },
-      ],
-    },
-  ],
-  sustainability: [
-    {
-      group: 'Labels',
-      fields: [
-        { key: 'badgeLabel', label: 'Badge Label', placeholder: 'e.g. Our Values' },
-      ],
-    },
-    {
-      group: 'Feature Card 1',
-      fields: [
-        { key: 'feature1Title', label: 'Title', placeholder: 'e.g. Eco-Friendly' },
-        { key: 'feature1Body', label: 'Description', placeholder: 'e.g. Recycled metals...', multiline: true },
-      ],
-    },
-    {
-      group: 'Feature Card 2',
-      fields: [
-        { key: 'feature2Title', label: 'Title', placeholder: 'e.g. Fair Trade' },
-        { key: 'feature2Body', label: 'Description', placeholder: 'e.g. Artisans are paid fairly...', multiline: true },
-      ],
-    },
-    {
-      group: 'Feature Card 3',
-      fields: [
-        { key: 'feature3Title', label: 'Title', placeholder: 'e.g. Ethically Sourced' },
-        { key: 'feature3Body', label: 'Description', placeholder: 'e.g. Gemstones and metals...', multiline: true },
-      ],
-    },
-    {
-      group: 'Feature Card 4',
-      fields: [
-        { key: 'feature4Title', label: 'Title', placeholder: 'e.g. Handmade' },
-        { key: 'feature4Body', label: 'Description', placeholder: 'e.g. Every piece individually crafted...', multiline: true },
-      ],
-    },
-  ],
-  testimonials: [
-    {
-      group: 'Labels',
-      fields: [
-        { key: 'badgeLabel', label: 'Badge Label', placeholder: 'e.g. Loved By Many' },
-        { key: 'emptySoonText', label: 'Empty State Text', placeholder: 'e.g. Reviews coming soon' },
-      ],
-    },
-  ],
-  contact: [
-    {
-      group: 'Labels',
-      fields: [
-        { key: 'badgeLabel', label: 'Badge Label', placeholder: 'e.g. Get In Touch' },
-        { key: 'locationLabel', label: 'Location Box Label', placeholder: 'e.g. Location' },
-        { key: 'emailLabel', label: 'Email Box Label', placeholder: 'e.g. Email' },
-        { key: 'socialLabel', label: 'Social Box Label', placeholder: 'e.g. Follow Us' },
-      ],
-    },
-  ],
-}
+type MetaSchema = (typeof SECTION_METADATA_SCHEMA)[string]
 
 // ---------- State ----------
 const pickerOpen = ref(false)
-const { data: sections, refresh } = await useFetch<Section[]>('/api/sections')
+const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
+  key: 'site-settings',
+})
+const { businessType, template } = useTemplate(settings)
+const mediaLibraryEnabled = computed(() => isFeatureEnabled(settings.value, 'mediaLibrary'))
+const { data: sections, refresh } = await useFetch<Section[]>('/api/sections', {
+  query: computed(() => ({
+    businessType: businessType.value,
+    templateKey: template.value.key,
+  })),
+})
 const modalRef = ref<HTMLDialogElement>()
 const editing = ref<string | null>(null)
 const saving = ref(false)
@@ -287,7 +200,7 @@ const defaultForm = () => ({
 })
 const form = ref(defaultForm())
 
-const metadataSchema = computed<MetaSchema>(() => METADATA_SCHEMA[form.value.slug] ?? [])
+const metadataSchema = computed<MetaSchema>(() => SECTION_METADATA_SCHEMA[form.value.slug] ?? [])
 
 // ---------- Actions ----------
 function openCreate() {

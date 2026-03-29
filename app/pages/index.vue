@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   IconDiamond,
+  IconHome,
 } from '@tabler/icons-vue'
 import type { BlogPost, Collection, Section, TemplateNavItem, Testimonial } from '~/types'
 
@@ -9,7 +10,9 @@ definePageMeta({ layout: false })
 const { data: sectionsData } = await useFetch<Section[]>('/api/sections')
 const { data: collectionsData } = await useFetch<Collection[]>('/api/collections')
 const { data: testimonialsData } = await useFetch<Testimonial[]>('/api/testimonials')
-const { data: settings } = await useFetch<Record<string, string>>('/api/settings')
+const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
+  key: 'site-settings',
+})
 const { data: blogData } = await useFetch<BlogPost[]>('/api/blog', { query: { published: 'true' } })
 
 useTheme(settings)
@@ -23,7 +26,7 @@ const { lang, currency, t, formatPrice, toggleLang, toggleCurrency } = useLocale
 const plan = usePlan()
 const requestURL = useRequestURL()
 const adminBarVisible = useAdminBar()
-const { template, getSectionSlug, getSectionAnchor } = useTemplate(settings)
+const { businessType, template, getSectionSlug, getSectionAnchor } = useTemplate(settings)
 
 const siteName = computed(() => settings.value?.siteName || template.value.defaults.siteName)
 const siteTagline = computed(() => settings.value?.siteTagline || template.value.defaults.siteTagline || '')
@@ -35,6 +38,45 @@ const navigationItems = computed(() => template.value.navigation
     href: item.sectionKey ? `#${getSectionAnchor(item.sectionKey)}` : item.href,
   })))
 
+const visibleTemplateSections = computed(() => template.value.sections
+  .filter(section => !section.requiresFeature || plan.hasFeature(section.requiresFeature)))
+
+const templateSections = computed(() => visibleTemplateSections.value.map(sectionDefinition => ({
+  ...sectionDefinition,
+  data: getTemplateSection(sectionDefinition.key),
+})))
+
+const bookingEngineEnabled = computed(() => businessType.value === 'guesthouse' && plan.hasFeature('bookingEngine'))
+
+const heroPrimaryTargetKey = computed(() => {
+  return visibleTemplateSections.value.find(section => section.key !== 'hero')?.key || null
+})
+
+const heroSecondaryTargetKey = computed(() => {
+  return visibleTemplateSections.value.find(section => section.key === 'booking')?.key
+    || visibleTemplateSections.value.filter(section => section.key !== 'hero')[1]?.key
+    || heroPrimaryTargetKey.value
+    || null
+})
+
+const heroPrimaryHref = computed(() => heroPrimaryTargetKey.value ? `#${getSectionAnchor(heroPrimaryTargetKey.value)}` : undefined)
+const heroSecondaryHref = computed(() => heroSecondaryTargetKey.value ? `#${getSectionAnchor(heroSecondaryTargetKey.value)}` : undefined)
+const topActionLabel = computed(() => {
+  if (businessType.value === 'guesthouse') {
+    return lang.value === 'id' ? 'Book Stay' : 'Book Stay'
+  }
+
+  return t.value.nav.shopNow
+})
+
+const topActionHref = computed(() => {
+  if (businessType.value === 'guesthouse') {
+    return bookingEngineEnabled.value ? '/book' : null
+  }
+
+  return null
+})
+
 function getSection(slug: string) {
   return sections.value.find(s => s.slug === slug)
 }
@@ -43,21 +85,8 @@ function getTemplateSection(key: string) {
   return getSection(getSectionSlug(key))
 }
 
-const hero = computed(() => getTemplateSection('hero'))
-const collectionsSection = computed(() => getTemplateSection('collections'))
-const about = computed(() => getTemplateSection('about'))
-const sustainability = computed(() => getTemplateSection('sustainability'))
-const blog = computed(() => getTemplateSection('blog'))
-const contact = computed(() => getTemplateSection('contact'))
-const testimonials_ = computed(() => getTemplateSection('testimonials'))
-
 function getNavLabel(item: TemplateNavItem): string {
   return lang.value === 'id' ? item.label.id : item.label.en
-}
-
-/** Get a metadata value from a section with a fallback string */
-function meta(section: Section | undefined, key: string, fallback: string = ''): string {
-  return section?.metadata?.[key] || fallback
 }
 
 useHead({
@@ -68,20 +97,23 @@ useHead({
   ] : [],
 })
 
-useSeoMeta({
-  title: () => siteName.value,
-  description: () => settings.value?.metaDescription || hero.value?.subtitle || siteTagline.value || defaultMetaDescription.value,
-  keywords: () => settings.value?.metaKeywords || '',
-  ogTitle: () => siteName.value,
-  ogDescription: () => settings.value?.metaDescription || hero.value?.subtitle || siteTagline.value || defaultMetaDescription.value,
-  ogImage: () => settings.value?.ogImage || hero.value?.image || '',
-  ogType: 'website',
-  ogUrl: () => requestURL.origin,
-  twitterCard: 'summary_large_image',
-  twitterTitle: () => siteName.value,
-  twitterDescription: () => settings.value?.metaDescription || hero.value?.subtitle || siteTagline.value || defaultMetaDescription.value,
-  twitterImage: () => settings.value?.ogImage || hero.value?.image || '',
-})
+const hero = computed(() => getTemplateSection('hero'))
+if (import.meta.server) {
+  useSeoMeta({
+    title: siteName.value,
+    description: settings.value?.metaDescription || hero.value?.subtitle || siteTagline.value || defaultMetaDescription.value,
+    keywords: settings.value?.metaKeywords || '',
+    ogTitle: siteName.value,
+    ogDescription: settings.value?.metaDescription || hero.value?.subtitle || siteTagline.value || defaultMetaDescription.value,
+    ogImage: settings.value?.ogImage || hero.value?.image || '',
+    ogType: 'website',
+    ogUrl: requestURL.origin,
+    twitterCard: 'summary_large_image',
+    twitterTitle: siteName.value,
+    twitterDescription: settings.value?.metaDescription || hero.value?.subtitle || siteTagline.value || defaultMetaDescription.value,
+    twitterImage: settings.value?.ogImage || getTemplateSection('hero')?.image || '',
+  })
+}
 </script>
 
 <template>
@@ -95,7 +127,8 @@ useSeoMeta({
         <NuxtLink to="/" class="flex items-center gap-2 shrink-0">
           <img v-if="settings?.logoUrl" :src="settings.logoUrl" :alt="siteName" class="h-9 w-auto max-w-40 object-contain" />
           <span v-else class="flex items-center gap-2 text-primary font-serif text-base font-semibold tracking-widest uppercase">
-            <IconDiamond class="size-4 shrink-0 text-secondary" />
+            <IconDiamond v-if="businessType === 'jewelry'" class="size-4 shrink-0 text-secondary" />
+            <IconHome v-else class="size-4 shrink-0 text-secondary" />
             <span class="truncate max-w-36 sm:max-w-none">{{ siteName }}</span>
           </span>
         </NuxtLink>
@@ -113,67 +146,31 @@ useSeoMeta({
           <button @click="toggleCurrency" class="btn btn-xs btn-ghost font-medium tracking-widest text-base-content/50 hover:text-primary px-2">
             {{ currency }}
           </button>
-          <NuxtLink v-if="plan.hasFeature('shop')" to="/shop" class="hidden md:inline-flex btn btn-sm btn-secondary text-primary text-xs tracking-widest uppercase ml-2">
+          <NuxtLink v-if="businessType === 'jewelry' && plan.hasFeature('shop')" to="/shop" class="hidden md:inline-flex btn btn-sm btn-secondary text-primary text-xs tracking-widest uppercase ml-2">
             {{ t.nav.shopNow }}
           </NuxtLink>
+          <a v-else-if="topActionHref" :href="topActionHref" class="hidden md:inline-flex btn btn-sm btn-secondary text-primary text-xs tracking-widest uppercase ml-2">
+            {{ topActionLabel }}
+          </a>
         </div>
       </div>
     </nav>
 
-    <!-- ===== HERO ===== -->
     <TemplateSectionRenderer
-      section-key="hero"
-      :section="hero"
-      :section-id="getSectionAnchor('hero')"
-      :cta-primary-href="`#${getSectionAnchor('collections')}`"
-      :cta-secondary-href="`#${getSectionAnchor('about')}`"
-      :scroll-href="`#${getSectionAnchor('collections')}`"
-    />
-
-    <!-- ===== COLLECTIONS ===== -->
-    <TemplateSectionRenderer
-      section-key="collections"
-      :section="collectionsSection"
+      v-for="templateSection in templateSections"
+      :key="templateSection.key"
+      :business-type="businessType"
+      :section-key="templateSection.key"
+      :section="templateSection.data"
       :collections="collections"
-      :section-id="getSectionAnchor('collections')"
-    />
-
-    <!-- ===== ABOUT ===== -->
-    <TemplateSectionRenderer
-      section-key="about"
-      :section="about"
-      :section-id="getSectionAnchor('about')"
-    />
-
-    <!-- ===== SUSTAINABILITY ===== -->
-    <TemplateSectionRenderer
-      section-key="sustainability"
-      :section="sustainability"
-      :section-id="getSectionAnchor('sustainability')"
-    />
-
-    <!-- ===== TESTIMONIALS ===== -->
-    <TemplateSectionRenderer
-      section-key="testimonials"
-      :section="testimonials_"
       :testimonials="testimonials"
-      :section-id="getSectionAnchor('testimonials')"
-    />
-
-    <!-- ===== BLOG ===== -->
-    <TemplateSectionRenderer
-      section-key="blog"
-      :section="blog"
       :posts="recentPosts"
-      :section-id="getSectionAnchor('blog')"
-    />
-
-    <!-- ===== CONTACT ===== -->
-    <TemplateSectionRenderer
-      section-key="contact"
-      :section="contact"
       :settings="settings"
-      :section-id="getSectionAnchor('contact')"
+      :section-id="templateSection.anchor"
+      :cta-primary-href="heroPrimaryHref"
+      :cta-secondary-href="heroSecondaryHref"
+      :scroll-href="heroPrimaryHref"
+      :booking-enabled="bookingEngineEnabled"
     />
 
     <!-- ===== FOOTER ===== -->
@@ -183,7 +180,8 @@ useSeoMeta({
           <NuxtLink to="/" class="flex items-center gap-2">
             <img v-if="settings?.logoUrl" :src="settings.logoUrl" :alt="siteName" class="h-7 w-auto object-contain brightness-0 invert opacity-50" />
             <span v-else class="flex items-center gap-2 text-base-100/60 font-serif text-sm tracking-widest uppercase">
-              <IconDiamond class="size-4 text-secondary/60" />
+              <IconDiamond v-if="businessType === 'jewelry'" class="size-4 text-secondary/60" />
+              <IconHome v-else class="size-4 text-secondary/60" />
               {{ siteName }}
             </span>
           </NuxtLink>

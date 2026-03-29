@@ -1,5 +1,7 @@
 import prisma from '../../utils/prisma'
 import { toRelativeUrl } from '../../utils/prisma'
+import { ensureTemplateSections } from '../../utils/templateSections'
+import { ensureDefaultGuesthouseProperty } from '../../utils/siteSettings'
 
 export default defineEventHandler(async (event) => {
   const method = event.method
@@ -27,6 +29,13 @@ export default defineEventHandler(async (event) => {
         create: { key, value: normalized },
       })
     }
+
+    await ensureTemplateSections(String(body.templateKey || ''), String(body.businessType || ''))
+
+    if (String(body.businessType || '') === 'guesthouse') {
+      await ensureDefaultGuesthouseProperty()
+    }
+
     return { success: true }
   }
 })

@@ -60,7 +60,8 @@ export function useTheme(settings?: Ref<Record<string, string> | null | undefine
       fontHeading ? `  --font-serif: '${fontHeading}', Georgia, 'Times New Roman', serif;` : '',
       fontBody ? `  --font-sans: '${fontBody}', system-ui, -apple-system, sans-serif;` : '',
     ].filter(Boolean).join('\n')
-    return `html[data-theme] {
+    return `html[data-theme],
+  [data-theme] {
 ${colorVars}${fontVars ? '\n' + fontVars : ''}\n}`
   })
 

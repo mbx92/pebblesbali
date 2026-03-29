@@ -4,7 +4,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
       <div>
         <h1 class="text-2xl font-bold text-base-content">Settings</h1>
-        <p class="text-sm text-base-content/50 mt-1">Global site properties &amp; configuration</p>
+        <p class="text-sm text-base-content/50 mt-1">{{ settingsSubtitle }}</p>
       </div>
     </div>
 
@@ -77,7 +77,7 @@
                   </fieldset>
                   <fieldset class="fieldset">
                     <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Site URL</legend>
-                    <input v-model="form.siteUrl" type="url" class="input w-full font-mono" placeholder="https://senseofjewels.com" />
+                    <input v-model="form.siteUrl" type="url" class="input w-full font-mono" :placeholder="siteUrlPlaceholder" />
                   </fieldset>
                   <fieldset class="fieldset">
                     <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Business Type</legend>
@@ -91,7 +91,7 @@
                         {{ option.label }}{{ option.available ? '' : ' (coming soon)' }}
                       </option>
                     </select>
-                    <p class="label text-xs text-base-content/40">Controls the business identity and future module bundle.</p>
+                    <p class="label text-xs text-base-content/40">Controls the business identity, default sections, and active admin workflow.</p>
                   </fieldset>
                   <fieldset class="fieldset">
                     <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Template Preset</legend>
@@ -101,8 +101,7 @@
                       </option>
                     </select>
                     <p class="label max-w-sm text-xs leading-relaxed whitespace-normal text-base-content/40">
-                      Current Phase 1 keeps jewelry output identical
-                      while moving rendering to template config.
+                      Preset ini menentukan section set, navigation, dan landing layout dasar untuk business type aktif.
                     </p>
                   </fieldset>
                   <fieldset class="fieldset">
@@ -111,9 +110,10 @@
                       <img :src="form.logoUrl" class="h-10 w-auto max-w-30 object-contain" alt="logo preview" />
                       <button type="button" class="btn btn-xs btn-ghost text-error ml-auto" @click="form.logoUrl = ''">Remove</button>
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline w-full mb-2" @click="openLogoPicker">
+                    <button type="button" class="btn btn-sm btn-outline w-full mb-2" :disabled="!mediaLibraryEnabled" @click="openLogoPicker">
                       <IconPhoto class="w-4 h-4" /> Browse Media
                     </button>
+                    <p v-if="!mediaLibraryEnabled" class="label text-xs text-base-content/40">Media browser is disabled by the Media Library feature flag. You can still paste a direct URL manually.</p>
                     <input v-model="form.logoUrl" type="text" class="input input-sm w-full font-mono" placeholder="Or paste URL..." />
                   </fieldset>
                 </div>
@@ -225,7 +225,7 @@
 
                   <fieldset class="fieldset">
                     <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Meta Keywords</legend>
-                    <input v-model="form.metaKeywords" type="text" class="input w-full" placeholder="jewelry, bali, necklace" />
+                    <input v-model="form.metaKeywords" type="text" class="input w-full" :placeholder="metaKeywordsPlaceholder" />
                   </fieldset>
 
                   <fieldset class="fieldset">
@@ -233,13 +233,13 @@
                     <input v-model="form.googleAnalyticsId" type="text" class="input w-full font-mono" placeholder="G-XXXXXXXXXX" />
                   </fieldset>
                 </div>
-                
+
                 <div class="space-y-4">
                   <fieldset class="fieldset">
                     <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Default Social Share Image (OG)</legend>
                     <div class="flex gap-2">
                       <input v-model="form.ogImage" type="text" class="input input-sm flex-1 font-mono" placeholder="Paste URL..." />
-                      <button type="button" class="btn btn-sm btn-outline shrink-0" @click="ogPickerOpen = true">
+                      <button type="button" class="btn btn-sm btn-outline shrink-0" :disabled="!mediaLibraryEnabled" @click="ogPickerOpen = true">
                         <IconPhoto class="w-4 h-4" />
                       </button>
                     </div>
@@ -261,7 +261,6 @@
           </button>
         </form>
 
-        <!-- SHIPPING SETTINGS (SUPERADMIN) -->
         <div v-if="activeTab === 'shipping' && auth.isSuperAdmin.value && plan.hasFeature('cart')" class="space-y-4">
           <div class="card bg-base-100 border border-base-300">
             <div class="card-body">
@@ -311,25 +310,133 @@
 
         <!-- FEATURES FLAG (SUPERADMIN) -->
         <div v-if="activeTab === 'features' && auth.isSuperAdmin.value" class="space-y-4">
+          <div class="grid gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(20rem,0.7fr)]">
+            <div class="card bg-base-100 border border-base-300">
+              <div class="card-body gap-4">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/60">License Summary</h2>
+                  <span class="badge badge-soft badge-secondary">Live Preview</span>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-3">
+                  <div class="rounded-2xl border border-success/30 bg-success/5 px-4 py-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-success/80">Active</p>
+                    <p class="mt-2 text-2xl font-semibold text-base-content">{{ licenseSummary.active }}</p>
+                    <p class="mt-1 text-xs text-base-content/50">Modules currently available</p>
+                  </div>
+                  <div class="rounded-2xl border border-base-300 bg-base-200/40 px-4 py-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/55">Locked</p>
+                    <p class="mt-2 text-2xl font-semibold text-base-content">{{ licenseSummary.explicitlyDisabled }}</p>
+                    <p class="mt-1 text-xs text-base-content/50">Modules intentionally turned off</p>
+                  </div>
+                  <div class="rounded-2xl border border-warning/30 bg-warning/5 px-4 py-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-warning/90">Blocked</p>
+                    <p class="mt-2 text-2xl font-semibold text-base-content">{{ licenseSummary.dependencyBlocked }}</p>
+                    <p class="mt-1 text-xs text-base-content/50">Child modules blocked by dependency rules</p>
+                  </div>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-3">
+                  <div v-for="category in categorySummaries" :key="category.name" class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
+                    <div class="flex items-center justify-between gap-3">
+                      <p class="text-sm font-semibold text-base-content">{{ category.name }}</p>
+                      <span class="badge badge-soft badge-sm">{{ category.active }}/{{ category.total }}</span>
+                    </div>
+                    <p class="mt-2 text-xs text-base-content/55">{{ category.enabledLabel }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card border border-info/30 bg-info/5">
+              <div class="card-body gap-3">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/70">Dependency Rules</h2>
+                  <span class="badge badge-soft badge-info">Auto Evaluation</span>
+                </div>
+                <p class="text-sm leading-7 text-base-content/70">Child modules can stay checked in the form, but they remain unavailable until all required parent modules are enabled.</p>
+                <div class="space-y-3 text-sm text-base-content/65">
+                  <div class="rounded-xl border border-base-300 bg-base-100/70 px-4 py-3">
+                    <p class="font-semibold text-base-content">Cart depends on Shop</p>
+                    <p class="mt-1">If Shop is disabled, checkout-related flows remain locked even when Cart stays checked.</p>
+                  </div>
+                  <div class="rounded-xl border border-base-300 bg-base-100/70 px-4 py-3">
+                    <p class="font-semibold text-base-content">Booking Engine depends on Room Inventory</p>
+                    <p class="mt-1">If room inventory is disabled, booking routes, guesthouse booking UI, and admin bookings remain unavailable automatically.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card border border-warning/30 bg-warning/5">
+            <div class="card-body gap-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/70">Feature Lock Impact</h2>
+                <span class="badge badge-soft badge-warning">Read Before Saving</span>
+              </div>
+              <p class="text-sm leading-7 text-base-content/70">Feature flags in this panel are live operational locks. Disabling a module can hide public sections, remove admin menus, and block direct routes immediately.</p>
+              <div class="grid gap-3 md:grid-cols-2">
+                <div class="rounded-xl border border-base-300 bg-base-100/70 px-4 py-3 text-sm text-base-content/65">
+                  <p class="font-semibold text-base-content">Booking Engine</p>
+                  <p class="mt-1">Turning this off removes <span class="font-mono">/book</span>, <span class="font-mono">/booking-status</span>, the booking section on guesthouse landing pages, and the admin Bookings menu.</p>
+                </div>
+                <div class="rounded-xl border border-base-300 bg-base-100/70 px-4 py-3 text-sm text-base-content/65">
+                  <p class="font-semibold text-base-content">Room Inventory</p>
+                  <p class="mt-1">Turning this off removes the guesthouse room showcase and admin Rooms page. Booking Engine becomes unavailable automatically because it depends on room inventory.</p>
+                </div>
+                <div class="rounded-xl border border-base-300 bg-base-100/70 px-4 py-3 text-sm text-base-content/65">
+                  <p class="font-semibold text-base-content">Testimonials</p>
+                  <p class="mt-1">Turning this off removes review/testimonial sections from the landing page and hides the admin Testimonials page.</p>
+                </div>
+                <div class="rounded-xl border border-base-300 bg-base-100/70 px-4 py-3 text-sm text-base-content/65">
+                  <p class="font-semibold text-base-content">Media Library</p>
+                  <p class="mt-1">Turning this off hides the admin Media page and disables embedded media browser shortcuts. Existing image URLs remain usable if pasted manually.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="card bg-base-100 border border-secondary shadow-[0_0_15px_-5px_rgba(var(--color-secondary),0.3)]">
             <div class="card-body">
-              <div class="flex items-center gap-2 mb-4">
+              <div class="flex flex-wrap items-center gap-2 mb-4">
                 <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/50">Premium Modules &amp; Features</h2>
                 <span class="badge badge-soft badge-secondary text-xs ml-auto">Superadmin Only</span>
               </div>
+              <div class="mb-4 flex flex-wrap gap-2">
+                <button
+                  v-for="category in featureCategoryFilters"
+                  :key="category"
+                  type="button"
+                  class="badge badge-sm cursor-pointer px-3 py-3 transition-all"
+                  :class="selectedFeatureCategory === category ? 'badge-primary' : 'badge-ghost hover:badge-neutral'"
+                  @click="selectedFeatureCategory = category"
+                >
+                  {{ category }}
+                </button>
+              </div>
               <div class="grid grid-cols-1 gap-3">
-                <div v-for="(feat, key) in FEATURES" :key="key"
+                <div v-for="feature in filteredFeatureEntries" :key="feature.name"
                   class="flex items-start gap-4 p-4 rounded-xl border transition-colors"
-                  :class="form[feat.key] === 'true' ? 'border-success/40 bg-success/5' : 'border-base-300 bg-base-200/30'">
+                  :class="feature.isEnabled ? 'border-success/40 bg-success/5' : feature.isBlockedByDependencies ? 'border-warning/40 bg-warning/5' : 'border-base-300 bg-base-200/30'">
                   <input type="checkbox"
-                    :checked="form[feat.key] === 'true'"
-                    @change="form[feat.key] = ($event.target as HTMLInputElement).checked ? 'true' : 'false'"
+                    :checked="feature.isExplicitlyEnabled"
+                    @change="form[feature.key] = ($event.target as HTMLInputElement).checked ? 'true' : 'false'"
                     class="checkbox checkbox-success mt-0.5 shrink-0"
                   />
-                  <div>
-                    <p class="text-sm font-semibold text-base-content/90">{{ feat.label }}</p>
-                    <p class="text-xs text-base-content/60 mt-1 leading-relaxed">{{ feat.description }}</p>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <p class="text-sm font-semibold text-base-content/90">{{ feature.label }}</p>
+                      <span class="badge badge-soft badge-sm" :class="feature.category === 'Jewelry' ? 'badge-secondary' : feature.category === 'Guesthouse' ? 'badge-accent' : 'badge-ghost'">{{ feature.category }}</span>
+                      <span v-if="feature.dependsOnLabels.length" class="badge badge-soft badge-sm badge-info">Requires {{ feature.dependsOnLabels.join(', ') }}</span>
+                      <span v-if="feature.isBlockedByDependencies" class="badge badge-soft badge-sm badge-warning">Blocked by {{ feature.blockedByLabels.join(', ') }}</span>
+                      <span v-else-if="!feature.isExplicitlyEnabled" class="badge badge-soft badge-sm">Disabled</span>
+                      <span v-else class="badge badge-soft badge-sm badge-success">Enabled</span>
+                    </div>
+                    <p class="text-xs text-base-content/60 mt-1 leading-relaxed">{{ feature.description }}</p>
+                    <p v-if="feature.isBlockedByDependencies" class="mt-2 text-xs leading-6 text-warning/90">This module is checked, but it will stay unavailable until its parent modules are enabled.</p>
                   </div>
+                </div>
+                <div v-if="!filteredFeatureEntries.length" class="rounded-xl border border-dashed border-base-300 px-5 py-10 text-center text-sm text-base-content/45">
+                  No feature modules found for this category filter.
                 </div>
               </div>
             </div>
@@ -408,6 +515,39 @@
               </div>
             </div>
           </div>
+
+          <div class="card bg-base-100 border border-base-300">
+            <div class="card-body">
+              <div class="flex items-start justify-between gap-4 mb-4 border-b border-base-200 pb-4">
+                <div>
+                  <h2 class="font-semibold text-sm uppercase tracking-wide text-base-content/50">Business Seeds</h2>
+                  <p class="text-xs text-base-content/50 mt-1 max-w-xl">Non-destructive demo seeders for each business type. They update core settings, default sections, and starter content so you can switch demo modes without using the terminal.</p>
+                </div>
+                <span class="badge badge-soft badge-secondary">Superadmin Only</span>
+              </div>
+
+              <div class="grid gap-4 md:grid-cols-2">
+                <div class="rounded-xl border border-base-200 bg-base-200/20 p-5">
+                  <h3 class="font-semibold text-base-content">Jewelry Demo</h3>
+                  <p class="mt-2 text-sm leading-7 text-base-content/60">Seeds jewelry site settings, classic sections, sample collections, starter products, testimonials, and a blog article.</p>
+                  <button type="button" class="btn btn-sm btn-primary mt-4" :disabled="seedLoading === 'jewelry'" @click="runBusinessSeed('jewelry')">
+                    {{ seedLoading === 'jewelry' ? 'Seeding...' : 'Seed Jewelry Demo' }}
+                  </button>
+                </div>
+
+                <div class="rounded-xl border border-base-200 bg-base-200/20 p-5">
+                  <h3 class="font-semibold text-base-content">Guesthouse Demo</h3>
+                  <p class="mt-2 text-sm leading-7 text-base-content/60">Seeds guesthouse settings, retreat sections, featured room types, room units, and guest reviews. The public booking page will use these featured room types.</p>
+                  <button type="button" class="btn btn-sm btn-secondary text-primary mt-4" :disabled="seedLoading === 'guesthouse'" @click="runBusinessSeed('guesthouse')">
+                    {{ seedLoading === 'guesthouse' ? 'Seeding...' : 'Seed Guesthouse Demo' }}
+                  </button>
+                </div>
+              </div>
+
+              <p v-if="seedMessage" class="mt-4 text-sm text-success">{{ seedMessage }}</p>
+              <p v-if="seedError" class="mt-2 text-sm text-error">{{ seedError }}</p>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -459,7 +599,7 @@ import {
   IconX,
 } from '@tabler/icons-vue'
 import { THEME_DEFAULTS, FONT_OPTIONS } from '~/composables/useTheme'
-import { FEATURES } from '~/composables/usePlan'
+import { FEATURES, isFeatureEnabled } from '~/composables/usePlan'
 import type { BusinessType, Media, CityOption } from '~/types'
 
 const COURIER_LIST = [
@@ -475,7 +615,7 @@ const COURIER_LIST = [
 ]
 
 const auth = useAuth();
-const activeTab = ref('general');
+const activeTab = ref<string>('general');
 const plan = usePlan()
 
 // Origin city search for shipping
@@ -533,6 +673,7 @@ const ogPickerOpen = ref(false)
 const { data: mediaData, execute: loadMedia } = useFetch<MediaResponse>('/api/media', { immediate: false })
 
 async function openLogoPicker() {
+  if (!mediaLibraryEnabled.value) return
   await loadMedia()
   showLogoPicker.value = true
 }
@@ -542,23 +683,76 @@ function pickLogo(url: string) {
   showLogoPicker.value = false
 }
 
-const { data: settings } = useFetch<Record<string, string>>('/api/settings')
+const { data: settings, refresh: refreshSettings } = await useFetch<Record<string, string>>('/api/settings', {
+  key: 'site-settings',
+})
 const { data: liveRate } = useFetch<{ IDR: number; source: string }>('/api/exchange-rate')
 const saving = ref(false)
 const savingFeatures = ref(false)
+const seedLoading = ref<string | null>(null)
+const seedMessage = ref('')
+const seedError = ref('')
+
+interface FeatureEntry {
+  name: string
+  key: string
+  label: string
+  description: string
+  category: string
+  dependsOnLabels: string[]
+  blockedByLabels: string[]
+  isExplicitlyEnabled: boolean
+  isEnabled: boolean
+  isBlockedByDependencies: boolean
+}
+
+const selectedFeatureCategory = ref<'All' | 'Core' | 'Jewelry' | 'Guesthouse'>('All')
+
+function createFeatureState(source?: Record<string, string> | null): Record<string, string> {
+  return Object.fromEntries(
+    Object.values(FEATURES).map(feature => [feature.key, source?.[feature.key] ?? feature.defaultValue]),
+  )
+}
+
+function createFormState(source?: Record<string, string> | null): Record<string, string> {
+  return {
+    businessType: source?.businessType || 'jewelry',
+    templateKey: source?.templateKey || DEFAULT_TEMPLATE_KEY,
+    siteName: source?.siteName || 'Sense of Jewels',
+    siteTagline: source?.siteTagline || '',
+    siteUrl: source?.siteUrl || '',
+    contactEmail: source?.contactEmail || '',
+    contactPhone: source?.contactPhone || '',
+    address: source?.address || '',
+    instagramUrl: source?.instagramUrl || '',
+    whatsappNumber: source?.whatsappNumber || '',
+    logoUrl: source?.logoUrl || '',
+    colorPrimary: source?.colorPrimary || THEME_DEFAULTS.colorPrimary,
+    colorPrimaryContent: source?.colorPrimaryContent || THEME_DEFAULTS.colorPrimaryContent,
+    colorSecondary: source?.colorSecondary || THEME_DEFAULTS.colorSecondary,
+    colorAccent: source?.colorAccent || THEME_DEFAULTS.colorAccent,
+    colorBase100: source?.colorBase100 || THEME_DEFAULTS.colorBase100,
+    colorBaseContent: source?.colorBaseContent || THEME_DEFAULTS.colorBaseContent,
+    fontHeading: source?.fontHeading ?? THEME_DEFAULTS.fontHeading,
+    fontBody: source?.fontBody ?? THEME_DEFAULTS.fontBody,
+    metaDescription: source?.metaDescription || '',
+    metaKeywords: source?.metaKeywords || '',
+    ogImage: source?.ogImage || '',
+    googleAnalyticsId: source?.googleAnalyticsId || '',
+    ...createFeatureState(source),
+    shippingOriginCityId: source?.shippingOriginCityId || '',
+    shippingOriginCityName: source?.shippingOriginCityName || '',
+    shippingCouriers: source?.shippingCouriers || 'jne,tiki,pos',
+    shippingDefaultWeight: source?.shippingDefaultWeight || '500',
+  }
+}
 
 async function saveFeatures() {
   savingFeatures.value = true
   try {
     await $fetch('/api/settings', {
       method: 'PUT',
-      body: {
-        featureShop: form.value.featureShop,
-        featureCart: form.value.featureCart,
-        featureBlog: form.value.featureBlog,
-        featureSeo: form.value.featureSeo,
-        featureTheme: form.value.featureTheme,
-      },
+      body: createFeatureState(form.value),
     })
   } finally {
     savingFeatures.value = false
@@ -567,42 +761,66 @@ async function saveFeatures() {
 
 useTheme(settings)
 
-const form = ref({
-  businessType: 'jewelry',
-  templateKey: DEFAULT_TEMPLATE_KEY,
-  siteName: '',
-  siteTagline: '',
-  siteUrl: '',
-  contactEmail: '',
-  contactPhone: '',
-  address: '',
-  instagramUrl: '',
-  whatsappNumber: '',
-  logoUrl: '',
-  colorPrimary: THEME_DEFAULTS.colorPrimary,
-  colorPrimaryContent: THEME_DEFAULTS.colorPrimaryContent,
-  colorSecondary: THEME_DEFAULTS.colorSecondary,
-  colorAccent: THEME_DEFAULTS.colorAccent,
-  colorBase100: THEME_DEFAULTS.colorBase100,
-  colorBaseContent: THEME_DEFAULTS.colorBaseContent,
-  fontHeading: THEME_DEFAULTS.fontHeading,
-  fontBody: THEME_DEFAULTS.fontBody,
-  metaDescription: '',
-  metaKeywords: '',
-  ogImage: '',
-  googleAnalyticsId: '',
-  // Feature flags
-  featureShop: 'false',
-  featureCart: 'false',
-  featureBlog: 'false',
-  featureSeo: 'false',
-  featureTheme: 'false',
-  // Shipping
-  shippingOriginCityId: '',
-  shippingOriginCityName: '',
-  shippingCouriers: 'jne,tiki,pos',
-  shippingDefaultWeight: '500',
-} as Record<string, string>)
+const form = ref<Record<string, string>>(createFormState(settings.value))
+const mediaLibraryEnabled = computed(() => plan.hasFeature('mediaLibrary'))
+const featureCategoryFilters = ['All', 'Core', 'Jewelry', 'Guesthouse'] as const
+const featureEntries = computed<FeatureEntry[]>(() => (Object.entries(FEATURES) as Array<[keyof typeof FEATURES, (typeof FEATURES)[keyof typeof FEATURES]]>)
+  .map(([name, feature]) => {
+    const dependencies = (feature as { dependsOn?: Array<keyof typeof FEATURES> }).dependsOn ?? []
+    const blockedDependencies = dependencies.filter(dependency => !isFeatureEnabled(form.value, dependency))
+    const isExplicitlyEnabled = form.value[feature.key] !== 'false'
+    const isEnabled = isFeatureEnabled(form.value, name)
+
+    return {
+      name,
+      key: feature.key,
+      label: feature.label,
+      description: feature.description,
+      category: feature.category,
+      dependsOnLabels: dependencies.map(dependency => FEATURES[dependency].label),
+      blockedByLabels: blockedDependencies.map(dependency => FEATURES[dependency].label),
+      isExplicitlyEnabled,
+      isEnabled,
+      isBlockedByDependencies: isExplicitlyEnabled && !isEnabled && blockedDependencies.length > 0,
+    }
+  })
+  .sort((left, right) => {
+    const categoryOrder = ['Core', 'Jewelry', 'Guesthouse']
+    const categoryDelta = categoryOrder.indexOf(left.category) - categoryOrder.indexOf(right.category)
+    if (categoryDelta !== 0) return categoryDelta
+    return left.label.localeCompare(right.label)
+  }))
+const filteredFeatureEntries = computed(() => selectedFeatureCategory.value === 'All'
+  ? featureEntries.value
+  : featureEntries.value.filter(feature => feature.category === selectedFeatureCategory.value))
+const licenseSummary = computed(() => ({
+  active: featureEntries.value.filter(feature => feature.isEnabled).length,
+  explicitlyDisabled: featureEntries.value.filter(feature => !feature.isExplicitlyEnabled).length,
+  dependencyBlocked: featureEntries.value.filter(feature => feature.isBlockedByDependencies).length,
+}))
+const categorySummaries = computed(() => featureCategoryFilters
+  .filter(category => category !== 'All')
+  .map((category) => {
+    const entries = featureEntries.value.filter(feature => feature.category === category)
+    const active = entries.filter(feature => feature.isEnabled).length
+
+    return {
+      name: category,
+      total: entries.length,
+      active,
+      enabledLabel: `${active} active, ${entries.length - active} unavailable`,
+    }
+  }))
+const currentBusinessType = computed<BusinessType>(() => (form.value.businessType as BusinessType) || 'jewelry')
+const settingsSubtitle = computed(() => currentBusinessType.value === 'guesthouse'
+  ? 'Property profile, booking contact, branding, and guest-facing configuration'
+  : 'Global site properties & configuration')
+const siteUrlPlaceholder = computed(() => currentBusinessType.value === 'guesthouse'
+  ? 'https://yourguesthouse.com'
+  : 'https://senseofjewels.com')
+const metaKeywordsPlaceholder = computed(() => currentBusinessType.value === 'guesthouse'
+  ? 'guesthouse bali, room rent bali, boutique stay, villa room'
+  : 'jewelry, bali, necklace')
 
 const businessTypeOptions = BUSINESS_TYPE_OPTIONS
 const templateOptions = computed(() => {
@@ -627,55 +845,38 @@ useHead({
   },
 })
 
-watchEffect(() => {
-  if (settings.value) {
-    form.value = {
-      businessType: settings.value.businessType || 'jewelry',
-      templateKey: settings.value.templateKey || DEFAULT_TEMPLATE_KEY,
-      siteName: settings.value.siteName || 'Sense of Jewels',
-      siteTagline: settings.value.siteTagline || '',
-      siteUrl: settings.value.siteUrl || '',
-      contactEmail: settings.value.contactEmail || '',
-      contactPhone: settings.value.contactPhone || '',
-      address: settings.value.address || '',
-      instagramUrl: settings.value.instagramUrl || '',
-      whatsappNumber: settings.value.whatsappNumber || '',
-      logoUrl: settings.value.logoUrl || '',
-      colorPrimary: settings.value.colorPrimary || THEME_DEFAULTS.colorPrimary,
-      colorPrimaryContent: settings.value.colorPrimaryContent || THEME_DEFAULTS.colorPrimaryContent,
-      colorSecondary: settings.value.colorSecondary || THEME_DEFAULTS.colorSecondary,
-      colorAccent: settings.value.colorAccent || THEME_DEFAULTS.colorAccent,
-      colorBase100: settings.value.colorBase100 || THEME_DEFAULTS.colorBase100,
-      colorBaseContent: settings.value.colorBaseContent || THEME_DEFAULTS.colorBaseContent,
-      fontHeading: settings.value.fontHeading ?? THEME_DEFAULTS.fontHeading,
-      fontBody: settings.value.fontBody ?? THEME_DEFAULTS.fontBody,
-      metaDescription: settings.value.metaDescription || '',
-      metaKeywords: settings.value.metaKeywords || '',
-      ogImage: settings.value.ogImage || '',
-      googleAnalyticsId: settings.value.googleAnalyticsId || '',
-      featureShop: settings.value.featureShop ?? 'false',
-      featureCart: settings.value.featureCart ?? 'false',
-      featureBlog: settings.value.featureBlog ?? 'false',
-      featureSeo: settings.value.featureSeo ?? 'false',
-      featureTheme: settings.value.featureTheme ?? 'false',
-      shippingOriginCityId: settings.value.shippingOriginCityId || '',
-      shippingOriginCityName: settings.value.shippingOriginCityName || '',
-      shippingCouriers: settings.value.shippingCouriers || 'jne,tiki,pos',
-      shippingDefaultWeight: settings.value.shippingDefaultWeight || '500',
-    }
-    // Pre-fill origin city search text
-    if (settings.value.shippingOriginCityName) {
-      originCitySearch.value = settings.value.shippingOriginCityName
-    }
-  }
-})
+originCitySearch.value = settings.value?.shippingOriginCityName || ''
 
 async function save() {
   saving.value = true
   try {
     await $fetch('/api/settings', { method: 'PUT', body: form.value })
+    await refreshSettings()
+    await refreshNuxtData('site-settings')
+    form.value = createFormState(settings.value)
+    originCitySearch.value = settings.value?.shippingOriginCityName || ''
   } finally {
     saving.value = false
+  }
+}
+
+async function runBusinessSeed(businessType: 'jewelry' | 'guesthouse') {
+  seedLoading.value = businessType
+  seedMessage.value = ''
+  seedError.value = ''
+  try {
+    const result = await $fetch<{ message: string }>('/api/settings/seed', {
+      method: 'POST',
+      body: { businessType },
+    })
+    await refreshSettings()
+    await refreshNuxtData('site-settings')
+    form.value = createFormState(settings.value)
+    seedMessage.value = result.message
+  } catch (error: any) {
+    seedError.value = error?.data?.statusMessage || 'Failed to run business seed'
+  } finally {
+    seedLoading.value = null
   }
 }
 

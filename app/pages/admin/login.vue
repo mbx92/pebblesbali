@@ -4,24 +4,25 @@
     <div class="hidden lg:flex lg:w-[45%] bg-primary relative overflow-hidden">
       <div class="absolute inset-0">
         <div class="absolute -top-24 -left-24 w-96 h-96 bg-secondary/15 rounded-full"></div>
-        <div class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-accent/10 rounded-full translate-x-1/4 translate-y-1/4"></div>
+        <div class="absolute bottom-0 right-0 w-125 h-125 bg-accent/10 rounded-full translate-x-1/4 translate-y-1/4"></div>
         <div class="absolute top-1/2 left-1/3 w-48 h-48 bg-secondary/10 rounded-full"></div>
       </div>
       <div class="relative z-10 flex flex-col justify-between p-12 w-full">
         <div class="flex items-center gap-3">
           <div class="bg-secondary rounded-lg p-2.5">
-            <IconDiamond class="w-7 h-7 text-secondary-content" />
+            <IconDiamond v-if="businessType === 'jewelry'" class="w-7 h-7 text-secondary-content" />
+            <IconHome v-else class="w-7 h-7 text-secondary-content" />
           </div>
           <span class="text-xl font-bold text-white tracking-tight">{{ siteName }}</span>
         </div>
 
         <div class="max-w-sm">
           <h1 class="text-4xl font-bold text-white leading-tight mb-4">
-            Manage Your <br/>
-            <span class="text-secondary">Landing Page.</span>
+            {{ heroTitleLine1 }} <br/>
+            <span class="text-secondary">{{ heroTitleLine2 }}</span>
           </h1>
           <p class="text-primary-content/70 leading-relaxed">
-            Content management system for {{ siteName }} — manage sections, collections, products, and testimonials for your landing page.
+            {{ heroDescription }}
           </p>
         </div>
 
@@ -35,10 +36,11 @@
           </div>
           <div>
             <div class="bg-white/10 rounded-lg p-3 w-fit mb-3">
-              <IconDiamond class="w-5 h-5 text-secondary" />
+              <IconDiamond v-if="businessType === 'jewelry'" class="w-5 h-5 text-secondary" />
+              <IconBed v-else class="w-5 h-5 text-secondary" />
             </div>
-            <p class="text-sm font-medium text-white">Products</p>
-            <p class="text-xs text-primary-content/50 mt-1">Jewelry catalog</p>
+            <p class="text-sm font-medium text-white">{{ middleFeatureTitle }}</p>
+            <p class="text-xs text-primary-content/50 mt-1">{{ middleFeatureSubtitle }}</p>
           </div>
           <div>
             <div class="bg-white/10 rounded-lg p-3 w-fit mb-3">
@@ -57,7 +59,8 @@
         <!-- Mobile Brand -->
         <div class="flex items-center gap-3 mb-10 lg:hidden">
           <div class="bg-primary rounded-lg p-2.5">
-            <IconDiamond class="w-6 h-6 text-primary-content" />
+            <IconDiamond v-if="businessType === 'jewelry'" class="w-6 h-6 text-primary-content" />
+            <IconHome v-else class="w-6 h-6 text-primary-content" />
           </div>
           <span class="text-xl font-bold text-base-content tracking-tight">{{ siteName }}</span>
         </div>
@@ -130,6 +133,8 @@
 <script setup lang="ts">
 import {
   IconDiamond,
+  IconHome,
+  IconBed,
   IconLayoutList,
   IconPhoto,
   IconMail,
@@ -143,8 +148,18 @@ definePageMeta({
   layout: false,
 })
 
-const { data: settings } = await useFetch<Record<string, string>>('/api/settings')
+const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
+  key: 'site-settings',
+})
 const siteName = computed(() => settings.value?.siteName || 'Pebbles Bali')
+const { businessType } = useTemplate(settings)
+const heroTitleLine1 = computed(() => businessType.value === 'guesthouse' ? 'Manage Your' : 'Manage Your')
+const heroTitleLine2 = computed(() => businessType.value === 'guesthouse' ? 'Guesthouse Website.' : 'Landing Page.')
+const heroDescription = computed(() => businessType.value === 'guesthouse'
+  ? `Content management system for ${siteName.value} — manage rooms, amenities, gallery, booking details, and guest testimonials.`
+  : `Content management system for ${siteName.value} — manage sections, collections, products, and testimonials for your landing page.`)
+const middleFeatureTitle = computed(() => businessType.value === 'guesthouse' ? 'Room Content' : 'Products')
+const middleFeatureSubtitle = computed(() => businessType.value === 'guesthouse' ? 'Rooms and booking CTA' : 'Jewelry catalog')
 
 const form = reactive({
   email: '',

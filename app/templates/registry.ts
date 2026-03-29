@@ -2,7 +2,7 @@ import type { BusinessType, BusinessTypeOption, SiteTemplate } from '~/types'
 
 export const BUSINESS_TYPE_OPTIONS: BusinessTypeOption[] = [
   { value: 'jewelry', label: 'Jewelry', available: true },
-  { value: 'guesthouse', label: 'Guesthouse / Room Rent', available: false },
+  { value: 'guesthouse', label: 'Guesthouse / Room Rent', available: true },
 ]
 
 export const TEMPLATE_REGISTRY: Record<string, SiteTemplate> = {
@@ -25,8 +25,8 @@ export const TEMPLATE_REGISTRY: Record<string, SiteTemplate> = {
       { key: 'collections', slug: 'collections', anchor: 'collections', component: 'collections' },
       { key: 'about', slug: 'about', anchor: 'about', component: 'about' },
       { key: 'sustainability', slug: 'sustainability', anchor: 'sustainability', component: 'sustainability' },
-      { key: 'testimonials', slug: 'testimonials', anchor: 'testimonials', component: 'testimonials' },
-      { key: 'blog', slug: 'blog', anchor: 'blog', component: 'blog' },
+      { key: 'testimonials', slug: 'testimonials', anchor: 'testimonials', component: 'testimonials', requiresFeature: 'testimonials' },
+      { key: 'blog', slug: 'blog', anchor: 'blog', component: 'blog', requiresFeature: 'blog' },
       { key: 'contact', slug: 'contact', anchor: 'contact', component: 'contact' },
     ],
     navigation: [
@@ -50,11 +50,13 @@ export const TEMPLATE_REGISTRY: Record<string, SiteTemplate> = {
         key: 'reviews',
         label: { en: 'Reviews', id: 'Ulasan' },
         sectionKey: 'testimonials',
+        requiresFeature: 'testimonials',
       },
       {
         key: 'blog',
         label: { en: 'Blog', id: 'Blog' },
         to: '/blog',
+        requiresFeature: 'blog',
       },
       {
         key: 'contact',
@@ -66,6 +68,70 @@ export const TEMPLATE_REGISTRY: Record<string, SiteTemplate> = {
       siteName: 'Sense of Jewels',
       siteTagline: 'Handcrafted Balinese jewelry',
       metaDescription: 'Handcrafted Balinese jewelry inspired by the island\'s rich cultural heritage.',
+    },
+  },
+  'guesthouse-retreat': {
+    key: 'guesthouse-retreat',
+    businessType: 'guesthouse',
+    label: 'Guesthouse Retreat',
+    themeName: 'jewels',
+    sectionMap: {
+      hero: 'hero',
+      rooms: 'rooms',
+      amenities: 'amenities',
+      gallery: 'gallery',
+      location: 'location',
+      testimonials: 'testimonials',
+      booking: 'booking',
+    },
+    sections: [
+      { key: 'hero', slug: 'hero', anchor: 'home', component: 'hero' },
+      { key: 'rooms', slug: 'rooms', anchor: 'rooms', component: 'rooms', requiresFeature: 'roomInventory' },
+      { key: 'amenities', slug: 'amenities', anchor: 'amenities', component: 'amenities' },
+      { key: 'gallery', slug: 'gallery', anchor: 'gallery', component: 'gallery' },
+      { key: 'location', slug: 'location', anchor: 'location', component: 'location' },
+      { key: 'testimonials', slug: 'testimonials', anchor: 'reviews', component: 'testimonials', requiresFeature: 'testimonials' },
+      { key: 'booking', slug: 'booking', anchor: 'booking', component: 'booking', requiresFeature: 'bookingEngine' },
+    ],
+    navigation: [
+      {
+        key: 'rooms',
+        label: { en: 'Rooms', id: 'Kamar' },
+        sectionKey: 'rooms',
+        requiresFeature: 'roomInventory',
+      },
+      {
+        key: 'amenities',
+        label: { en: 'Amenities', id: 'Fasilitas' },
+        sectionKey: 'amenities',
+      },
+      {
+        key: 'gallery',
+        label: { en: 'Gallery', id: 'Galeri' },
+        sectionKey: 'gallery',
+      },
+      {
+        key: 'location',
+        label: { en: 'Location', id: 'Lokasi' },
+        sectionKey: 'location',
+      },
+      {
+        key: 'reviews',
+        label: { en: 'Reviews', id: 'Ulasan' },
+        sectionKey: 'testimonials',
+        requiresFeature: 'testimonials',
+      },
+      {
+        key: 'booking',
+        label: { en: 'Book Stay', id: 'Pesan' },
+        sectionKey: 'booking',
+        requiresFeature: 'bookingEngine',
+      },
+    ],
+    defaults: {
+      siteName: 'Pebbles Bali Guesthouse',
+      siteTagline: 'Boutique rooms for slower Bali stays',
+      metaDescription: 'A boutique Balinese guesthouse with calm rooms, tropical details, and direct booking inquiries.',
     },
   },
 }

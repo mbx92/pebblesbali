@@ -57,7 +57,8 @@
           <div class="px-6 py-5 border-b border-white/10">
             <NuxtLink to="/admin" class="flex items-center gap-3">
               <div class="bg-secondary rounded-lg p-2">
-                <IconDiamond class="w-6 h-6 text-secondary-content" />
+                <IconDiamond v-if="businessType === 'jewelry'" class="w-6 h-6 text-secondary-content" />
+                <IconHome v-else class="w-6 h-6 text-secondary-content" />
               </div>
               <div>
                 <h1 class="text-lg font-bold tracking-tight">{{ siteName }}</h1>
@@ -94,7 +95,7 @@
                   Sections
                 </NuxtLink>
               </li>
-              <li>
+              <li v-if="businessType === 'jewelry'">
                 <NuxtLink
                   to="/admin/collections"
                   active-class="bg-white/15 text-white font-semibold"
@@ -104,7 +105,7 @@
                   Collections
                 </NuxtLink>
               </li>
-              <li>
+              <li v-if="businessType === 'jewelry'">
                 <NuxtLink
                   to="/admin/products"
                   active-class="bg-white/15 text-white font-semibold"
@@ -114,7 +115,17 @@
                   Products
                 </NuxtLink>
               </li>
-              <li>
+              <li v-if="businessType === 'guesthouse' && plan.hasFeature('roomInventory')">
+                <NuxtLink
+                  to="/admin/rooms"
+                  active-class="bg-white/15 text-white font-semibold"
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base text-primary-content/75 hover:bg-white/10 hover:text-white transition-colors w-full"
+                >
+                  <IconBed class="w-5 h-5 shrink-0" />
+                  Rooms
+                </NuxtLink>
+              </li>
+              <li v-if="plan.hasFeature('testimonials')">
                 <NuxtLink
                   to="/admin/testimonials"
                   active-class="bg-white/15 text-white font-semibold"
@@ -138,7 +149,7 @@
 
             <p class="px-3 mb-1.5 mt-4 text-xs font-semibold uppercase tracking-wider text-primary-content/40">Assets</p>
             <ul class="flex flex-col gap-0.5">
-              <li v-if="plan.hasFeature('shop')">
+              <li v-if="businessType === 'jewelry' && plan.hasFeature('shop')">
                 <NuxtLink
                   to="/shop"
                   target="_blank"
@@ -149,7 +160,7 @@
                   Shop Page
                 </NuxtLink>
               </li>
-              <li v-if="plan.hasFeature('cart')">
+              <li v-if="businessType === 'jewelry' && plan.hasFeature('cart')">
                 <NuxtLink
                   to="/admin/orders"
                   active-class="bg-white/15 text-white font-semibold"
@@ -159,7 +170,27 @@
                   Orders
                 </NuxtLink>
               </li>
-              <li>
+              <li v-if="businessType === 'guesthouse' && plan.hasFeature('bookingEngine')">
+                <NuxtLink
+                  to="/admin/bookings"
+                  active-class="bg-white/15 text-white font-semibold"
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base text-primary-content/75 hover:bg-white/10 hover:text-white transition-colors w-full"
+                >
+                  <IconCalendarTime class="w-5 h-5 shrink-0" />
+                  Bookings
+                </NuxtLink>
+              </li>
+              <li v-if="businessType === 'guesthouse' && plan.hasFeature('roomInventory')">
+                <NuxtLink
+                  to="/admin/occupancy"
+                  active-class="bg-white/15 text-white font-semibold"
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base text-primary-content/75 hover:bg-white/10 hover:text-white transition-colors w-full"
+                >
+                  <IconCalendarTime class="w-5 h-5 shrink-0" />
+                  Occupancy
+                </NuxtLink>
+              </li>
+              <li v-if="plan.hasFeature('mediaLibrary')">
                 <NuxtLink
                   to="/admin/media"
                   active-class="bg-white/15 text-white font-semibold"
@@ -217,6 +248,9 @@
 <script setup lang="ts">
 import {
   IconDiamond,
+  IconHome,
+  IconBed,
+  IconCalendarTime,
   IconLayoutDashboard,
   IconLayoutList,
   IconCategory,
@@ -234,10 +268,13 @@ import {
   IconArticle,
 } from '@tabler/icons-vue'
 
-const { data: themeSettings } = await useFetch<Record<string, string>>('/api/settings')
+const { data: themeSettings } = await useFetch<Record<string, string>>('/api/settings', {
+  key: 'site-settings',
+})
 useTheme(themeSettings)
 
 const siteName = computed(() => themeSettings.value?.siteName || 'Pebbles Bali')
+const { businessType } = useTemplate(themeSettings)
 
 const route = useRoute()
 const auth = useAuth()
@@ -252,11 +289,14 @@ const pageTitle = computed(() => {
     '/admin/sections': 'Sections',
     '/admin/collections': 'Collections',
     '/admin/products': 'Products',
+    '/admin/rooms': 'Rooms',
+    '/admin/occupancy': 'Occupancy',
     '/admin/testimonials': 'Testimonials',
     '/admin/media': 'Media',
     '/admin/settings': 'Settings',
     '/admin/users': 'Users',
     '/admin/orders': 'Orders',
+    '/admin/bookings': 'Bookings',
     '/admin/tracker': 'Tracker',
     '/admin/integrations': 'Integrations',
   }

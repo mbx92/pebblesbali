@@ -184,6 +184,15 @@
 import { IconX, IconEye, IconShoppingBag, IconDiamond } from '@tabler/icons-vue'
 import type { Order, OrderStatus, PaymentStatus } from '~/types'
 
+const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
+  key: 'site-settings',
+})
+const { businessType } = useTemplate(settings)
+
+if (businessType.value !== 'jewelry') {
+  await navigateTo('/admin', { replace: true })
+}
+
 const { data: orders, refresh } = await useFetch<Order[]>('/api/orders')
 
 const PAYMENT_LABELS: Record<string, string> = {

@@ -4,7 +4,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
       <div>
         <h1 class="text-2xl font-bold text-base-content">Testimonials</h1>
-        <p class="text-sm text-base-content/50 mt-1">Manage customer testimonials</p>
+        <p class="text-sm text-base-content/50 mt-1">{{ pageSubtitle }}</p>
       </div>
       <div class="mt-3 sm:mt-0">
         <button class="btn btn-primary btn-sm" @click="openCreate()">
@@ -50,9 +50,9 @@
             <div class="bg-base-200 rounded-full p-4 mb-3">
               <IconQuote class="w-8 h-8 text-base-content/30" />
             </div>
-            <p class="font-medium text-base-content/60">No testimonials yet</p>
+            <p class="font-medium text-base-content/60">{{ emptyTitle }}</p>
             <button class="btn btn-primary btn-sm mt-3" @click="openCreate()">
-              <IconPlus class="w-4 h-4" /> Add Testimonial
+              <IconPlus class="w-4 h-4" /> {{ addButtonLabel }}
             </button>
           </div>
         </div>
@@ -65,7 +65,7 @@
         <button class="btn btn-sm btn-circle btn-ghost absolute right-3 top-3" @click="closeModal()">
           <IconX class="w-4 h-4" />
         </button>
-        <h3 class="font-bold text-lg mb-4">{{ editing ? 'Edit Testimonial' : 'Add Testimonial' }}</h3>
+        <h3 class="font-bold text-lg mb-4">{{ editing ? editDialogTitle : createDialogTitle }}</h3>
 
         <form @submit.prevent="save()">
           <div class="grid grid-cols-2 gap-4">
@@ -74,8 +74,8 @@
               <input v-model="form.name" type="text" class="input w-full" required />
             </fieldset>
             <fieldset class="fieldset">
-              <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Role / Title</legend>
-              <input v-model="form.role" type="text" class="input w-full" />
+              <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">{{ roleLabel }}</legend>
+              <input v-model="form.role" type="text" class="input w-full" :placeholder="rolePlaceholder" />
             </fieldset>
           </div>
 
@@ -92,13 +92,14 @@
             </div>
             <div class="flex gap-2">
               <input v-model="form.avatar" type="text" class="input input-sm flex-1 font-mono" placeholder="Paste URL or pick from media..." />
-              <button type="button" class="btn btn-sm btn-outline shrink-0" @click="pickerOpen = true">
+              <button type="button" class="btn btn-sm btn-outline shrink-0" :disabled="!mediaLibraryEnabled" @click="pickerOpen = true">
                 <IconPhoto class="w-4 h-4" />
               </button>
             </div>
+            <p v-if="!mediaLibraryEnabled" class="label text-xs text-base-content/40">Media browser is disabled. Paste a direct avatar URL if needed.</p>
           </fieldset>
 
-          <MediaPickerModal :open="pickerOpen" :selected="form.avatar" @close="pickerOpen = false" @pick="url => form.avatar = url" />
+          <MediaPickerModal v-if="mediaLibraryEnabled" :open="pickerOpen" :selected="form.avatar" @close="pickerOpen = false" @pick="url => form.avatar = url" />
 
           <div class="grid grid-cols-3 gap-4">
             <fieldset class="fieldset">
@@ -132,14 +133,34 @@
 <script setup lang="ts">
 import { IconPlus, IconX, IconUser, IconStar, IconQuote, IconPhoto } from '@tabler/icons-vue'
 import type { Testimonial } from '~/types'
+import { isFeatureEnabled } from '~/composables/usePlan'
 
 const pickerOpen = ref(false)
 
 const { data: testimonials, refresh } = await useFetch<Testimonial[]>('/api/testimonials')
+const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
+  key: 'site-settings',
+})
+const { businessType } = useTemplate(settings)
+
+if (!isFeatureEnabled(settings.value, 'testimonials')) {
+  await navigateTo('/admin/settings', { replace: true })
+}
+
+const pageSubtitle = computed(() => businessType.value === 'guesthouse'
+  ? 'Manage guest reviews and stay impressions'
+  : 'Manage customer testimonials')
+const addButtonLabel = computed(() => businessType.value === 'guesthouse' ? 'Add Guest Review' : 'Add Testimonial')
+const emptyTitle = computed(() => businessType.value === 'guesthouse' ? 'No guest reviews yet' : 'No testimonials yet')
+const createDialogTitle = computed(() => businessType.value === 'guesthouse' ? 'Add Guest Review' : 'Add Testimonial')
+const editDialogTitle = computed(() => businessType.value === 'guesthouse' ? 'Edit Guest Review' : 'Edit Testimonial')
+const roleLabel = computed(() => businessType.value === 'guesthouse' ? 'Guest Context' : 'Role / Title')
+const rolePlaceholder = computed(() => businessType.value === 'guesthouse' ? 'e.g. Couple traveler, Remote worker, Family stay' : '')
 
 const modalRef = ref<HTMLDialogElement>()
 const editing = ref<string | null>(null)
 const saving = ref(false)
+const mediaLibraryEnabled = computed(() => isFeatureEnabled(settings.value, 'mediaLibrary'))
 
 const defaultForm = () => ({
   name: '',

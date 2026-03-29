@@ -1,5 +1,6 @@
 import prisma from '../../utils/prisma'
 import { toRelativeUrl } from '../../utils/prisma'
+import { getSectionScope } from '../../utils/sections'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
@@ -15,9 +16,16 @@ export default defineEventHandler(async (event) => {
 
   if (method === 'PUT') {
     const body = await readBody(event)
+    const scope = await getSectionScope({
+      businessType: body.businessType ? String(body.businessType) : undefined,
+      templateKey: body.templateKey ? String(body.templateKey) : undefined,
+    })
+
     const section = await prisma.section.update({
       where: { id: id as string },
       data: {
+        businessType: scope.businessType,
+        templateKey: scope.templateKey,
         slug: body.slug,
         title: body.title,
         subtitle: body.subtitle ?? null,
