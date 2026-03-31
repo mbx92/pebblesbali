@@ -54,6 +54,15 @@ const TEMPLATE_SECTION_SEEDS: Record<string, TemplateSectionSeed[]> = {
     { slug: 'testimonials', title: 'Guest notes from longer, quieter stays', subtitle: 'Reviews should reinforce calm, support, and return visits', body: 'Compact testimonials work well here when they feel specific and grounded.', sortOrder: 6 },
     { slug: 'booking', title: 'Reserve directly with a calmer conversation flow', subtitle: 'Direct booking framed as host support and terrace-ready planning', body: 'Keep the CTA simple, responsive, and less transactional than a standard booking grid.', sortOrder: 7 },
   ],
+  'cctv-networking-classic': [
+    { slug: 'hero', title: 'CCTV and networking work that stays clean after handover', subtitle: 'Installation, site survey, and maintenance for homes, villas, shops, and offices across Bali.', body: 'Built for clients who need practical technical work done properly: cleaner cable runs, clearer camera coverage, stronger Wi-Fi zones, and faster troubleshooting when something goes down.', sortOrder: 1 },
+    { slug: 'services', title: 'Core technical services', subtitle: 'The jobs most clients call for first', body: 'Use this section to make your core offer obvious: CCTV installation, Wi-Fi setup, structured cabling, and maintenance support.', sortOrder: 2 },
+    { slug: 'solutions', title: 'Different site types need different layouts', subtitle: 'Match the proposal to the actual property and daily use', body: 'A villa, a retail shop, and a small office rarely need the same camera positions or network layout. Position your work as site-specific, not copy-paste.', sortOrder: 3 },
+    { slug: 'projects', title: 'Recent installations and upgrade work', subtitle: 'Show enough detail that prospects can recognize their own case', body: 'Project snippets work best when they mention device count, site type, and what problem was solved.', sortOrder: 4 },
+    { slug: 'coverage', title: 'Coverage area and service response', subtitle: 'Set expectations clearly before the first WhatsApp message', body: 'Let prospects know your common service areas, usual response window, and maintenance availability.', sortOrder: 5 },
+    { slug: 'testimonials', title: 'Client feedback', subtitle: 'Short reviews that confirm reliability and responsiveness', body: 'This section should reinforce trust, workmanship, and how easy the handover process felt.', sortOrder: 6 },
+    { slug: 'contact', title: 'Request a site survey', subtitle: 'Share the site type, issue, or target installation and get a practical response.', body: 'Use WhatsApp for faster discussion or email if you already have a project brief, layout, or scope document ready.', sortOrder: 7 },
+  ],
   'jewelry-editorial': [
     { slug: 'hero', title: 'Jewelry arranged like an editorial story', subtitle: 'A more spacious, gallery-like first impression for handcrafted Balinese pieces.', body: 'This template leans into composition, rhythm, and premium storytelling for jewelry brands that want a stronger visual statement.', sortOrder: 1 },
     { slug: 'collections', title: 'Curated collections with slower pacing', subtitle: 'Let each line feel more deliberate and visual', body: 'Collections can feel less like a catalog block and more like an editorial spread.', sortOrder: 2 },
@@ -96,7 +105,11 @@ function normalizeSectionScope(templateKey: string | null | undefined, businessT
   if (!templateKey) return null
 
   const normalizedBusinessType = businessType
-    || (templateKey.startsWith('guesthouse-') ? 'guesthouse' : 'jewelry')
+    || (templateKey.startsWith('guesthouse-')
+      ? 'guesthouse'
+      : templateKey.startsWith('cctv-')
+        ? 'cctv'
+        : 'jewelry')
 
   return {
     templateKey,

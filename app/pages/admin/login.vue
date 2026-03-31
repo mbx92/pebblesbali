@@ -11,7 +11,8 @@
         <div class="flex items-center gap-3">
           <div class="bg-secondary rounded-lg p-2.5">
             <IconDiamond v-if="businessType === 'jewelry'" class="w-7 h-7 text-secondary-content" />
-            <IconHome v-else class="w-7 h-7 text-secondary-content" />
+            <IconHome v-else-if="businessType === 'guesthouse'" class="w-7 h-7 text-secondary-content" />
+            <IconShieldHalfFilled v-else class="w-7 h-7 text-secondary-content" />
           </div>
           <span class="text-xl font-bold text-white tracking-tight">{{ siteName }}</span>
         </div>
@@ -37,7 +38,8 @@
           <div>
             <div class="bg-white/10 rounded-lg p-3 w-fit mb-3">
               <IconDiamond v-if="businessType === 'jewelry'" class="w-5 h-5 text-secondary" />
-              <IconBed v-else class="w-5 h-5 text-secondary" />
+              <IconBed v-else-if="businessType === 'guesthouse'" class="w-5 h-5 text-secondary" />
+              <IconShieldHalfFilled v-else class="w-5 h-5 text-secondary" />
             </div>
             <p class="text-sm font-medium text-white">{{ middleFeatureTitle }}</p>
             <p class="text-xs text-primary-content/50 mt-1">{{ middleFeatureSubtitle }}</p>
@@ -60,7 +62,8 @@
         <div class="flex items-center gap-3 mb-10 lg:hidden">
           <div class="bg-primary rounded-lg p-2.5">
             <IconDiamond v-if="businessType === 'jewelry'" class="w-6 h-6 text-primary-content" />
-            <IconHome v-else class="w-6 h-6 text-primary-content" />
+            <IconHome v-else-if="businessType === 'guesthouse'" class="w-6 h-6 text-primary-content" />
+            <IconShieldHalfFilled v-else class="w-6 h-6 text-primary-content" />
           </div>
           <span class="text-xl font-bold text-base-content tracking-tight">{{ siteName }}</span>
         </div>
@@ -135,6 +138,7 @@ import {
   IconDiamond,
   IconHome,
   IconBed,
+  IconShieldHalfFilled,
   IconLayoutList,
   IconPhoto,
   IconMail,
@@ -154,13 +158,33 @@ const { data: settings } = await useFetch<Record<string, string>>('/api/settings
 })
 const siteName = computed(() => settings.value?.siteName || 'Pebbles Bali')
 const { businessType } = useTemplate(settings)
-const heroTitleLine1 = computed(() => businessType.value === 'guesthouse' ? 'Manage Your' : 'Manage Your')
-const heroTitleLine2 = computed(() => businessType.value === 'guesthouse' ? 'Guesthouse Website.' : 'Landing Page.')
-const heroDescription = computed(() => businessType.value === 'guesthouse'
-  ? `Content management system for ${siteName.value} — manage rooms, amenities, gallery, booking details, and guest testimonials.`
-  : `Content management system for ${siteName.value} — manage sections, collections, products, and testimonials for your landing page.`)
-const middleFeatureTitle = computed(() => businessType.value === 'guesthouse' ? 'Room Content' : 'Products')
-const middleFeatureSubtitle = computed(() => businessType.value === 'guesthouse' ? 'Rooms and booking CTA' : 'Jewelry catalog')
+const heroTitleLine1 = computed(() => 'Manage Your')
+const heroTitleLine2 = computed(() => {
+  if (businessType.value === 'guesthouse') return 'Guesthouse Website.'
+  if (businessType.value === 'cctv') return 'Service Website.'
+  return 'Landing Page.'
+})
+const heroDescription = computed(() => {
+  if (businessType.value === 'guesthouse') {
+    return `Content management system for ${siteName.value} — manage rooms, amenities, gallery, booking details, and guest testimonials.`
+  }
+
+  if (businessType.value === 'cctv') {
+    return `Content management system for ${siteName.value} — manage service sections, coverage, contact flow, and client testimonials for your CCTV and networking business.`
+  }
+
+  return `Content management system for ${siteName.value} — manage sections, collections, products, and testimonials for your landing page.`
+})
+const middleFeatureTitle = computed(() => {
+  if (businessType.value === 'guesthouse') return 'Room Content'
+  if (businessType.value === 'cctv') return 'Service Scope'
+  return 'Products'
+})
+const middleFeatureSubtitle = computed(() => {
+  if (businessType.value === 'guesthouse') return 'Rooms and booking CTA'
+  if (businessType.value === 'cctv') return 'Services and survey CTA'
+  return 'Jewelry catalog'
+})
 
 const form = reactive({
   email: '',

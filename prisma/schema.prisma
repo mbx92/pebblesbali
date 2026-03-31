@@ -32,6 +32,22 @@ enum BookingPaymentStatus {
   voided
 }
 
+enum LicenseOperationType {
+  create
+  update
+  delete
+  validate
+  login
+  logout
+}
+
+enum LicenseOperationTone {
+  success
+  warning
+  error
+  info
+}
+
 // ============ Models ============
 
 model User {
@@ -388,4 +404,65 @@ model BlockedDate {
   @@index([roomTypeId, startDate, endDate])
   @@index([roomUnitId, startDate, endDate])
   @@map("blocked_dates")
+}
+
+model LicensePlan {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?   @db.Text
+  features    String[]
+  isActive    Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  licenses    License[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([sortOrder])
+  @@map("license_plans")
+}
+
+model License {
+  id          String      @id @default(cuid())
+  licenseKey  String      @unique
+  clientName  String
+  clientEmail String?
+  domain      String      @unique
+  planId      String
+  plan        LicensePlan @relation(fields: [planId], references: [id])
+  features    String[]
+  isActive    Boolean     @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([planId])
+  @@map("licenses")
+}
+
+model LicenseOperation {
+  id        String               @id @default(cuid())
+  type      LicenseOperationType
+  title     String
+  subject   String
+  actor     String
+  detail    String
+  tone      LicenseOperationTone
+  createdAt DateTime             @default(now())
+
+  @@index([createdAt])
+  @@map("license_operations")
+}
+
+model LicenseSession {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  email     String
+  name      String
+  role      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+  @@map("license_sessions")
 }

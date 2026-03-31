@@ -2,7 +2,7 @@ import prisma from './prisma'
 import { ensureDefaultGuesthouseProperty } from './siteSettings'
 import { ensureTemplateSections } from './templateSections'
 
-type SupportedBusinessType = 'jewelry' | 'guesthouse'
+type SupportedBusinessType = 'jewelry' | 'guesthouse' | 'cctv'
 
 async function upsertSettings(entries: Array<{ key: string; value: string }>) {
   for (const entry of entries) {
@@ -181,12 +181,64 @@ async function seedGuesthouseDemo() {
   })
 }
 
+async function seedCctvDemo() {
+  await upsertSettings([
+    { key: 'businessType', value: 'cctv' },
+    { key: 'templateKey', value: 'cctv-networking-classic' },
+    { key: 'siteName', value: 'Pebbles Bali Tech' },
+    { key: 'siteTagline', value: 'CCTV, Wi-Fi, and structured cabling for homes and businesses' },
+    { key: 'siteUrl', value: 'https://tech.pebblesbali.com' },
+    { key: 'contactEmail', value: 'tech@pebblesbali.com' },
+    { key: 'contactPhone', value: '+62 811 3994 222' },
+    { key: 'whatsappNumber', value: '628113994222' },
+    { key: 'address', value: 'Denpasar, Bali, Indonesia' },
+    { key: 'instagramUrl', value: 'https://instagram.com/pebblesbali' },
+    { key: 'metaKeywords', value: 'cctv bali, instalasi cctv, jaringan kantor bali, wifi kantor bali, maintenance jaringan' },
+    { key: 'featureShop', value: 'false' },
+    { key: 'featureCart', value: 'false' },
+    { key: 'featureBlog', value: 'false' },
+    { key: 'featureRoomInventory', value: 'false' },
+    { key: 'featureBookingEngine', value: 'false' },
+    { key: 'featureTestimonials', value: 'true' },
+    { key: 'featureMediaLibrary', value: 'true' },
+    { key: 'featureSeo', value: 'true' },
+    { key: 'featureTheme', value: 'true' },
+  ])
+
+  await ensureTemplateSections('cctv-networking-classic', 'cctv')
+  await upsertSections({ businessType: 'cctv', templateKey: 'cctv-networking-classic' }, [
+    { slug: 'hero', title: 'CCTV and network installations with cleaner execution', subtitle: 'For homes, villas, retail spaces, offices, and small project sites across Bali.', body: 'We handle survey, installation, configuration, and maintenance with a focus on cable discipline, reliable coverage, and clear handover after the job is done.', sortOrder: 1, metadata: { badgeLabel: 'Bali CCTV & Networking', ctaPrimaryText: 'Request Survey', ctaPrimaryLink: '#contact', ctaSecondaryText: 'View Services', ctaSecondaryLink: '#services', highlight1: 'Camera layout planning', highlight2: 'Wi-Fi and LAN deployment', highlight3: 'Maintenance and troubleshooting' } },
+    { slug: 'services', title: 'Core technical services', subtitle: 'Installation, setup, and after-install support', body: 'Position the offer around the jobs clients understand quickly: CCTV, Wi-Fi, structured cabling, and troubleshooting.', sortOrder: 2, metadata: { badgeLabel: 'Core Services' } },
+    { slug: 'solutions', title: 'Solutions adapted to each site type', subtitle: 'Not every home, office, or store needs the same camera plan or network layout', body: 'Use this section to show you think in terms of site conditions and operations, not only device lists.', sortOrder: 3, metadata: { badgeLabel: 'By Site Type' } },
+    { slug: 'projects', title: 'Recent installation snapshots', subtitle: 'Examples that help prospects understand scope, quantity, and result', body: 'Short project cards are enough if they mention what was installed, where, and what problem was solved.', sortOrder: 4, metadata: { badgeLabel: 'Recent Work', project1Title: 'Villa CCTV Upgrade', project1Meta: '8 cameras · Uluwatu', project1Body: 'Converted an older analog layout into a cleaner IP camera system with remote phone access and night visibility improvements.', project2Title: 'Office Network Refresh', project2Meta: '24 users · Denpasar', project2Body: 'Reworked the rack, replaced patching, tuned Wi-Fi coverage, and prepared the office for cleaner expansion.', project3Title: 'Retail Monitoring Setup', project3Meta: '6 cameras · Kuta', project3Body: 'Added cashier, entrance, stockroom, and parking coverage while simplifying remote checks for the owner.' } },
+    { slug: 'coverage', title: 'Coverage area and expected response', subtitle: 'Clear scope before the first survey request', body: 'Let clients know the areas you commonly cover, the hours you usually operate, and how fast you can inspect urgent issues.', sortOrder: 5, metadata: { badgeLabel: 'Service Coverage', coverageArea1: 'Denpasar & Sanur', coverageArea2: 'Kuta, Seminyak, Canggu', coverageArea3: 'Jimbaran, Nusa Dua, Uluwatu', responseTime: 'Site survey within 24 hours for most Bali areas', serviceHours: 'Mon - Sat · 08:00 - 18:00', supportNote: 'Emergency troubleshooting available for existing clients depending on site conditions.' } },
+    { slug: 'testimonials', title: 'Client feedback', subtitle: 'Short reviews that reinforce reliability and response speed', body: 'The strongest testimonials here usually mention neat installation, stable performance, and straightforward communication.', sortOrder: 6, metadata: { badgeLabel: 'Trusted on Site' } },
+    { slug: 'contact', title: 'Request a site survey', subtitle: 'Send the site type, main issue, or installation target for a practical next step.', body: 'WhatsApp is the fastest path for a survey request. Email works well if you already have a layout, photo set, or project brief ready.', sortOrder: 7, metadata: { badgeLabel: 'Contact & Survey', ctaPrimaryText: 'Request Survey', ctaSecondaryText: 'Email Project Details', serviceHours: 'Mon - Sat · 08:00 - 18:00' } },
+  ])
+
+  await prisma.testimonial.upsert({
+    where: { id: 'cctv-seed-testimonial-1' },
+    update: { name: 'Adi W.', role: 'Villa Operations', content: 'The installation was neat, the camera angles made sense, and the remote monitoring worked properly from day one.', rating: 5, isActive: true, sortOrder: 1 },
+    create: { id: 'cctv-seed-testimonial-1', name: 'Adi W.', role: 'Villa Operations', content: 'The installation was neat, the camera angles made sense, and the remote monitoring worked properly from day one.', rating: 5, isActive: true, sortOrder: 1 },
+  })
+  await prisma.testimonial.upsert({
+    where: { id: 'cctv-seed-testimonial-2' },
+    update: { name: 'Rina S.', role: 'Retail Owner', content: 'They fixed our unstable office Wi-Fi and added CCTV coverage without leaving a messy cable run behind.', rating: 5, isActive: true, sortOrder: 2 },
+    create: { id: 'cctv-seed-testimonial-2', name: 'Rina S.', role: 'Retail Owner', content: 'They fixed our unstable office Wi-Fi and added CCTV coverage without leaving a messy cable run behind.', rating: 5, isActive: true, sortOrder: 2 },
+  })
+}
+
 export async function seedBusinessDemo(businessType: SupportedBusinessType) {
   if (businessType === 'jewelry') {
     await seedJewelryDemo()
     return { businessType, message: 'Jewelry demo content seeded successfully.' }
   }
 
-  await seedGuesthouseDemo()
-  return { businessType, message: 'Guesthouse demo content seeded successfully.' }
+  if (businessType === 'guesthouse') {
+    await seedGuesthouseDemo()
+    return { businessType, message: 'Guesthouse demo content seeded successfully.' }
+  }
+
+  await seedCctvDemo()
+  return { businessType, message: 'CCTV & networking demo content seeded successfully.' }
 }

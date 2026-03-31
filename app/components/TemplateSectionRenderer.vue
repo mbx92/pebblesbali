@@ -69,7 +69,7 @@ const componentProps = computed(() => {
     }
   }
 
-  if (props.sectionKey === 'contact' || props.sectionKey === 'location' || props.sectionKey === 'booking') {
+  if (props.sectionKey === 'contact' || props.sectionKey === 'location' || props.sectionKey === 'booking' || props.sectionKey === 'coverage') {
     return {
       ...base,
       settings: props.settings,

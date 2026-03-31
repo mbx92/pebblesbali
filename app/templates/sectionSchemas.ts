@@ -44,6 +44,117 @@ export const SECTION_METADATA_SCHEMA: Record<string, MetaSchema> = {
       ],
     },
   ],
+  services: [
+    {
+      group: 'Labels',
+      fields: [
+        { key: 'badgeLabel', label: 'Badge Label', placeholder: 'e.g. Core Services' },
+      ],
+    },
+    {
+      group: 'Service 1',
+      fields: [
+        { key: 'service1Title', label: 'Title', placeholder: 'e.g. CCTV Installation' },
+        { key: 'service1Body', label: 'Description', placeholder: 'e.g. Camera placement, recorder setup, remote access, and handover.', multiline: true },
+      ],
+    },
+    {
+      group: 'Service 2',
+      fields: [
+        { key: 'service2Title', label: 'Title', placeholder: 'e.g. Wi-Fi & Access Point Setup' },
+        { key: 'service2Body', label: 'Description', placeholder: 'e.g. Coverage planning, router tuning, mesh deployment, and testing.', multiline: true },
+      ],
+    },
+    {
+      group: 'Service 3',
+      fields: [
+        { key: 'service3Title', label: 'Title', placeholder: 'e.g. Structured Cabling' },
+        { key: 'service3Body', label: 'Description', placeholder: 'e.g. LAN cable pulling, rack cleanup, labeling, and patching.', multiline: true },
+      ],
+    },
+    {
+      group: 'Service 4',
+      fields: [
+        { key: 'service4Title', label: 'Title', placeholder: 'e.g. Maintenance & Troubleshooting' },
+        { key: 'service4Body', label: 'Description', placeholder: 'e.g. Fault isolation, device replacement, and system health checks.', multiline: true },
+      ],
+    },
+  ],
+  solutions: [
+    {
+      group: 'Labels',
+      fields: [
+        { key: 'badgeLabel', label: 'Badge Label', placeholder: 'e.g. Built Around Your Site' },
+      ],
+    },
+    {
+      group: 'Solution 1',
+      fields: [
+        { key: 'solution1Title', label: 'Title', placeholder: 'e.g. Homes & Villas' },
+        { key: 'solution1Body', label: 'Description', placeholder: 'e.g. Perimeter cameras, indoor coverage, and reliable family Wi-Fi.', multiline: true },
+      ],
+    },
+    {
+      group: 'Solution 2',
+      fields: [
+        { key: 'solution2Title', label: 'Title', placeholder: 'e.g. Shops & Offices' },
+        { key: 'solution2Body', label: 'Description', placeholder: 'e.g. Camera monitoring, guest Wi-Fi, POS segmentation, and uptime checks.', multiline: true },
+      ],
+    },
+    {
+      group: 'Solution 3',
+      fields: [
+        { key: 'solution3Title', label: 'Title', placeholder: 'e.g. Warehouses & Project Sites' },
+        { key: 'solution3Body', label: 'Description', placeholder: 'e.g. Multi-point surveillance, network extension, and equipment hardening.', multiline: true },
+      ],
+    },
+  ],
+  projects: [
+    {
+      group: 'Labels',
+      fields: [
+        { key: 'badgeLabel', label: 'Badge Label', placeholder: 'e.g. Recent Installations' },
+      ],
+    },
+    {
+      group: 'Project 1',
+      fields: [
+        { key: 'project1Title', label: 'Title', placeholder: 'e.g. Villa CCTV Upgrade' },
+        { key: 'project1Meta', label: 'Meta', placeholder: 'e.g. 8 cameras · Uluwatu' },
+        { key: 'project1Body', label: 'Description', placeholder: 'e.g. Replaced the old analog system with IP cameras and remote viewing.', multiline: true },
+      ],
+    },
+    {
+      group: 'Project 2',
+      fields: [
+        { key: 'project2Title', label: 'Title', placeholder: 'e.g. Office Network Refresh' },
+        { key: 'project2Meta', label: 'Meta', placeholder: 'e.g. 24 users · Denpasar' },
+        { key: 'project2Body', label: 'Description', placeholder: 'e.g. New rack layout, clean patch panel, VLAN-ready switching, and Wi-Fi tuning.', multiline: true },
+      ],
+    },
+    {
+      group: 'Project 3',
+      fields: [
+        { key: 'project3Title', label: 'Title', placeholder: 'e.g. Retail Store Monitoring' },
+        { key: 'project3Meta', label: 'Meta', placeholder: 'e.g. 6 cameras · Kuta' },
+        { key: 'project3Body', label: 'Description', placeholder: 'e.g. Added cashier, entrance, and stockroom coverage with phone monitoring.', multiline: true },
+      ],
+    },
+  ],
+  coverage: [
+    {
+      group: 'Coverage & Response',
+      fields: [
+        { key: 'badgeLabel', label: 'Badge Label', placeholder: 'e.g. Service Coverage' },
+        { key: 'coverageArea1', label: 'Coverage Area 1', placeholder: 'e.g. Denpasar & Sanur' },
+        { key: 'coverageArea2', label: 'Coverage Area 2', placeholder: 'e.g. Kuta, Seminyak, Canggu' },
+        { key: 'coverageArea3', label: 'Coverage Area 3', placeholder: 'e.g. Jimbaran, Nusa Dua, Uluwatu' },
+        { key: 'responseTime', label: 'Response Time', placeholder: 'e.g. Survey in 24 hours for most Bali areas' },
+        { key: 'serviceHours', label: 'Service Hours', placeholder: 'e.g. Mon - Sat · 08:00 - 18:00' },
+        { key: 'supportNote', label: 'Support Note', placeholder: 'e.g. Emergency troubleshooting available for existing clients.', multiline: true },
+      ],
+    },
+  ],
   about: [
     {
       group: 'Labels',
@@ -116,6 +227,9 @@ export const SECTION_METADATA_SCHEMA: Record<string, MetaSchema> = {
         { key: 'locationLabel', label: 'Location Box Label', placeholder: 'e.g. Location' },
         { key: 'emailLabel', label: 'Email Box Label', placeholder: 'e.g. Email' },
         { key: 'socialLabel', label: 'Social Box Label', placeholder: 'e.g. Follow Us' },
+        { key: 'ctaPrimaryText', label: 'Primary CTA Text', placeholder: 'e.g. Request Site Survey' },
+        { key: 'ctaSecondaryText', label: 'Secondary CTA Text', placeholder: 'e.g. Email Project Details' },
+        { key: 'serviceHours', label: 'Service Hours', placeholder: 'e.g. Mon - Sat · 08:00 - 18:00' },
       ],
     },
   ],

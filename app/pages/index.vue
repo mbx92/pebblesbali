@@ -2,6 +2,7 @@
 import {
   IconDiamond,
   IconHome,
+  IconShieldHalfFilled,
 } from '@tabler/icons-vue'
 import { useTemplate } from '~/composables/useTemplate'
 import { getTemplateByKey } from '~/templates/registry'
@@ -92,12 +93,20 @@ const topActionLabel = computed(() => {
     return lang.value === 'id' ? 'Book Stay' : 'Book Stay'
   }
 
+  if (businessType.value === 'cctv') {
+    return lang.value === 'id' ? 'Request Survey' : 'Request Survey'
+  }
+
   return t.value.nav.shopNow
 })
 
 const topActionHref = computed(() => {
   if (businessType.value === 'guesthouse') {
     return bookingEngineEnabled.value ? '/book' : null
+  }
+
+  if (businessType.value === 'cctv') {
+    return `#${getSectionAnchor('contact', 'contact')}`
   }
 
   return null
@@ -159,7 +168,8 @@ if (import.meta.server) {
           <img v-if="settings?.logoUrl" :src="settings.logoUrl" :alt="siteName" class="h-9 w-auto max-w-40 object-contain" />
           <span v-else class="flex items-center gap-2 text-primary font-serif text-base font-semibold tracking-widest uppercase">
             <IconDiamond v-if="businessType === 'jewelry'" class="size-4 shrink-0 text-secondary" />
-            <IconHome v-else class="size-4 shrink-0 text-secondary" />
+            <IconHome v-else-if="businessType === 'guesthouse'" class="size-4 shrink-0 text-secondary" />
+            <IconShieldHalfFilled v-else class="size-4 shrink-0 text-secondary" />
             <span class="truncate max-w-36 sm:max-w-none">{{ siteName }}</span>
           </span>
         </NuxtLink>
@@ -213,7 +223,8 @@ if (import.meta.server) {
             <img v-if="settings?.logoUrl" :src="settings.logoUrl" :alt="siteName" class="h-7 w-auto object-contain brightness-0 invert opacity-50" />
             <span v-else class="flex items-center gap-2 text-base-100/60 font-serif text-sm tracking-widest uppercase">
               <IconDiamond v-if="businessType === 'jewelry'" class="size-4 text-secondary/60" />
-              <IconHome v-else class="size-4 text-secondary/60" />
+              <IconHome v-else-if="businessType === 'guesthouse'" class="size-4 text-secondary/60" />
+              <IconShieldHalfFilled v-else class="size-4 text-secondary/60" />
               {{ siteName }}
             </span>
           </NuxtLink>

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "8e3cf9a9-ca1f-4e12-b5d3-91bc98c062f7",
+    "name": "Starter",
+    "slug": "starter",
+    "description": "Core validation access for a single tenant.",
+    "features": [
+      "validation"
+    ],
+    "isActive": true,
+    "sortOrder": 1,
+    "createdAt": "2026-03-30T03:56:29.915Z",
+    "updatedAt": "2026-03-30T03:56:29.915Z"
+  },
+  {
+    "id": "368a8ffe-f718-49d4-9500-5f74e41b94af",
+    "name": "Growth",
+    "slug": "growth",
+    "description": "Adds media workflows and broader tenant operations.",
+    "features": [
+      "validation",
+      "media"
+    ],
+    "isActive": true,
+    "sortOrder": 2,
+    "createdAt": "2026-03-30T03:56:29.915Z",
+    "updatedAt": "2026-03-30T03:56:29.915Z"
+  },
+  {
+    "id": "5ee0b500-8c02-415b-8805-524b43da31ad",
+    "name": "Enterprise",
+    "slug": "enterprise",
+    "description": "Full operational surface including commerce modules.",
+    "features": [
+      "validation",
+      "media",
+      "shop"
+    ],
+    "isActive": true,
+    "sortOrder": 3,
+    "createdAt": "2026-03-30T03:56:29.915Z",
+    "updatedAt": "2026-03-30T03:56:29.915Z"
+  }
+]

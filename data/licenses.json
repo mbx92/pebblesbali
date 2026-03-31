@@ -1,0 +1,18 @@
+[
+  {
+    "id": "d7ed23ed-415b-41ac-8024-13f1339d2559",
+    "licenseKey": "PB-A678-FFB0-02DA",
+    "clientName": "Smoke Test Tenant",
+    "clientEmail": "smoke@example.com",
+    "domain": "smoke-1774839772.example.com",
+    "plan": "pro",
+    "features": [
+      "shop",
+      "blog"
+    ],
+    "isActive": true,
+    "expiresAt": null,
+    "createdAt": "2026-03-30T03:02:52.216Z",
+    "updatedAt": "2026-03-30T03:02:52.216Z"
+  }
+]

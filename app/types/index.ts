@@ -1,4 +1,4 @@
-export type BusinessType = 'jewelry' | 'guesthouse'
+export type BusinessType = 'jewelry' | 'guesthouse' | 'cctv'
 
 export interface Section {
   id: string
@@ -116,6 +116,10 @@ export type TemplateSectionComponentKey =
   | 'testimonials'
   | 'blog'
   | 'contact'
+  | 'services'
+  | 'solutions'
+  | 'projects'
+  | 'coverage'
   | 'rooms'
   | 'amenities'
   | 'gallery'

@@ -3,6 +3,7 @@ import type { BusinessType, BusinessTypeOption, SiteTemplate } from '~/types'
 export const BUSINESS_TYPE_OPTIONS: BusinessTypeOption[] = [
   { value: 'jewelry', label: 'Jewelry', available: true },
   { value: 'guesthouse', label: 'Guesthouse / Room Rent', available: true },
+  { value: 'cctv', label: 'CCTV & Networking', available: true },
 ]
 
 export const TEMPLATE_REGISTRY: Record<string, SiteTemplate> = {
@@ -455,6 +456,45 @@ export const TEMPLATE_REGISTRY: Record<string, SiteTemplate> = {
       siteName: 'Pebbles Bali Guesthouse',
       siteTagline: 'Sun-washed guesthouse stays with veranda calm',
       metaDescription: 'A tropical veranda-style guesthouse template with airy suites, terrace storytelling, and a softer direct-booking flow.',
+    },
+  },
+  'cctv-networking-classic': {
+    key: 'cctv-networking-classic',
+    businessType: 'cctv',
+    label: 'CCTV & Networking Classic',
+    description: 'Technical services landing page for CCTV installation, structured cabling, Wi-Fi deployment, and maintenance work.',
+    previewImage: '/template-previews/cctv-networking-classic.svg',
+    themeName: 'ops-signal',
+    sectionMap: {
+      hero: 'hero',
+      services: 'services',
+      solutions: 'solutions',
+      projects: 'projects',
+      coverage: 'coverage',
+      testimonials: 'testimonials',
+      contact: 'contact',
+    },
+    sections: [
+      { key: 'hero', slug: 'hero', anchor: 'home', component: 'hero' },
+      { key: 'services', slug: 'services', anchor: 'services', component: 'services' },
+      { key: 'solutions', slug: 'solutions', anchor: 'solutions', component: 'solutions' },
+      { key: 'projects', slug: 'projects', anchor: 'projects', component: 'projects' },
+      { key: 'coverage', slug: 'coverage', anchor: 'coverage', component: 'coverage' },
+      { key: 'testimonials', slug: 'testimonials', anchor: 'reviews', component: 'testimonials', requiresFeature: 'testimonials' },
+      { key: 'contact', slug: 'contact', anchor: 'contact', component: 'contact' },
+    ],
+    navigation: [
+      { key: 'services', label: { en: 'Services', id: 'Layanan' }, sectionKey: 'services' },
+      { key: 'solutions', label: { en: 'Solutions', id: 'Solusi' }, sectionKey: 'solutions' },
+      { key: 'projects', label: { en: 'Projects', id: 'Proyek' }, sectionKey: 'projects' },
+      { key: 'coverage', label: { en: 'Coverage', id: 'Area' }, sectionKey: 'coverage' },
+      { key: 'reviews', label: { en: 'Reviews', id: 'Testimoni' }, sectionKey: 'testimonials', requiresFeature: 'testimonials' },
+      { key: 'contact', label: { en: 'Contact', id: 'Kontak' }, sectionKey: 'contact' },
+    ],
+    defaults: {
+      siteName: 'Pebbles Bali Tech',
+      siteTagline: 'CCTV, Wi-Fi, and structured cabling for homes and businesses',
+      metaDescription: 'Installation and maintenance services for CCTV systems, office networks, Wi-Fi coverage, and structured cabling across Bali.',
     },
   },
 }

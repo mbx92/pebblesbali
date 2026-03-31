@@ -1,5 +1,11 @@
 import type { Component } from 'vue'
 import type { BusinessType, TemplateSectionComponentKey } from '~/types'
+import CctvContactSection from '~/components/sections/CctvContactSection.vue'
+import CctvCoverageSection from '~/components/sections/CctvCoverageSection.vue'
+import CctvHeroSection from '~/components/sections/CctvHeroSection.vue'
+import CctvProjectsSection from '~/components/sections/CctvProjectsSection.vue'
+import CctvServicesSection from '~/components/sections/CctvServicesSection.vue'
+import CctvSolutionsSection from '~/components/sections/CctvSolutionsSection.vue'
 import GuesthouseAmenitiesSection from '~/components/sections/GuesthouseAmenitiesSection.vue'
 import GuesthouseBookingSection from '~/components/sections/GuesthouseBookingSection.vue'
 import GuesthouseGallerySection from '~/components/sections/GuesthouseGallerySection.vue'
@@ -36,6 +42,15 @@ import JewelryNoirHeroSection from '~/components/sections/JewelryNoirHeroSection
 type TemplateComponentMap = Partial<Record<TemplateSectionComponentKey, Component>>
 
 const DEFAULT_COMPONENTS: Record<BusinessType, TemplateComponentMap> = {
+  cctv: {
+    hero: CctvHeroSection,
+    services: CctvServicesSection,
+    solutions: CctvSolutionsSection,
+    projects: CctvProjectsSection,
+    coverage: CctvCoverageSection,
+    testimonials: JewelryTestimonialsSection,
+    contact: CctvContactSection,
+  },
   jewelry: {
     hero: JewelryHeroSection,
     collections: JewelryCollectionsSection,
@@ -98,6 +113,7 @@ const TEMPLATE_COMPONENTS: Record<string, TemplateComponentMap> = {
     rooms: GuesthouseVerandaRoomsSection,
     booking: GuesthouseVerandaBookingSection,
   },
+  'cctv-networking-classic': DEFAULT_COMPONENTS.cctv,
 }
 
 export function resolveTemplateSectionComponent(templateKey: string, businessType: BusinessType, sectionKey: TemplateSectionComponentKey) {

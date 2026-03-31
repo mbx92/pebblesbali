@@ -314,6 +314,42 @@
   --noise: 0;
 }
 
+@plugin "daisyui/theme" {
+  name: "ops-signal";
+  default: false;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: oklch(97% 0.006 220);
+  --color-base-200: oklch(94% 0.008 220);
+  --color-base-300: oklch(88% 0.012 220);
+  --color-base-content: oklch(24% 0.02 240);
+  --color-primary: oklch(23% 0.025 250);
+  --color-primary-content: oklch(98% 0.004 220);
+  --color-secondary: oklch(72% 0.11 80);
+  --color-secondary-content: oklch(18% 0.015 240);
+  --color-accent: oklch(62% 0.12 210);
+  --color-accent-content: oklch(98% 0.004 220);
+  --color-neutral: oklch(18% 0.02 245);
+  --color-neutral-content: oklch(98% 0.004 220);
+  --color-info: oklch(56% 0.155 230);
+  --color-info-content: oklch(100% 0 0);
+  --color-success: oklch(58% 0.16 150);
+  --color-success-content: oklch(100% 0 0);
+  --color-warning: oklch(80% 0.18 85);
+  --color-warning-content: oklch(17% 0.005 260);
+  --color-error: oklch(57% 0.22 27);
+  --color-error-content: oklch(100% 0 0);
+  --radius-selector: 0.25rem;
+  --radius-field: 0.4rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
 /* Modal backdrop */
 .modal-backdrop {
   background-color: oklch(0% 0 0 / 45%);

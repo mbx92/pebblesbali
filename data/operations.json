@@ -1,0 +1,102 @@
+[
+  {
+    "id": "OP-3231",
+    "createdAt": "2026-03-30T03:56:29.972Z",
+    "type": "delete",
+    "title": "Plan deleted",
+    "subject": "Scale",
+    "actor": "admin@pebblesbali.com",
+    "detail": "Removed scale from the plan catalog",
+    "tone": "error"
+  },
+  {
+    "id": "OP-AC21",
+    "createdAt": "2026-03-30T03:56:29.920Z",
+    "type": "create",
+    "title": "Plan created",
+    "subject": "Scale",
+    "actor": "admin@pebblesbali.com",
+    "detail": "Created scale plan with 3 features",
+    "tone": "success"
+  },
+  {
+    "id": "OP-B250",
+    "createdAt": "2026-03-30T03:56:29.891Z",
+    "type": "login",
+    "title": "Operator signed in",
+    "subject": "admin@pebblesbali.com",
+    "actor": "admin@pebblesbali.com",
+    "detail": "Access granted to license administration workspace",
+    "tone": "info"
+  },
+  {
+    "id": "OP-3874",
+    "createdAt": "2026-03-30T03:03:09.393Z",
+    "type": "delete",
+    "title": "License deleted",
+    "subject": "Lifecycle Tenant",
+    "actor": "admin@pebblesbali.com",
+    "detail": "Removed lifecycle.example.com from the registry",
+    "tone": "error"
+  },
+  {
+    "id": "OP-74D5",
+    "createdAt": "2026-03-30T03:03:09.356Z",
+    "type": "update",
+    "title": "License updated",
+    "subject": "Lifecycle Tenant",
+    "actor": "admin@pebblesbali.com",
+    "detail": "Updated enterprise configuration for lifecycle.example.com",
+    "tone": "info"
+  },
+  {
+    "id": "OP-5A30",
+    "createdAt": "2026-03-30T03:03:09.328Z",
+    "type": "create",
+    "title": "License issued",
+    "subject": "Lifecycle Tenant",
+    "actor": "admin@pebblesbali.com",
+    "detail": "Created growth license for lifecycle.example.com",
+    "tone": "success"
+  },
+  {
+    "id": "OP-10FF",
+    "createdAt": "2026-03-30T03:03:09.304Z",
+    "type": "login",
+    "title": "Operator signed in",
+    "subject": "admin@pebblesbali.com",
+    "actor": "admin@pebblesbali.com",
+    "detail": "Access granted to license administration workspace",
+    "tone": "info"
+  },
+  {
+    "id": "OP-4248",
+    "createdAt": "2026-03-30T03:02:52.269Z",
+    "type": "validate",
+    "title": "Validation succeeded",
+    "subject": "Smoke Test Tenant",
+    "actor": "Validator API",
+    "detail": "Validated smoke-1774839772.example.com on pro plan",
+    "tone": "success"
+  },
+  {
+    "id": "OP-A682",
+    "createdAt": "2026-03-30T03:02:52.218Z",
+    "type": "create",
+    "title": "License issued",
+    "subject": "Smoke Test Tenant",
+    "actor": "admin@pebblesbali.com",
+    "detail": "Created pro license for smoke-1774839772.example.com",
+    "tone": "success"
+  },
+  {
+    "id": "OP-D142",
+    "createdAt": "2026-03-30T03:02:52.190Z",
+    "type": "login",
+    "title": "Operator signed in",
+    "subject": "admin@pebblesbali.com",
+    "actor": "admin@pebblesbali.com",
+    "detail": "Access granted to license administration workspace",
+    "tone": "info"
+  }
+]

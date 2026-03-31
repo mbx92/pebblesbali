@@ -2,13 +2,19 @@
 import { IconPhoto } from '@tabler/icons-vue'
 import type { BusinessType } from '~/types'
 
-defineProps<{
+const props = defineProps<{
   label: string
   businessType: BusinessType
   themeName: string
   imageSrc?: string
   generated?: boolean
 }>()
+
+const businessTypeLabel = computed(() => {
+  if (props.businessType === 'cctv') return 'CCTV & Networking'
+  if (props.businessType === 'guesthouse') return 'Guesthouse'
+  return 'Jewelry'
+})
 </script>
 
 <template>
@@ -29,7 +35,7 @@ defineProps<{
 
     <div class="absolute inset-x-4 top-4 flex items-center justify-between gap-3">
       <span class="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.26em] text-white backdrop-blur-sm">
-        {{ businessType }}
+        {{ businessTypeLabel }}
       </span>
       <span class="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.26em] text-white/85 backdrop-blur-sm">
         {{ themeName }}

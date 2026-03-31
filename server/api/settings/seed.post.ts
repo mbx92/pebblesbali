@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const businessType = String(body.businessType || '')
 
-  if (businessType !== 'jewelry' && businessType !== 'guesthouse') {
+  if (businessType !== 'jewelry' && businessType !== 'guesthouse' && businessType !== 'cctv') {
     throw createError({ statusCode: 400, statusMessage: 'Unsupported business type seed' })
   }
 

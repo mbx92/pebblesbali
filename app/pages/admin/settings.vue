@@ -11,7 +11,7 @@
     <!-- MAIN LAYOUT -->
     <div class="flex flex-col lg:flex-row gap-6">
       <!-- SIDEBAR -->
-      <ul class="menu bg-base-100 border border-base-300 rounded-box w-full lg:w-60 shrink-0 p-2 gap-1 sticky top-24 h-max">
+      <ul class="settings-menu menu bg-base-100 border border-base-300 rounded-box w-full lg:w-60 shrink-0 p-2 gap-1 sticky top-24 h-max">
         <li class="menu-title text-xs font-bold tracking-widest text-base-content/50 uppercase">Admin</li>
         <li>
           <a :class="{ active: activeTab === 'general' }" @click="activeTab = 'general'">
@@ -80,6 +80,11 @@
                     <input v-model="form.siteUrl" type="url" class="input w-full font-mono" :placeholder="siteUrlPlaceholder" />
                   </fieldset>
                   <fieldset class="fieldset">
+                    <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">License Key</legend>
+                    <input v-model="form.licenseKey" type="text" class="input w-full font-mono" placeholder="PB-XXXX-XXXX-XXXX" />
+                    <p class="label text-xs text-base-content/40">Gunakan key dari License Admin untuk validasi domain CMS ini.</p>
+                  </fieldset>
+                  <fieldset class="fieldset">
                     <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Business Type</legend>
                       <select v-model="form.businessType" class="select w-full md:max-w-sm">
                       <option
@@ -142,6 +147,50 @@
                     <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">Address</legend>
                     <textarea v-model="form.address" class="textarea w-full" rows="2"></textarea>
                   </fieldset>
+
+                  <div class="rounded-2xl border border-base-300 bg-base-200/30 px-4 py-4 space-y-3">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/50">License Validation</p>
+                        <p class="mt-2 text-sm text-base-content/70">Test key terhadap domain CMS ini, lalu apply fitur yang dilisensikan ke feature flags bila diperlukan.</p>
+                      </div>
+                      <span v-if="licenseValidation.status" class="badge badge-soft" :class="licenseValidation.status === 'valid' ? 'badge-success' : 'badge-error'">
+                        {{ licenseValidation.status }}
+                      </span>
+                    </div>
+
+                    <div class="grid gap-3 md:grid-cols-2">
+                      <div class="rounded-xl border border-base-300 bg-base-100 px-4 py-3 text-sm">
+                        <p class="text-xs uppercase tracking-[0.2em] text-base-content/45">Domain</p>
+                        <p class="mt-2 font-mono text-base-content">{{ derivedLicenseDomain || 'Set site URL first' }}</p>
+                      </div>
+                      <div class="rounded-xl border border-base-300 bg-base-100 px-4 py-3 text-sm">
+                        <p class="text-xs uppercase tracking-[0.2em] text-base-content/45">Last validation</p>
+                        <p class="mt-2 text-base-content">{{ licenseValidationLastLabel }}</p>
+                      </div>
+                    </div>
+
+                    <div v-if="licenseValidation.message" class="rounded-xl border px-4 py-3 text-sm" :class="licenseValidation.status === 'valid' ? 'border-success/30 bg-success/5 text-success' : 'border-error/30 bg-error/5 text-error'">
+                      {{ licenseValidation.message }}
+                    </div>
+
+                    <div v-if="licenseValidation.features.length" class="flex flex-wrap gap-2">
+                      <span v-for="feature in licenseValidation.features" :key="feature" class="badge badge-soft badge-secondary">{{ feature }}</span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" class="btn btn-sm btn-outline" :disabled="licenseActionLoading || !form.licenseKey" @click="validateCmsLicense(false)">
+                        {{ licenseActionLoading ? 'Testing...' : 'Test License' }}
+                      </button>
+                      <button type="button" class="btn btn-sm btn-secondary text-primary" :disabled="licenseActionLoading || !form.licenseKey" @click="validateCmsLicense(true)">
+                        {{ licenseActionLoading ? 'Applying...' : 'Test + Apply Features' }}
+                      </button>
+                      <button type="button" class="btn btn-sm btn-ghost text-error" :disabled="licenseUnbindLoading || (!form.licenseKey && !form.licenseStatus)" @click="clearCmsLicense">
+                        <IconTrash class="h-4 w-4" />
+                        {{ licenseUnbindLoading ? 'Clearing...' : 'Clear / Unbind License' }}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -422,19 +471,22 @@
                   :class="feature.isEnabled ? 'border-success/40 bg-success/5' : feature.isBlockedByDependencies ? 'border-warning/40 bg-warning/5' : 'border-base-300 bg-base-200/30'">
                   <input type="checkbox"
                     :checked="feature.isExplicitlyEnabled"
-                    @change="form[feature.key] = ($event.target as HTMLInputElement).checked ? 'true' : 'false'"
-                    class="checkbox checkbox-success mt-0.5 shrink-0"
+                    :disabled="feature.isLicenseLocked"
+                    @change="feature.isLicenseLocked ? null : (form[feature.key] = ($event.target as HTMLInputElement).checked ? 'true' : 'false')"
+                    class="checkbox checkbox-success mt-0.5 shrink-0 disabled:cursor-not-allowed disabled:opacity-45"
                   />
                   <div class="min-w-0 flex-1">
                     <div class="flex flex-wrap items-center gap-2">
                       <p class="text-sm font-semibold text-base-content/90">{{ feature.label }}</p>
                       <span class="badge badge-soft badge-sm" :class="feature.category === 'Jewelry' ? 'badge-secondary' : feature.category === 'Guesthouse' ? 'badge-accent' : 'badge-ghost'">{{ feature.category }}</span>
+                      <span v-if="feature.isLicenseLocked" class="badge badge-soft badge-sm badge-neutral">Locked by license</span>
                       <span v-if="feature.dependsOnLabels.length" class="badge badge-soft badge-sm badge-info">Requires {{ feature.dependsOnLabels.join(', ') }}</span>
                       <span v-if="feature.isBlockedByDependencies" class="badge badge-soft badge-sm badge-warning">Blocked by {{ feature.blockedByLabels.join(', ') }}</span>
                       <span v-else-if="!feature.isExplicitlyEnabled" class="badge badge-soft badge-sm">Disabled</span>
                       <span v-else class="badge badge-soft badge-sm badge-success">Enabled</span>
                     </div>
                     <p class="text-xs text-base-content/60 mt-1 leading-relaxed">{{ feature.description }}</p>
+                    <p v-if="feature.isLicenseLocked" class="mt-2 text-xs leading-6 text-base-content/55">Nilai modul ini mengikuti license aktif di CMS dan tidak bisa diubah manual dari panel ini.</p>
                     <p v-if="feature.isBlockedByDependencies" class="mt-2 text-xs leading-6 text-warning/90">This module is checked, but it will stay unavailable until its parent modules are enabled.</p>
                   </div>
                 </div>
@@ -529,7 +581,7 @@
                 <span class="badge badge-soft badge-secondary">Superadmin Only</span>
               </div>
 
-              <div class="grid gap-4 md:grid-cols-2">
+              <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <div class="rounded-xl border border-base-200 bg-base-200/20 p-5">
                   <h3 class="font-semibold text-base-content">Jewelry Demo</h3>
                   <p class="mt-2 text-sm leading-7 text-base-content/60">Seeds jewelry site settings, classic sections, sample collections, starter products, testimonials, and a blog article.</p>
@@ -543,6 +595,14 @@
                   <p class="mt-2 text-sm leading-7 text-base-content/60">Seeds guesthouse settings, retreat sections, featured room types, room units, and guest reviews. The public booking page will use these featured room types.</p>
                   <button type="button" class="btn btn-sm btn-secondary text-primary mt-4" :disabled="seedLoading === 'guesthouse'" @click="runBusinessSeed('guesthouse')">
                     {{ seedLoading === 'guesthouse' ? 'Seeding...' : 'Seed Guesthouse Demo' }}
+                  </button>
+                </div>
+
+                <div class="rounded-xl border border-base-200 bg-base-200/20 p-5">
+                  <h3 class="font-semibold text-base-content">CCTV &amp; Networking Demo</h3>
+                  <p class="mt-2 text-sm leading-7 text-base-content/60">Seeds service-business settings, CCTV/network sections, coverage CTA, and starter testimonials for a technical services landing page.</p>
+                  <button type="button" class="btn btn-sm btn-accent mt-4" :disabled="seedLoading === 'cctv'" @click="runBusinessSeed('cctv')">
+                    {{ seedLoading === 'cctv' ? 'Seeding...' : 'Seed CCTV Demo' }}
                   </button>
                 </div>
               </div>
@@ -586,6 +646,7 @@ import {
 import {
   IconArrowRight,
   IconBug,
+  IconCheck,
   IconDatabase,
   IconDatabaseExport,
   IconDownload,
@@ -598,6 +659,7 @@ import {
   IconSettings,
   IconShieldCog,
   IconToggleLeft,
+  IconTrash,
   IconTruck,
   IconX,
 } from '@tabler/icons-vue'
@@ -694,9 +756,19 @@ const { data: liveRate } = useFetch<{ IDR: number; source: string }>('/api/excha
 const { formatAdminDateTime } = useAdminDateFormat()
 const saving = ref(false)
 const savingFeatures = ref(false)
+const licenseActionLoading = ref(false)
+const licenseUnbindLoading = ref(false)
 const seedLoading = ref<string | null>(null)
 const seedMessage = ref('')
 const seedError = ref('')
+
+interface LicenseValidationState {
+  status: '' | 'valid' | 'invalid'
+  message: string
+  features: string[]
+  plan: string
+  lastValidatedAt: string
+}
 
 interface FeatureEntry {
   name: string
@@ -709,7 +781,17 @@ interface FeatureEntry {
   isExplicitlyEnabled: boolean
   isEnabled: boolean
   isBlockedByDependencies: boolean
+  isLicenseLocked: boolean
 }
+
+const LICENSED_FEATURE_KEY_MAP = {
+  media: ['featureMediaLibrary'],
+  shop: ['featureShop', 'featureCart'],
+  blog: ['featureBlog'],
+  booking: ['featureRoomInventory', 'featureBookingEngine'],
+} as const
+
+const LICENSE_CONTROLLED_KEYS = new Set<string>(Object.values(LICENSED_FEATURE_KEY_MAP).flat())
 
 const selectedFeatureCategory = ref<'All' | 'Core' | 'Jewelry' | 'Guesthouse'>('All')
 
@@ -728,6 +810,11 @@ function createFormState(source?: Record<string, string> | null): Record<string,
     siteName: source?.siteName || 'Sense of Jewels',
     siteTagline: source?.siteTagline || '',
     siteUrl: source?.siteUrl || '',
+    licenseKey: source?.licenseKey || '',
+    licensePlan: source?.licensePlan || '',
+    licenseStatus: source?.licenseStatus || '',
+    licenseLastValidatedAt: source?.licenseLastValidatedAt || '',
+    licenseFeatures: source?.licenseFeatures || '',
     contactEmail: source?.contactEmail || '',
     contactPhone: source?.contactPhone || '',
     address: source?.address || '',
@@ -769,7 +856,35 @@ async function saveFeatures() {
 useTheme(settings)
 
 const form = ref<Record<string, string>>(createFormState(settings.value))
+const licenseValidation = ref<LicenseValidationState>({
+  status: settings.value?.licenseStatus === 'valid' ? 'valid' : '',
+  message: settings.value?.licenseStatus === 'valid'
+    ? `Stored license plan: ${settings.value?.licensePlan || '-'}`
+    : '',
+  features: settings.value?.licenseFeatures?.split(',').map(item => item.trim()).filter(Boolean) || [],
+  plan: settings.value?.licensePlan || '',
+  lastValidatedAt: settings.value?.licenseLastValidatedAt || '',
+})
 const mediaLibraryEnabled = computed(() => plan.hasFeature('mediaLibrary'))
+const derivedLicenseDomain = computed(() => {
+  const raw = form.value.siteUrl?.trim()
+
+  if (!raw) {
+    return ''
+  }
+
+  try {
+    return new URL(raw).hostname.replace(/^www\./, '').toLowerCase()
+  }
+  catch {
+    return raw.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '').toLowerCase()
+  }
+})
+const licenseValidationLastDate = computed(() => licenseValidation.value.lastValidatedAt || form.value.licenseLastValidatedAt || '')
+const licenseValidationLastLabel = computed(() => licenseValidationLastDate.value ? formatAdminDateTime(licenseValidationLastDate.value) : 'Never tested')
+const licenseControlledKeys = computed(() => form.value.licenseStatus === 'valid'
+  ? LICENSE_CONTROLLED_KEYS
+  : new Set<string>())
 const featureCategoryFilters = ['All', 'Core', 'Jewelry', 'Guesthouse'] as const
 const featureEntries = computed<FeatureEntry[]>(() => (Object.entries(FEATURES) as Array<[keyof typeof FEATURES, (typeof FEATURES)[keyof typeof FEATURES]]>)
   .map(([name, feature]) => {
@@ -789,6 +904,7 @@ const featureEntries = computed<FeatureEntry[]>(() => (Object.entries(FEATURES) 
       isExplicitlyEnabled,
       isEnabled,
       isBlockedByDependencies: isExplicitlyEnabled && !isEnabled && blockedDependencies.length > 0,
+      isLicenseLocked: licenseControlledKeys.value.has(feature.key),
     }
   })
   .sort((left, right) => {
@@ -819,15 +935,27 @@ const categorySummaries = computed(() => featureCategoryFilters
     }
   }))
 const currentBusinessType = computed<BusinessType>(() => (form.value.businessType as BusinessType) || 'jewelry')
-const settingsSubtitle = computed(() => currentBusinessType.value === 'guesthouse'
-  ? 'Property profile, booking contact, branding, and guest-facing configuration'
-  : 'Global site properties & configuration')
-const siteUrlPlaceholder = computed(() => currentBusinessType.value === 'guesthouse'
-  ? 'https://yourguesthouse.com'
-  : 'https://senseofjewels.com')
-const metaKeywordsPlaceholder = computed(() => currentBusinessType.value === 'guesthouse'
-  ? 'guesthouse bali, room rent bali, boutique stay, villa room'
-  : 'jewelry, bali, necklace')
+const settingsSubtitle = computed(() => {
+  if (currentBusinessType.value === 'guesthouse') {
+    return 'Property profile, booking contact, branding, and guest-facing configuration'
+  }
+
+  if (currentBusinessType.value === 'cctv') {
+    return 'Service profile, operational coverage, branding, and client-facing contact configuration'
+  }
+
+  return 'Global site properties & configuration'
+})
+const siteUrlPlaceholder = computed(() => {
+  if (currentBusinessType.value === 'guesthouse') return 'https://yourguesthouse.com'
+  if (currentBusinessType.value === 'cctv') return 'https://tech.pebblesbali.com'
+  return 'https://senseofjewels.com'
+})
+const metaKeywordsPlaceholder = computed(() => {
+  if (currentBusinessType.value === 'guesthouse') return 'guesthouse bali, room rent bali, boutique stay, villa room'
+  if (currentBusinessType.value === 'cctv') return 'cctv bali, instalasi cctv, jaringan kantor, wifi kantor'
+  return 'jewelry, bali, necklace'
+})
 
 const businessTypeOptions = BUSINESS_TYPE_OPTIONS
 const templateOptions = computed(() => {
@@ -844,6 +972,19 @@ const draftPreviewHref = computed(() => {
 
   return `/?${params.toString()}`
 })
+
+watch(settings, (nextSettings) => {
+  form.value = createFormState(nextSettings || undefined)
+  licenseValidation.value = {
+    status: nextSettings?.licenseStatus === 'valid' ? 'valid' : '',
+    message: nextSettings?.licenseStatus === 'valid'
+      ? `Stored license plan: ${nextSettings?.licensePlan || '-'}`
+      : '',
+    features: nextSettings?.licenseFeatures?.split(',').map(item => item.trim()).filter(Boolean) || [],
+    plan: nextSettings?.licensePlan || '',
+    lastValidatedAt: nextSettings?.licenseLastValidatedAt || '',
+  }
+}, { immediate: true })
 
 watch(() => form.value.businessType, (businessType) => {
   const options = getTemplateOptionsForBusinessType((businessType as BusinessType) || 'jewelry')
@@ -877,7 +1018,96 @@ async function save() {
   }
 }
 
-async function runBusinessSeed(businessType: 'jewelry' | 'guesthouse') {
+async function validateCmsLicense(applyFeatures: boolean) {
+  licenseActionLoading.value = true
+
+  try {
+    const result = await $fetch<{
+      valid: boolean
+      plan: string
+      planName: string
+      features: string[]
+      expiresAt: string | null
+      domain: string
+      appliedFeatures: boolean
+    }>('/api/settings/license', {
+      method: 'POST',
+      body: {
+        licenseKey: form.value.licenseKey,
+        domain: derivedLicenseDomain.value,
+        applyFeatures,
+      },
+    })
+
+    licenseValidation.value = {
+      status: 'valid',
+      message: applyFeatures
+        ? `License valid. Plan ${result.planName} applied to CMS features.`
+        : `License valid for ${result.domain} on ${result.planName}.`,
+      features: result.features,
+      plan: result.plan,
+      lastValidatedAt: new Date().toISOString(),
+    }
+
+    form.value.licensePlan = result.plan
+    form.value.licenseStatus = 'valid'
+    form.value.licenseLastValidatedAt = licenseValidation.value.lastValidatedAt
+    form.value.licenseFeatures = result.features.join(',')
+
+    if (applyFeatures) {
+      await refreshSettings()
+      await refreshNuxtData('site-settings')
+    }
+  }
+  catch (error: any) {
+    licenseValidation.value = {
+      status: 'invalid',
+      message: error?.data?.statusMessage || error?.statusMessage || 'License validation failed',
+      features: [],
+      plan: '',
+      lastValidatedAt: new Date().toISOString(),
+    }
+  }
+  finally {
+    licenseActionLoading.value = false
+  }
+}
+
+async function clearCmsLicense() {
+  licenseUnbindLoading.value = true
+
+  try {
+    await $fetch('/api/settings/license', {
+      method: 'DELETE',
+    })
+
+    await refreshSettings()
+    await refreshNuxtData('site-settings')
+    form.value = createFormState(settings.value)
+    originCitySearch.value = settings.value?.shippingOriginCityName || ''
+    licenseValidation.value = {
+      status: '',
+      message: 'License binding cleared from CMS settings.',
+      features: [],
+      plan: '',
+      lastValidatedAt: '',
+    }
+  }
+  catch (error: any) {
+    licenseValidation.value = {
+      status: 'invalid',
+      message: error?.data?.statusMessage || error?.statusMessage || 'Failed to clear license binding',
+      features: [],
+      plan: '',
+      lastValidatedAt: new Date().toISOString(),
+    }
+  }
+  finally {
+    licenseUnbindLoading.value = false
+  }
+}
+
+async function runBusinessSeed(businessType: 'jewelry' | 'guesthouse' | 'cctv') {
   seedLoading.value = businessType
   seedMessage.value = ''
   seedError.value = ''
@@ -942,3 +1172,29 @@ function formatBackupSize(bytes: number) {
 
 onMounted(() => fetchBackups())
 </script>
+
+<style scoped>
+.settings-menu :deep(a) {
+  border: 1px solid transparent;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.settings-menu :deep(a.active),
+.settings-menu :deep(a.active:hover),
+.settings-menu :deep(a.active:focus-visible) {
+  background-color: color-mix(in oklab, var(--color-base-200) 84%, white);
+  border-color: color-mix(in oklab, var(--color-base-300) 88%, transparent);
+  color: var(--color-base-content);
+  box-shadow: none;
+}
+
+.settings-menu :deep(a:hover) {
+  background-color: color-mix(in oklab, var(--color-base-200) 62%, white);
+  color: var(--color-base-content);
+}
+
+.settings-menu :deep(a:focus-visible) {
+  outline: none;
+  border-color: color-mix(in oklab, var(--color-base-content) 12%, transparent);
+}
+</style>
