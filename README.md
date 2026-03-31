@@ -38,6 +38,20 @@ yarn dev
 bun run dev
 ```
 
+## License Validation
+
+Pebbles now validates CMS licenses against an external validator endpoint instead of reading local license tables directly.
+
+- Set `NUXT_LICENSE_VALIDATION_URL` to the OC-Workspace or License Admin base URL.
+- If `NUXT_LICENSE_VALIDATION_URL` is empty, Pebbles falls back to `NUXT_OCS_URL`.
+- The remote service must expose `POST /api/validate`.
+
+Example:
+
+```bash
+NUXT_LICENSE_VALIDATION_URL="https://oc-workspace.example.com"
+```
+
 ## Production
 
 Build the application for production:

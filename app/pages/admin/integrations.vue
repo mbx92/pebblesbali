@@ -36,6 +36,9 @@
           URL: <code class="font-mono">{{ form.ocsUrl }}</code> ·
           Connection: <code class="font-mono">{{ form.ocsConnectionId?.slice(0, 8) }}…</code>
         </p>
+        <p v-if="form.licenseValidationUrl" class="text-xs text-base-content/40 ml-6">
+          License validator: <code class="font-mono">{{ form.licenseValidationUrl }}</code>
+        </p>
       </div>
     </div>
 
@@ -56,8 +59,14 @@
 
           <fieldset class="fieldset">
             <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">OCS_URL</legend>
-            <input v-model="form.ocsUrl" type="url" class="input w-full font-mono" placeholder="http://localhost:3000" />
+            <input v-model="form.ocsUrl" type="url" class="input w-full font-mono" placeholder="https://workspace.ocnetworks.web.id" />
             <p class="label text-xs text-base-content/40">Base URL OCS Workspace tanpa trailing slash</p>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend text-xs font-semibold uppercase tracking-wide">LICENSE_VALIDATION_URL</legend>
+            <input v-model="form.licenseValidationUrl" type="url" class="input w-full font-mono" placeholder="http://localhost:3010" />
+            <p class="label text-xs text-base-content/40">Opsional. Gunakan jika service validasi license berjalan terpisah dari OCS Workspace utama.</p>
           </fieldset>
 
           <fieldset class="fieldset">
@@ -98,6 +107,14 @@
             <span class="text-xs">
               Nilai ini disimpan ke file <code class="font-mono">.env</code> dan aktif setelah server di-restart.
               Jangan masukkan ke sini di production — update langsung di <code class="font-mono">.env</code> server.
+            </span>
+          </div>
+
+          <div class="alert alert-info py-2 mt-3">
+            <IconInfoCircle class="w-4 h-4 shrink-0" />
+            <span class="text-xs">
+              Validasi license CMS akan memakai <code class="font-mono">NUXT_LICENSE_VALIDATION_URL</code> bila diisi.
+              Jika kosong, Pebbles fallback ke <code class="font-mono">NUXT_OCS_URL</code>.
             </span>
           </div>
 
@@ -211,7 +228,7 @@
               </li>
             </ol>
             <div class="mt-3 flex gap-2">
-              <a href="http://localhost:3000/integrations/provider-guide#push" target="_blank" class="btn btn-xs btn-ghost gap-1">
+              <a :href="ocsDocsUrl" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-ghost gap-1">
                 <IconExternalLink class="w-3.5 h-3.5" /> API Docs
               </a>
             </div>
@@ -298,6 +315,7 @@ const statsLoading = ref(false)
 
 const form = ref({
   ocsUrl: '',
+  licenseValidationUrl: '',
   ocsConnectionId: '',
   ocsProjectId: '',
   ocsApiKey: '',
@@ -311,10 +329,16 @@ const isConfigured = computed(() =>
   integrationConfig.value?.isConfigured || !!(form.value.ocsUrl && form.value.ocsConnectionId && form.value.ocsApiKey),
 )
 
+const ocsDocsUrl = computed(() => {
+  const baseUrl = (form.value.ocsUrl || 'https://workspace.ocnetworks.web.id').replace(/\/$/, '')
+  return `${baseUrl}/integrations/provider-guide#push`
+})
+
 // ── Load current config from server ──────────────────────────────────────────
 
 const { data: integrationConfig } = useFetch<{
   ocsUrl: string
+  licenseValidationUrl: string
   ocsConnectionId: string
   ocsProjectId: string
   isConfigured: boolean
@@ -326,6 +350,7 @@ const syncOrders = ref(true)
 watchEffect(() => {
   if (integrationConfig.value) {
     form.value.ocsUrl = integrationConfig.value.ocsUrl || ''
+    form.value.licenseValidationUrl = integrationConfig.value.licenseValidationUrl || ''
     form.value.ocsConnectionId = integrationConfig.value.ocsConnectionId || ''
     form.value.ocsProjectId = integrationConfig.value.ocsProjectId || ''
     syncOrders.value = integrationConfig.value.syncOrders !== false
@@ -343,6 +368,7 @@ async function save() {
       method: 'PUT',
       body: {
         ocsUrl: form.value.ocsUrl,
+        licenseValidationUrl: form.value.licenseValidationUrl,
         ocsConnectionId: form.value.ocsConnectionId,
         ocsProjectId: form.value.ocsProjectId,
         ocsApiKey: form.value.ocsApiKey || undefined,
@@ -362,6 +388,7 @@ async function save() {
 function reset() {
   if (integrationConfig.value) {
     form.value.ocsUrl = integrationConfig.value.ocsUrl || ''
+    form.value.licenseValidationUrl = integrationConfig.value.licenseValidationUrl || ''
     form.value.ocsConnectionId = integrationConfig.value.ocsConnectionId || ''
     form.value.ocsProjectId = integrationConfig.value.ocsProjectId || ''
   }

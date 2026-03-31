@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
     const syncOrdersSetting = await prisma.siteSetting.findUnique({ where: { key: 'ocsSyncOrders' } })
     return {
       ocsUrl: config.ocsUrl || '',
+      licenseValidationUrl: config.licenseValidationUrl || '',
       ocsConnectionId: config.ocsConnectionId || '',
       ocsProjectId: config.ocsProjectId || '',
       isConfigured: !!(config.ocsUrl && config.ocsConnectionId && config.ocsApiKey),
@@ -27,6 +28,7 @@ export default defineEventHandler(async (event) => {
     const lines: string[] = []
 
     if (body.ocsUrl !== undefined) lines.push(`NUXT_OCS_URL="${body.ocsUrl}"`)
+    if (body.licenseValidationUrl !== undefined) lines.push(`NUXT_LICENSE_VALIDATION_URL="${body.licenseValidationUrl}"`)
     if (body.ocsConnectionId !== undefined) lines.push(`NUXT_OCS_CONNECTION_ID="${body.ocsConnectionId}"`)
     if (body.ocsProjectId !== undefined) lines.push(`NUXT_OCS_PROJECT_ID="${body.ocsProjectId}"`)
     if (body.ocsApiKey) lines.push(`NUXT_OCS_API_KEY="${body.ocsApiKey}"`)
@@ -51,6 +53,7 @@ export default defineEventHandler(async (event) => {
 
     const keysToUpdate: Record<string, string> = {}
     if (body.ocsUrl !== undefined) keysToUpdate['NUXT_OCS_URL'] = body.ocsUrl
+    if (body.licenseValidationUrl !== undefined) keysToUpdate['NUXT_LICENSE_VALIDATION_URL'] = body.licenseValidationUrl
     if (body.ocsConnectionId !== undefined) keysToUpdate['NUXT_OCS_CONNECTION_ID'] = body.ocsConnectionId
     if (body.ocsProjectId !== undefined) keysToUpdate['NUXT_OCS_PROJECT_ID'] = body.ocsProjectId
     if (body.ocsApiKey) keysToUpdate['NUXT_OCS_API_KEY'] = body.ocsApiKey

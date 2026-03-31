@@ -59,6 +59,7 @@ export default defineNuxtConfig({
     authPassword: process.env.NUXT_AUTH_PASSWORD || '',
     midtransServerKey: process.env.NUXT_MIDTRANS_SERVER_KEY || '',
     rajaongkirApiKey: process.env.NUXT_RAJAONGKIR_API_KEY || '',
+    licenseValidationUrl: process.env.NUXT_LICENSE_VALIDATION_URL || '',
     ocsUrl: process.env.NUXT_OCS_URL || '',
     ocsApiKey: process.env.NUXT_OCS_API_KEY || '',
     ocsConnectionId: process.env.NUXT_OCS_CONNECTION_ID || '',
