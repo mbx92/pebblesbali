@@ -5,11 +5,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // Allow the login page through
   if (to.path === '/admin/login') return
 
-  const sessionCookie = useCookie('mm_session')
-  if (!sessionCookie.value) {
-    return navigateTo('/admin/login')
-  }
-
   try {
     const user = await $fetch<{ role: string }>('/api/auth/me')
     if (user.role === 'customer') {
