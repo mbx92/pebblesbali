@@ -2,8 +2,10 @@ import prisma from '../utils/prisma'
 import { describeLicenseStatus, getStoredLicenseState, isAdminLicenseBlocked } from '../utils/license'
 
 const RECOVERY_ALLOWED_PATHS = new Set([
+  '/api/auth/login',
   '/api/auth/logout',
   '/api/auth/me',
+  '/api/auth/register',
   '/api/settings',
   '/api/settings/license',
 ])
