@@ -1,4 +1,11 @@
 import prisma from '../../utils/prisma'
+import {
+  describeLicenseStatus,
+  inferLicenseStatusFromError,
+  inferLicenseStatusFromValidationResult,
+  storeFailedLicenseState,
+  storeValidLicenseState,
+} from '../../utils/license'
 
 function normalizeDomain(domain: string) {
   return domain.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '').toLowerCase()
@@ -33,20 +40,6 @@ function extractDomain(input: string) {
   }
 }
 
-function applyLicensedFeatures(currentSettings: Record<string, string>, licensedFeatures: string[]) {
-  const enabled = new Set(licensedFeatures)
-
-  return {
-    ...currentSettings,
-    featureMediaLibrary: enabled.has('media') ? 'true' : 'false',
-    featureShop: enabled.has('shop') ? 'true' : 'false',
-    featureCart: enabled.has('shop') ? 'true' : 'false',
-    featureBlog: enabled.has('blog') ? 'true' : 'false',
-    featureRoomInventory: enabled.has('booking') ? 'true' : 'false',
-    featureBookingEngine: enabled.has('booking') ? 'true' : 'false',
-  }
-}
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
   const sessionId = getCookie(event, 'mm_session')
@@ -78,6 +71,7 @@ export default defineEventHandler(async (event) => {
   const currentSettings = Object.fromEntries(siteSettings.map(setting => [setting.key, setting.value])) as Record<string, string>
   const domain = extractDomain(body.domain || currentSettings.siteUrl || '')
   const validationEndpoint = resolveValidationEndpoint(String(config.licenseValidationUrl || config.ocsUrl || ''))
+  const licenseKey = body.licenseKey.trim()
 
   if (!domain) {
     throw createError({ statusCode: 422, statusMessage: 'siteUrl or domain is required to validate license' })
@@ -93,64 +87,76 @@ export default defineEventHandler(async (event) => {
     planName?: string
     features: string[]
     expiresAt: string | null
+    status?: string | null
+    isActive?: boolean | null
+    message?: string | null
+    statusMessage?: string | null
   }
 
   try {
     validationResult = await $fetch(validationEndpoint, {
       method: 'POST',
       body: {
-        licenseKey: body.licenseKey.trim(),
+        licenseKey,
         domain,
       },
     })
   }
   catch (error: any) {
     const statusCode = error?.statusCode || error?.response?.status || 503
-    const statusMessage = error?.data?.statusMessage || error?.statusMessage || 'License validation failed'
+    const failureStatus = inferLicenseStatusFromError(error)
+    const statusMessage = error?.data?.statusMessage || error?.statusMessage || describeLicenseStatus(failureStatus)
+
+    await storeFailedLicenseState({
+      licenseKey,
+      status: failureStatus,
+      message: statusMessage,
+    })
 
     throw createError({
       statusCode,
       statusMessage,
+      data: {
+        licenseStatus: failureStatus,
+      },
     })
   }
 
-  if (!validationResult?.valid) {
-    throw createError({ statusCode: 403, statusMessage: 'License validation failed' })
+  const resolvedStatus = inferLicenseStatusFromValidationResult(validationResult)
+
+  if (!validationResult?.valid || resolvedStatus !== 'valid') {
+    const statusMessage = validationResult.statusMessage
+      || validationResult.message
+      || describeLicenseStatus(resolvedStatus)
+
+    await storeFailedLicenseState({
+      licenseKey,
+      status: resolvedStatus === 'valid' ? 'invalid' : resolvedStatus,
+      message: statusMessage,
+      expiresAt: validationResult.expiresAt,
+    })
+
+    throw createError({
+      statusCode: resolvedStatus === 'expired' ? 403 : 422,
+      statusMessage,
+      data: {
+        licenseStatus: resolvedStatus,
+      },
+    })
   }
 
-  if (body.applyFeatures) {
-    const nextSettings = applyLicensedFeatures(currentSettings, validationResult.features)
-    const keysToWrite = [
-      'licenseKey',
-      'licensePlan',
-      'licenseStatus',
-      'licenseLastValidatedAt',
-      'licenseFeatures',
-      'featureMediaLibrary',
-      'featureShop',
-      'featureCart',
-      'featureBlog',
-      'featureRoomInventory',
-      'featureBookingEngine',
-    ] as const
-
-    nextSettings.licenseKey = body.licenseKey.trim()
-    nextSettings.licensePlan = validationResult.plan
-    nextSettings.licenseStatus = 'valid'
-    nextSettings.licenseLastValidatedAt = new Date().toISOString()
-    nextSettings.licenseFeatures = validationResult.features.join(',')
-
-    for (const key of keysToWrite) {
-      await prisma.siteSetting.upsert({
-        where: { key },
-        update: { value: nextSettings[key] || '' },
-        create: { key, value: nextSettings[key] || '' },
-      })
-    }
-  }
+  await storeValidLicenseState({
+    licenseKey,
+    plan: validationResult.plan,
+    features: validationResult.features,
+    expiresAt: validationResult.expiresAt,
+    message: describeLicenseStatus('valid', validationResult.statusMessage || validationResult.message || null),
+    syncLicensedFeatures: Boolean(body.applyFeatures),
+  })
 
   return {
     valid: true,
+    licenseStatus: 'valid',
     plan: validationResult.plan,
     planName: validationResult.planName || validationResult.plan,
     features: validationResult.features,

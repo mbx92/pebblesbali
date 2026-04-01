@@ -154,7 +154,7 @@
                         <p class="text-xs font-semibold uppercase tracking-[0.24em] text-base-content/50">License Validation</p>
                         <p class="mt-2 text-sm text-base-content/70">Test key terhadap domain CMS ini, lalu apply fitur yang dilisensikan ke feature flags bila diperlukan.</p>
                       </div>
-                      <span v-if="licenseValidation.status" class="badge badge-soft" :class="licenseValidation.status === 'valid' ? 'badge-success' : 'badge-error'">
+                      <span v-if="licenseValidation.status" class="badge badge-soft" :class="licenseStatusBadgeClass(licenseValidation.status)">
                         {{ licenseValidation.status }}
                       </span>
                     </div>
@@ -170,7 +170,7 @@
                       </div>
                     </div>
 
-                    <div v-if="licenseValidation.message" class="rounded-xl border px-4 py-3 text-sm" :class="licenseValidation.status === 'valid' ? 'border-success/30 bg-success/5 text-success' : 'border-error/30 bg-error/5 text-error'">
+                    <div v-if="licenseValidation.message" class="rounded-xl border px-4 py-3 text-sm" :class="licenseStatusPanelClass(licenseValidation.status)">
                       {{ licenseValidation.message }}
                     </div>
 
@@ -763,11 +763,12 @@ const seedMessage = ref('')
 const seedError = ref('')
 
 interface LicenseValidationState {
-  status: '' | 'valid' | 'invalid'
+  status: '' | 'valid' | 'expired' | 'inactive' | 'invalid'
   message: string
   features: string[]
   plan: string
   lastValidatedAt: string
+  expiresAt: string
 }
 
 interface FeatureEntry {
@@ -815,6 +816,8 @@ function createFormState(source?: Record<string, string> | null): Record<string,
     licenseStatus: source?.licenseStatus || '',
     licenseLastValidatedAt: source?.licenseLastValidatedAt || '',
     licenseFeatures: source?.licenseFeatures || '',
+    licenseExpiresAt: source?.licenseExpiresAt || '',
+    licenseStatusMessage: source?.licenseStatusMessage || '',
     contactEmail: source?.contactEmail || '',
     contactPhone: source?.contactPhone || '',
     address: source?.address || '',
@@ -841,6 +844,74 @@ function createFormState(source?: Record<string, string> | null): Record<string,
   }
 }
 
+function normalizeLicenseStatus(value?: string | null): LicenseValidationState['status'] {
+  const normalized = String(value || '').trim().toLowerCase()
+
+  if (
+    normalized === 'valid'
+    || normalized === 'expired'
+    || normalized === 'inactive'
+    || normalized === 'invalid'
+  ) {
+    return normalized
+  }
+
+  return ''
+}
+
+function defaultLicenseStatusMessage(status: LicenseValidationState['status'], source?: Record<string, string> | null) {
+  if (status === 'valid') {
+    return `Stored license plan: ${source?.licensePlan || '-'}`
+  }
+
+  if (status === 'expired') {
+    return source?.licenseExpiresAt
+      ? `Stored license expired on ${formatAdminDateTime(source.licenseExpiresAt)}.`
+      : 'Stored license has expired.'
+  }
+
+  if (status === 'inactive') {
+    return 'Stored license is inactive and admin access is limited to recovery actions.'
+  }
+
+  if (status === 'invalid') {
+    return source?.licenseKey
+      ? 'Stored license key is invalid. Update the key and revalidate to restore licensed features.'
+      : 'No active CMS license is currently bound.'
+  }
+
+  return ''
+}
+
+function buildLicenseValidationState(source?: Record<string, string> | null, fallbackMessage?: string): LicenseValidationState {
+  const status = normalizeLicenseStatus(source?.licenseStatus)
+
+  return {
+    status,
+    message: fallbackMessage || source?.licenseStatusMessage || defaultLicenseStatusMessage(status, source),
+    features: source?.licenseFeatures?.split(',').map(item => item.trim()).filter(Boolean) || [],
+    plan: source?.licensePlan || '',
+    lastValidatedAt: source?.licenseLastValidatedAt || '',
+    expiresAt: source?.licenseExpiresAt || '',
+  }
+}
+
+function licenseStatusBadgeClass(status: LicenseValidationState['status']) {
+  if (status === 'valid') return 'badge-success'
+  if (status === 'expired') return 'badge-warning'
+  if (status === 'inactive') return 'badge-error'
+  if (status === 'invalid') return 'badge-error'
+  return 'badge-ghost'
+}
+
+function licenseStatusPanelClass(status: LicenseValidationState['status']) {
+  if (!status) return 'border-base-300 bg-base-100 text-base-content/70'
+  if (status === 'valid') return 'border-success/30 bg-success/5 text-success'
+  if (status === 'expired') return 'border-warning/30 bg-warning/5 text-warning'
+  if (status === 'inactive') return 'border-error/30 bg-error/5 text-error'
+  return 'border-error/30 bg-error/5 text-error'
+}
+
 async function saveFeatures() {
   savingFeatures.value = true
   try {
@@ -856,15 +927,7 @@ async function saveFeatures() {
 useTheme(settings)
 
 const form = ref<Record<string, string>>(createFormState(settings.value))
-const licenseValidation = ref<LicenseValidationState>({
-  status: settings.value?.licenseStatus === 'valid' ? 'valid' : '',
-  message: settings.value?.licenseStatus === 'valid'
-    ? `Stored license plan: ${settings.value?.licensePlan || '-'}`
-    : '',
-  features: settings.value?.licenseFeatures?.split(',').map(item => item.trim()).filter(Boolean) || [],
-  plan: settings.value?.licensePlan || '',
-  lastValidatedAt: settings.value?.licenseLastValidatedAt || '',
-})
+const licenseValidation = ref<LicenseValidationState>(buildLicenseValidationState(settings.value))
 const mediaLibraryEnabled = computed(() => plan.hasFeature('mediaLibrary'))
 const derivedLicenseDomain = computed(() => {
   const raw = form.value.siteUrl?.trim()
@@ -882,7 +945,7 @@ const derivedLicenseDomain = computed(() => {
 })
 const licenseValidationLastDate = computed(() => licenseValidation.value.lastValidatedAt || form.value.licenseLastValidatedAt || '')
 const licenseValidationLastLabel = computed(() => licenseValidationLastDate.value ? formatAdminDateTime(licenseValidationLastDate.value) : 'Never tested')
-const licenseControlledKeys = computed(() => form.value.licenseStatus === 'valid'
+const licenseControlledKeys = computed(() => normalizeLicenseStatus(form.value.licenseStatus) === 'valid'
   ? LICENSE_CONTROLLED_KEYS
   : new Set<string>())
 const featureCategoryFilters = ['All', 'Core', 'Jewelry', 'Guesthouse'] as const
@@ -975,15 +1038,7 @@ const draftPreviewHref = computed(() => {
 
 watch(settings, (nextSettings) => {
   form.value = createFormState(nextSettings || undefined)
-  licenseValidation.value = {
-    status: nextSettings?.licenseStatus === 'valid' ? 'valid' : '',
-    message: nextSettings?.licenseStatus === 'valid'
-      ? `Stored license plan: ${nextSettings?.licensePlan || '-'}`
-      : '',
-    features: nextSettings?.licenseFeatures?.split(',').map(item => item.trim()).filter(Boolean) || [],
-    plan: nextSettings?.licensePlan || '',
-    lastValidatedAt: nextSettings?.licenseLastValidatedAt || '',
-  }
+  licenseValidation.value = buildLicenseValidationState(nextSettings || undefined)
 }, { immediate: true })
 
 watch(() => form.value.businessType, (businessType) => {
@@ -1024,6 +1079,7 @@ async function validateCmsLicense(applyFeatures: boolean) {
   try {
     const result = await $fetch<{
       valid: boolean
+      licenseStatus: 'valid'
       plan: string
       planName: string
       features: string[]
@@ -1039,34 +1095,23 @@ async function validateCmsLicense(applyFeatures: boolean) {
       },
     })
 
-    licenseValidation.value = {
-      status: 'valid',
-      message: applyFeatures
-        ? `License valid. Plan ${result.planName} applied to CMS features.`
-        : `License valid for ${result.domain} on ${result.planName}.`,
-      features: result.features,
-      plan: result.plan,
-      lastValidatedAt: new Date().toISOString(),
-    }
-
-    form.value.licensePlan = result.plan
-    form.value.licenseStatus = 'valid'
-    form.value.licenseLastValidatedAt = licenseValidation.value.lastValidatedAt
-    form.value.licenseFeatures = result.features.join(',')
-
-    if (applyFeatures) {
-      await refreshSettings()
-      await refreshNuxtData('site-settings')
-    }
+    await refreshSettings()
+    await refreshNuxtData('site-settings')
+    form.value = createFormState(settings.value)
+    originCitySearch.value = settings.value?.shippingOriginCityName || ''
+    licenseValidation.value = buildLicenseValidationState(settings.value, applyFeatures
+      ? `License valid. Plan ${result.planName} applied to CMS features.`
+      : `License valid for ${result.domain} on ${result.planName}.`)
   }
   catch (error: any) {
-    licenseValidation.value = {
-      status: 'invalid',
-      message: error?.data?.statusMessage || error?.statusMessage || 'License validation failed',
-      features: [],
-      plan: '',
-      lastValidatedAt: new Date().toISOString(),
-    }
+    await refreshSettings()
+    await refreshNuxtData('site-settings')
+    form.value = createFormState(settings.value)
+    originCitySearch.value = settings.value?.shippingOriginCityName || ''
+    licenseValidation.value = buildLicenseValidationState(
+      settings.value,
+      settings.value?.licenseStatusMessage || error?.data?.statusMessage || error?.statusMessage || 'License validation failed',
+    )
   }
   finally {
     licenseActionLoading.value = false
@@ -1091,16 +1136,18 @@ async function clearCmsLicense() {
       features: [],
       plan: '',
       lastValidatedAt: '',
+      expiresAt: '',
     }
   }
   catch (error: any) {
-    licenseValidation.value = {
-      status: 'invalid',
-      message: error?.data?.statusMessage || error?.statusMessage || 'Failed to clear license binding',
-      features: [],
-      plan: '',
-      lastValidatedAt: new Date().toISOString(),
-    }
+    await refreshSettings()
+    await refreshNuxtData('site-settings')
+    form.value = createFormState(settings.value)
+    originCitySearch.value = settings.value?.shippingOriginCityName || ''
+    licenseValidation.value = buildLicenseValidationState(
+      settings.value,
+      error?.data?.statusMessage || error?.statusMessage || 'Failed to clear license binding',
+    )
   }
   finally {
     licenseUnbindLoading.value = false

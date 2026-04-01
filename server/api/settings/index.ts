@@ -1,29 +1,10 @@
 import prisma from '../../utils/prisma'
 import { toRelativeUrl } from '../../utils/prisma'
+import { buildLicensedFeatureSettings, LICENSE_CONTROLLED_SETTING_KEYS } from '../../utils/license'
 import { ensureTemplateSections } from '../../utils/templateSections'
 import { ensureDefaultGuesthouseProperty } from '../../utils/siteSettings'
 
-const LICENSE_FEATURE_SETTING_MAP = {
-  media: ['featureMediaLibrary'],
-  shop: ['featureShop', 'featureCart'],
-  blog: ['featureBlog'],
-  booking: ['featureRoomInventory', 'featureBookingEngine'],
-} as const
-
-const LICENSE_CONTROLLED_SETTING_KEYS = new Set(Object.values(LICENSE_FEATURE_SETTING_MAP).flat())
-
-function buildLicensedFeatureSettings(licensedFeatures: string[]) {
-  const enabled = new Set(licensedFeatures)
-
-  return {
-    featureMediaLibrary: enabled.has('media') ? 'true' : 'false',
-    featureShop: enabled.has('shop') ? 'true' : 'false',
-    featureCart: enabled.has('shop') ? 'true' : 'false',
-    featureBlog: enabled.has('blog') ? 'true' : 'false',
-    featureRoomInventory: enabled.has('booking') ? 'true' : 'false',
-    featureBookingEngine: enabled.has('booking') ? 'true' : 'false',
-  }
-}
+const LICENSE_CONTROLLED_SETTING_KEY_SET = new Set<string>(LICENSE_CONTROLLED_SETTING_KEYS)
 
 export default defineEventHandler(async (event) => {
   const method = event.method
@@ -44,7 +25,7 @@ export default defineEventHandler(async (event) => {
     const URL_KEYS = ['logoUrl', 'ogImage']
     const entries = Object.entries(body) as [string, string][]
     const requestedKeys = entries.map(([key]) => key)
-    const shouldLockLicensedFeatures = requestedKeys.some(key => LICENSE_CONTROLLED_SETTING_KEYS.has(key))
+    const shouldLockLicensedFeatures = requestedKeys.some(key => LICENSE_CONTROLLED_SETTING_KEY_SET.has(key))
 
     let lockedLicensedFeatureSettings: ReturnType<typeof buildLicensedFeatureSettings> | null = null
 
