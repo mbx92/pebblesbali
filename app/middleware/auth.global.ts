@@ -26,7 +26,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const settings = await $fetch<Record<string, string>>('/api/settings').catch(() => null)
   const licenseStatus = String(settings?.licenseStatus || '').toLowerCase()
 
-  if (licenseStatus === 'expired' || licenseStatus === 'inactive') {
+  if (licenseStatus === 'expired' || licenseStatus === 'inactive' || licenseStatus === 'invalid') {
     return navigateTo({
       path: '/admin/settings',
       query: { license: licenseStatus },

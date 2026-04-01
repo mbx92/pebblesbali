@@ -1,5 +1,19 @@
 import prisma from './prisma'
 
+export function getSessionCookieOptions(event: any) {
+  const requestUrl = getRequestURL(event)
+  const forwardedProto = getHeader(event, 'x-forwarded-proto')
+  const protocol = String(forwardedProto || requestUrl.protocol || '').replace(/:$/, '').toLowerCase()
+
+  return {
+    secure: protocol === 'https',
+    sameSite: 'lax' as const,
+    maxAge: 60 * 60 * 24 * 7,
+    path: '/',
+    httpOnly: true,
+  }
+}
+
 export async function getSessionUser(event: any) {
   const sessionId = getCookie(event, 'mm_session')
   if (!sessionId) return null

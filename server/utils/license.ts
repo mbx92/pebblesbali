@@ -68,7 +68,7 @@ export function normalizeCmsLicenseStatus(value: string | null | undefined): Cms
 }
 
 export function isAdminLicenseBlocked(status: CmsLicenseStatus | '' | null | undefined) {
-  return status === 'expired' || status === 'inactive'
+  return status === 'expired' || status === 'inactive' || status === 'invalid'
 }
 
 export function describeLicenseStatus(status: CmsLicenseStatus | '' | null | undefined, fallback?: string | null) {

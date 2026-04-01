@@ -8,6 +8,11 @@
       </div>
     </div>
 
+    <div v-if="licenseRecoveryNotice" class="alert mb-6" :class="licenseStatusPanelClass(licenseValidation.status || 'invalid')">
+      <IconAlertCircle class="h-5 w-5 shrink-0" />
+      <span>{{ licenseRecoveryNotice }}</span>
+    </div>
+
     <!-- MAIN LAYOUT -->
     <div class="flex flex-col lg:flex-row gap-6">
       <!-- SIDEBAR -->
@@ -644,6 +649,7 @@ import {
   getTemplateOptionsForBusinessType,
 } from '~/templates/registry'
 import {
+  IconAlertCircle,
   IconArrowRight,
   IconBug,
   IconCheck,
@@ -754,6 +760,7 @@ const { data: settings, refresh: refreshSettings } = await useFetch<Record<strin
 })
 const { data: liveRate } = useFetch<{ IDR: number; source: string }>('/api/exchange-rate')
 const { formatAdminDateTime } = useAdminDateFormat()
+const route = useRoute()
 const saving = ref(false)
 const savingFeatures = ref(false)
 const licenseActionLoading = ref(false)
@@ -945,6 +952,24 @@ const derivedLicenseDomain = computed(() => {
 })
 const licenseValidationLastDate = computed(() => licenseValidation.value.lastValidatedAt || form.value.licenseLastValidatedAt || '')
 const licenseValidationLastLabel = computed(() => licenseValidationLastDate.value ? formatAdminDateTime(licenseValidationLastDate.value) : 'Never tested')
+const licenseRecoveryNotice = computed(() => {
+  const queryStatus = normalizeLicenseStatus(String(route.query.license || ''))
+  const effectiveStatus = queryStatus || normalizeLicenseStatus(form.value.licenseStatus)
+
+  if (!effectiveStatus || effectiveStatus === 'valid') {
+    return ''
+  }
+
+  if (effectiveStatus === 'invalid') {
+    return 'CMS license is invalid. Licensed features have been revoked. Update the key below and run revalidation to restore access.'
+  }
+
+  if (effectiveStatus === 'expired') {
+    return 'CMS license has expired. Licensed features have been revoked. Update or renew the license and revalidate to restore access.'
+  }
+
+  return 'CMS license is inactive. Licensed features have been revoked. Activate the license and revalidate to restore access.'
+})
 const licenseControlledKeys = computed(() => normalizeLicenseStatus(form.value.licenseStatus) === 'valid'
   ? LICENSE_CONTROLLED_KEYS
   : new Set<string>())

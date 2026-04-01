@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import prisma from '../../utils/prisma'
+import { getSessionCookieOptions } from '../../utils/session'
 
 export default defineEventHandler(async (event) => {
   const { name, email, password } = await readBody(event)
@@ -23,12 +24,7 @@ export default defineEventHandler(async (event) => {
     select: { id: true, name: true, email: true, role: true },
   })
 
-  setCookie(event, 'mm_session', user.id, {
-    secure: !import.meta.dev,
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7,
-    path: '/',
-  })
+  setCookie(event, 'mm_session', user.id, getSessionCookieOptions(event))
 
   return user
 })
