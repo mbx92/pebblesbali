@@ -32,6 +32,7 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/app/generated ./app/generated
+COPY --from=builder /app/server ./server
 
 # Install only production deps needed at runtime (pg adapter, prisma engine, etc.)
 COPY --from=builder /app/node_modules ./node_modules
