@@ -304,7 +304,7 @@ const auth = useAuth()
 const plan = usePlan()
 const currentYear = new Date().getFullYear()
 
-onMounted(() => auth.fetchUser())
+await auth.fetchUser()
 
 const pageTitle = computed(() => {
   const titles: Record<string, string> = {
