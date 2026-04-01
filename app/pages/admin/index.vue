@@ -103,6 +103,59 @@
       </div>
     </div>
 
+    <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] gap-6 mb-6">
+      <div class="card bg-base-100 border border-base-300">
+        <div class="card-body p-5">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <h2 class="font-semibold text-base-content">Audience Snapshot</h2>
+              <p class="text-xs text-base-content/45 mt-1">7-day traffic, top location, and device mix</p>
+            </div>
+            <NuxtLink to="/admin/analytics" class="btn btn-ghost btn-xs text-primary">View Analytics</NuxtLink>
+          </div>
+
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+            <div class="rounded-2xl border border-base-300 bg-base-200/50 p-4">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-base-content/45">Views 7D</p>
+              <p class="text-2xl font-bold mt-2">{{ analytics?.viewsLast7Days || 0 }}</p>
+            </div>
+            <div class="rounded-2xl border border-base-300 bg-base-200/50 p-4">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-base-content/45">Visitors 7D</p>
+              <p class="text-2xl font-bold mt-2">{{ analytics?.uniqueVisitorsLast7Days || 0 }}</p>
+            </div>
+            <div class="rounded-2xl border border-base-300 bg-base-200/50 p-4">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-base-content/45">Top Location</p>
+              <p class="text-sm font-semibold mt-2">{{ analytics?.topLocations?.[0]?.label || 'No data' }}</p>
+              <p class="text-xs text-base-content/45 mt-1">{{ analytics?.topLocations?.[0]?.count || 0 }} visits</p>
+            </div>
+            <div class="rounded-2xl border border-base-300 bg-base-200/50 p-4">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-base-content/45">Top Device</p>
+              <p class="text-sm font-semibold mt-2">{{ analytics?.topDevices?.[0]?.label || 'No data' }}</p>
+              <p class="text-xs text-base-content/45 mt-1">{{ analytics?.topDevices?.[0]?.count || 0 }} visits</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 border border-base-300">
+        <div class="card-body p-5">
+          <h2 class="font-semibold text-base-content">Recent Visitors</h2>
+          <div class="mt-4 space-y-3">
+            <div v-for="visit in recentAnalyticsVisits" :key="visit.id" class="flex items-start justify-between gap-3 rounded-2xl bg-base-200/50 px-4 py-3">
+              <div class="min-w-0">
+                <p class="text-sm font-medium truncate">{{ visit.path }}</p>
+                <p class="text-xs text-base-content/45 mt-1 truncate">{{ formatVisitLocation(visit) }} · {{ visit.deviceType }}</p>
+              </div>
+              <span class="text-[11px] text-base-content/40 whitespace-nowrap">{{ formatAdminDateTime(visit.createdAt) }}</span>
+            </div>
+            <div v-if="!recentAnalyticsVisits.length" class="rounded-2xl bg-base-200/50 px-4 py-6 text-center text-sm text-base-content/40">
+              No visitor data yet
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Content Grid -->
     <div v-if="businessType === 'jewelry'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Recent Products -->
@@ -402,23 +455,28 @@ import {
   IconEye,
   IconLayoutGrid,
   IconSettings,
+  IconChartBar,
 } from '@tabler/icons-vue'
 import { useTemplate } from '~/composables/useTemplate'
-import type { Section, Collection, Product, Testimonial, BlogPost } from '~/types'
+import { useAdminDateFormat } from '~/composables/useAdminDateFormat'
+import type { Section, Collection, Product, Testimonial, BlogPost, AnalyticsSummary, AnalyticsRecentVisit } from '~/types'
 
 const { data: sections } = await useFetch<Section[]>('/api/sections')
 const { data: collections } = await useFetch<Collection[]>('/api/collections')
 const { data: products } = await useFetch<Product[]>('/api/products')
 const { data: testimonials } = await useFetch<Testimonial[]>('/api/testimonials')
 const { data: blogPosts } = await useFetch<BlogPost[]>('/api/blog')
+const { data: analytics } = await useFetch<AnalyticsSummary>('/api/analytics')
 const { data: settings } = await useFetch<Record<string, string>>('/api/settings', {
   key: 'site-settings',
 })
 
 const { businessType, template } = useTemplate(settings)
 const plan = usePlan()
+const { formatAdminDateTime } = useAdminDateFormat()
 
 const recentProducts = computed(() => (products.value || []).slice(0, 5))
+const recentAnalyticsVisits = computed<AnalyticsRecentVisit[]>(() => (analytics.value?.recentVisits || []).slice(0, 5))
 const guesthouseSections = computed(() => {
   const guesthouseSlugs = new Set(['hero', 'rooms', 'amenities', 'gallery', 'location', 'testimonials', 'booking'])
   return (sections.value || []).filter(section => guesthouseSlugs.has(section.slug)).sort((left, right) => left.sortOrder - right.sortOrder)
@@ -475,6 +533,10 @@ const quaternaryStatValue = computed(() => {
 
   return blogPosts.value?.length || 0
 })
+
+function formatVisitLocation(visit: AnalyticsRecentVisit) {
+  return [visit.city, visit.region, visit.country].filter(Boolean).join(', ') || 'Unknown'
+}
 
 const { formatCurrency } = useFormatCurrency()
 </script>

@@ -86,6 +86,52 @@ export interface Media {
   createdAt: string
 }
 
+export interface AnalyticsTopMetric {
+  label: string
+  count: number
+}
+
+export interface AnalyticsDailyMetric {
+  label: string
+  count: number
+}
+
+export interface AnalyticsMapMarker {
+  label: string
+  count: number
+  latitude: number
+  longitude: number
+}
+
+export interface AnalyticsRecentVisit {
+  id: string
+  path: string
+  title?: string | null
+  referrer?: string | null
+  ipAddress?: string | null
+  country?: string | null
+  region?: string | null
+  city?: string | null
+  deviceType: string
+  browser?: string | null
+  os?: string | null
+  createdAt: string
+}
+
+export interface AnalyticsSummary {
+  totalPageviews: number
+  uniqueVisitorsLast7Days: number
+  viewsToday: number
+  viewsLast7Days: number
+  topCountries: AnalyticsTopMetric[]
+  topLocations: AnalyticsTopMetric[]
+  topDevices: AnalyticsTopMetric[]
+  topPages: AnalyticsTopMetric[]
+  dailyViews: AnalyticsDailyMetric[]
+  mapMarkers: AnalyticsMapMarker[]
+  recentVisits: AnalyticsRecentVisit[]
+}
+
 export interface SiteSetting {
   id: string
   key: string

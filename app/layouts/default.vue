@@ -222,6 +222,16 @@
               </li>
               <li>
                 <NuxtLink
+                  to="/admin/analytics"
+                  active-class="bg-white/15 text-white font-semibold"
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base text-primary-content/75 hover:bg-white/10 hover:text-white transition-colors w-full"
+                >
+                  <IconChartBar class="w-5 h-5 shrink-0" />
+                  Analytics
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink
                   to="/admin/settings"
                   active-class="bg-white/15 text-white font-semibold"
                   class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-base text-primary-content/75 hover:bg-white/10 hover:text-white transition-colors w-full"
@@ -275,6 +285,7 @@ import {
   IconShoppingCart,
   IconUsers,
   IconLayoutGrid,
+  IconChartBar,
   IconPlugConnected,
   IconArticle,
 } from '@tabler/icons-vue'
@@ -305,6 +316,7 @@ const pageTitle = computed(() => {
     '/admin/occupancy': 'Occupancy',
     '/admin/testimonials': 'Testimonials',
     '/admin/media': 'Media',
+    '/admin/analytics': 'Analytics',
     '/admin/settings': 'Settings',
     '/admin/users': 'Users',
     '/admin/orders': 'Orders',

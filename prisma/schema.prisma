@@ -153,6 +153,30 @@ model Media {
   @@map("media")
 }
 
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  visitorId  String
+  path       String
+  title      String?
+  referrer   String?
+  ipAddress  String?
+  country    String?
+  region     String?
+  city       String?
+  deviceType String
+  browser    String?
+  os         String?
+  userAgent  String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([visitorId, createdAt])
+  @@index([path, createdAt])
+  @@index([country, createdAt])
+  @@index([deviceType, createdAt])
+  @@map("analytics_events")
+}
+
 model Order {
   id          String      @id @default(cuid())
   userId      String
